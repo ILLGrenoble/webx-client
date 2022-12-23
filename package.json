@@ -13,7 +13,11 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "module": "",
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ILLGrenoble/webx-client.git"
+  },
+  "license": "GPL-3.0",
   "author": "Stuart Caunt <caunt@ill.fr>",
   "devDependencies": {
     "@types/socket.io-client": "^1.4.36",
