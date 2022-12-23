@@ -150,7 +150,7 @@ export class WebXMouse {
    * Process mouse out event
    * @param event the mouse event
    */
-  private _handleMouseOut(event: MouseEvent): void {
+  private _handleMouseOut(): void {
     // reset all buttons
     const currentState = this._currentState;
     currentState.releaseButtons();
@@ -192,6 +192,7 @@ export class WebXMouse {
    * Fired whenever the user moves the mouse
    * @param mouseState the current mouse state
    */
+  // eslint-disable-next-line
   onMouseMove(mouseState: WebXMouseState): void { }
 
   /**
@@ -202,6 +203,7 @@ export class WebXMouse {
    *
    * @param mouseState the current mouse state
    */
+  // eslint-disable-next-line
   onMouseDown(mouseState: WebXMouseState): void { }
 
   /**
@@ -211,6 +213,7 @@ export class WebXMouse {
    * gesture initiated by dragging two fingers up or down, etc.
    * @param mouseState the current mouse state
    */
+  // eslint-disable-next-line
   onMouseUp(mouseState: WebXMouseState): void { }
 
   /**
@@ -219,6 +222,7 @@ export class WebXMouse {
    *
    * @param mouseState the current mouse state
    */
+  // eslint-disable-next-line
   onMouseOut(mouseState: WebXMouseState): void { }
 
 }

@@ -30,7 +30,7 @@ export class WebXWebSocketTunnel extends WebXTunnel {
     return new Promise((resolve, reject) => {
       this._socket = new WebSocket(url);
       this._socket.binaryType = 'arraybuffer';
-      this._socket.onopen = (event: Event) => {
+      this._socket.onopen = () => {
         resolve(null);
       };
       this._socket.onerror = (event: Event) => reject(event);

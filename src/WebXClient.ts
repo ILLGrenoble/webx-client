@@ -81,7 +81,7 @@ export class WebXClient {
   async initialise(containerElement: HTMLElement): Promise<WebXDisplay> {
     // Request 1. : Get screen size
     try {
-      let screenMessage = await this._getScreenMessage();
+      const screenMessage = await this._getScreenMessage();
       const { width, height } = screenMessage.screenSize;
 
       // Initialise the display
@@ -245,7 +245,7 @@ export class WebXClient {
 
   private _sendInstruction(command: WebXInstruction): void {
     this._tunnel.sendInstruction(command);
-    this._tracers.forEach((value, key) => {
+    this._tracers.forEach((value) => {
       if (value instanceof WebXInstructionHandler) {
         value.handle(command);
       }
@@ -280,7 +280,7 @@ export class WebXClient {
       this._display.updateMouse(mouseMessage.x, mouseMessage.y, mouseMessage.cursorId);
     }
 
-    this._tracers.forEach((value, key) => {
+    this._tracers.forEach((value) => {
       if (value instanceof WebXMessageHandler) {
         value.handle(message);
       }
@@ -288,7 +288,7 @@ export class WebXClient {
   }
 
   private _handleReceivedBytes(data: ArrayBuffer): void {
-    this._tracers.forEach((value, key) => {
+    this._tracers.forEach((value) => {
       if (value instanceof WebXStatsHandler) {
         value.handle({ received: data.byteLength, sent: 0 });
       }
@@ -296,7 +296,7 @@ export class WebXClient {
   }
 
   private _handleSentBytes(data: ArrayBuffer): void {
-    this._tracers.forEach((value, key) => {
+    this._tracers.forEach((value) => {
       if (value instanceof WebXStatsHandler) {
         value.handle({ received: 0, sent: data.byteLength });
       }
@@ -304,7 +304,7 @@ export class WebXClient {
   }
 
   private _handleQuality(data: ArrayBuffer): void {
-    this._tracers.forEach((value, key) => {
+    this._tracers.forEach((value) => {
       if (value instanceof WebXStatsHandler) {
         value.handle({ received: 0, sent: data.byteLength });
       }

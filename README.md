@@ -1,18 +1,8 @@
-## Installation
-```
-npm install
-```
+# WebX Web
 
-## Run development server
+Client javascript library to display WebX remote desktop in a browser.
 
-### Start the development server
-```
-npm run start
-```
 
-### Open your browser
-
-http://localhost:9000
 
 
 

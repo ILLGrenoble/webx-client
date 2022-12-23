@@ -19,9 +19,7 @@ export class WebXMessageDecoder {
   decode(buffer: WebXMessageBuffer): Promise<WebXMessage> {
     const { messageTypeId } = buffer;
 
-    if (messageTypeId === WebXMessageType.CONNECTION) {
-
-    } else if (messageTypeId === WebXMessageType.SCREEN) {
+    if (messageTypeId === WebXMessageType.SCREEN) {
       return this._createScreenMessage(buffer);
 
     } else if (messageTypeId === WebXMessageType.WINDOWS) {
@@ -40,7 +38,7 @@ export class WebXMessageDecoder {
       return this._createCursorImageMessage(buffer);
 
     } else if (messageTypeId === WebXMessageType.POLL) {
-      return this._createPollMessage(buffer);
+      return this._createPollMessage();
     }
 
     console.error(`Failed to decode message with typeId ${messageTypeId}`);
@@ -174,7 +172,7 @@ export class WebXMessageDecoder {
     });
   }
 
-  private _createPollMessage(buffer: WebXMessageBuffer): Promise<WebXPollMessage> {
+  private _createPollMessage(): Promise<WebXPollMessage> {
     return new Promise<WebXPollMessage>((resolve) => {
       resolve(new WebXPollMessage());
     });

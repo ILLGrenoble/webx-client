@@ -1,5 +1,4 @@
 import { WebXKeyEvent } from './WebXKeyEvent';
-import { WebXKeyboardUtils } from './WebXKeyboardUtils';
 
 /**
  * Information related to the pressing of a key, which MUST be

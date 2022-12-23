@@ -322,9 +322,9 @@ export class WebXKeyboard {
     }
 
     // Interpret as much as possible
-    let lastEvent;
+    // let lastEvent;
     do {
-      lastEvent = handledEvent;
+      // lastEvent = handledEvent;
       handledEvent = this._interpretEvent();
     } while (handledEvent !== null);
 

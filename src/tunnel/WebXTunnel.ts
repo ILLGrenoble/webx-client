@@ -74,21 +74,25 @@ export abstract class WebXTunnel {
     }
   }
 
+  // eslint-disable-next-line
   handleMessage(message: WebXMessage): void {
     throw new Error('Method not implemented.');
   }
 
+  // eslint-disable-next-line
   handleReceivedBytes(data: ArrayBuffer): void {
     throw new Error('Method not implemented.');
   }
 
+  // eslint-disable-next-line
   handleSentBytes(data: ArrayBuffer): void {
     throw new Error('Method not implemented');
   }
 
+  // eslint-disable-next-line
   handleClose(event: CloseEvent): void {
     // Clear all pending instruction responses
-    this._instructionResponses.forEach((response: WebXInstructionResponse<WebXMessage>, id: number) => {
+    this._instructionResponses.forEach((response: WebXInstructionResponse<WebXMessage>) => {
       response.reject('Tunnel closed');
     });
     this.onClosed();
