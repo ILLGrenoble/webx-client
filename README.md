@@ -8,6 +8,8 @@ Instructions are sent to the server via the websocket to initially determine dis
 
 All data sent over the websocket is in binary format as an optimisation (eg avoid base64 conversion of image data).
 
+Two websocket tunnels are available for use: the standard websocket or a socket.io websocket. Since data is sent in binary format the standard websocket is recommended rather than socket.io for better performance. 
+
 WebGL is used to render the Remote Desktop (using the three.js library): textures for individual X11 windows and generated and updated directly from JPEG data sent from WebX Engine running the WebX host. 
 
 To account for varying bandwidths between the client and the remote desktop, the client can request different quality settings. For lower quality, this will for example reduce the image quality and reduce the frequency of window updates.
