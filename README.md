@@ -110,3 +110,83 @@ To add WebX Client to your application, the library is available on NPM and can 
   }
 ```
 
+## Design
+
+The WebX Client is a javascript library used to render a WebX Engine Remote Desktop and send user events (mouse and keyboard) to it.
+
+The rendering of the display requires WebGL.
+
+### WebX Client
+
+The `WebXClient` class provides the main interface to WebX providing:
+ - connection and disconnection from a WebX Engine
+ - forwarding mouse and keyboard events
+ - setting the quality of the remote desktop 
+ - debugging WebX events (instructions and messages to and from the server and data statistics)
+
+The `WebXClient` contains:
+ - `WebXDisplay` used to render the Remote Desktop
+ - `WebXMouse` to manage the user's mouse events
+ - `WebXKeyboard` to manage the user's keyboard events and convert the event data into usable information for the X11 server
+ - `WebXTunnel` providing the transport mechanism to communicate with the WebX Relay
+ - `WebXTextureFactory` to manage convert image data into textures
+ - `WebXCursorFactory` to manage the different cursor objects of the X11 display
+
+For initialisation, it requires a `WebXTunnel` object to handle communication with the WebX Engine and an `HTMLElement` to render the Remote Desktop. 
+
+During initialisation, the `WebXClient` will:
+ - attempt to connect to the WebX Engine and obtain the screen size
+ - initialise the WebGL display element using `WebXDisplay` for the given screen size 
+ - obtain a list of windows that are currently open
+ - obtain images for all the windows
+ - create the mouse and keyboard interfaces
+ - display the screen
+
+### WebX Tunnel
+
+The `WebXTunnel` is an abstract class used to communicate with a backend server. It provides a callback on message reception and an abstract method to send instructions.
+
+The `WebXWebSocketTunnel` and `WebxSocketIOTunnel` provider concrete implementations of the Tunnel for both a standard websocket or using the socket.io protocol.
+
+The Tunnel handles only binary data (`ArrayBuffer`) to and from the backend. A `WebXInstructionEncoder` and `WebXMessageDescoder` are used to encode instructions to the server and decode messages from the server respectively. 
+
+#### Instructions and Requests
+
+While all data sent to the server are considered as <em>instructions</em>, some that are sent produce responses: such instructions are called <em>requests</em>
+
+The `WebXTunnel` method `sendRequest` returns a `Promise` that is called when the server sends a response that corresponds to the request (this is determine by an id sent in the instruction and returned in the message).
+
+When a message with an instruction Id is received, the `WebXTunnel` determines if a request has been made for it. If found it will call the Promise's `resolve` function.
+
+This is used for example to obtain the current list of open windows of the display, or to obtain image data for a window: specific code for each request can be called when the response is received asynchronously.
+
+### WebX Display and Window
+
+The `WebXDisplay` contains all the `WebXWindows` and a `WebXCursor`: it is used to render the state of the remote desktop.
+
+The display is rendered with WebGL (using the three.js library). The `WebXDisplay` initialises the WebGL display and sets up the necessary three.js components (scene, camera, renderer, etc).
+
+Each `WebXWindow` represents an X11 window in the Remote Desktop. It stored state information about the window (position and size) and three.js objects used to render it (mesh and material). Using the `WebXTextureFactory` it converts image data into WebGL textures. 
+
+All image data is in JPEG format which does not contain transparency. To handle this a WebX Image can contain both a color and a grey-scale alpha image: both are converted to textures and the alpha texture is used as an alpha map in the three.js material. 
+
+The `WebXCursor` represents the state of the cursor in the X11 display. It contains the position and cursor type. Each cursor type has a different image (or texture). When the cursor type changes the corresponding texture is re-used from the `WebXTextureFactory` or requested from the server if it is new.
+
+### WebX Mouse
+
+The `WebXMouse` maintains the state of the user's mouse and send instructions to the server when movement, button clicks or wheel events occur.
+
+### WebX Keyboard
+
+The WebX Keyboard uses almost identical logic to [Apache Guacamole Common Js](https://github.com/padarom/guacamole-common-js) key management: On a given key press, the key code is converted into a <em>keysym</em> that can be sent to the X11 server. 
+
+A <em>keysym</em> is a unique identifier for a key (including modifier and function keys for example). This allows us to send keyboard events in a standard way to the WebX Engine. 
+
+The WebX Engine converts the keysym value into a keyboard X11 event.
+
+> Note that not all key events on the user's keyboard can be translated to the active keyboard on the X11 server. For example, accented characters typically do not have a keyboard equivalent for an US keyboard. In such cases the keyboard event produces no action on the Remote Desktop.
+
+## Acknowledgements 
+
+ * A lot of the keyboard management is derived from the [Apache Guacamole Common Js](https://github.com/padarom/guacamole-common-js) library
+ * The [three.js](https://github.com/mrdoob/three.js/) library is used to simplify the WebGL rendering
