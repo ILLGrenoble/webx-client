@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { WebXTextureFactory } from './WebXTextureFactory';
 import { Texture, LinearFilter } from 'three';
-import {APP_CONFIG} from '../utils';
 
 export class WebXWindow {
   public static WINDOW_REFRESH_TIME_MS = 10000;
@@ -132,7 +131,9 @@ export class WebXWindow {
     // this._material = new THREE.MeshBasicMaterial( { color: WebXColourGenerator.indexedColour(this._colorIndex) } );
     this._material = new THREE.MeshBasicMaterial({ transparent: true });
     this._material.side = THREE.BackSide;
-    this.visible = APP_CONFIG().showWindowsBeforeImage;
+
+    // Wait for texture before rendering the window
+    this.visible = false;
 
     const { id, x, y, z, width, height } = configuration;
     this._id = id;
