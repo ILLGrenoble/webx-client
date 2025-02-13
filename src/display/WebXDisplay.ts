@@ -4,7 +4,6 @@ import { Vector3 } from 'three';
 import { WebXWindow } from './WebXWindow';
 import { WebXWindowProperties } from './WebXWindowProperties';
 import { WebXSubImage } from './WebXSubImage';
-import { WebXWebGLRenderer } from '../utils/WebXWebGLRenderer';
 import { WebXCursor } from './WebXCursor';
 import * as TWEEN from "@tweenjs/tween.js";
 import { WebXTextureFactory } from './WebXTextureFactory';
@@ -14,7 +13,7 @@ export class WebXDisplay {
 
   private readonly _scene: THREE.Scene;
   private readonly _camera: THREE.OrthographicCamera;
-  private readonly _renderer: WebXWebGLRenderer;
+  private readonly _renderer: THREE.WebGLRenderer;
   private readonly _screen: THREE.Object3D;
 
   private readonly _screenWidth;
@@ -79,7 +78,7 @@ export class WebXDisplay {
     this._camera.position.z = 1000;
     this._camera.lookAt(new Vector3(0, 0, 0));
 
-    this._renderer = new THREE.WebGLRenderer() as WebXWebGLRenderer;
+    this._renderer = new THREE.WebGLRenderer();
     this._renderer.setSize(screenWidth, screenHeight, false);
 
     const backgroundColor = window.getComputedStyle(this._containerElement).backgroundColor;
