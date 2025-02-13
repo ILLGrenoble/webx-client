@@ -6,4 +6,3 @@ export * from './WebXImageMessage';
 export * from './WebXSubImagesMessage';
 export * from './WebXMouseMessage';
 export * from './WebXCursorImageMessage';
-export * from './WebXPollMessage';
