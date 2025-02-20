@@ -206,7 +206,7 @@ export class WebXWindow {
         clearTimeout(this._windowRefreshTimeout);
         this._windowRefreshTimeout = null;
       }
-      this._windowRefreshTimeout = setTimeout(() => {
+      this._windowRefreshTimeout = window.setTimeout(() => {
         this._windowRefreshTimeout = null;
         this.loadWindowImage().then();
       }, WebXWindow.WINDOW_REFRESH_TIME_MS);
