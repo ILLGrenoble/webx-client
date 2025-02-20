@@ -122,7 +122,6 @@ export class WebXDisplay {
         this.animate();
         TWEEN.update(time);
       });
-      this._handleWindowRefresh(Date.now());
 
       this._renderer.render(this._scene, this._camera);
     }
@@ -307,14 +306,5 @@ export class WebXDisplay {
    */
   private _bindListeners(): void {
     this.resize = this.resize.bind(this);
-  }
-
-  private _handleWindowRefresh(now: number) {
-    this._windows.forEach((window: WebXWindow) => {
-      if (window.lastWindowUpdateTimeMs != null && (now - window.lastWindowUpdateTimeMs) > WebXWindow.WINDOW_REFRESH_TIME_MS) {
-        window.lastWindowUpdateTimeMs = null;
-        window.loadWindowImage().then();
-      }
-    });
   }
 }

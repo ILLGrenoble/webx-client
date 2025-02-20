@@ -3,7 +3,7 @@ import { WebXTextureFactory } from './WebXTextureFactory';
 import { Texture, LinearFilter } from 'three';
 
 export class WebXWindow {
-  public static WINDOW_REFRESH_TIME_MS = 10000;
+  public static WINDOW_REFRESH_TIME_MS = 5000;
   private static _PLANE_GEOMETRY: THREE.PlaneGeometry = new THREE.PlaneGeometry(1.0, 1.0, 2, 2);
   private static _COLOR_INDEX = 0;
 
@@ -20,7 +20,7 @@ export class WebXWindow {
   private _width: number = 1;
   private _height: number = 1;
 
-  private _lastWindowUpdateTimeMs = 0;
+  private _windowRefreshTimeout: number = null;
 
   public get mesh(): THREE.Mesh {
     return this._mesh;
@@ -115,15 +115,6 @@ export class WebXWindow {
     this._updatePosition();
   }
 
-  get lastWindowUpdateTimeMs(): number {
-    return this._lastWindowUpdateTimeMs;
-  }
-
-  set lastWindowUpdateTimeMs(value: number) {
-    this._lastWindowUpdateTimeMs = value;
-  }
-
-
   constructor(configuration: { id: number; x: number; y: number; z: number; width: number; height: number }, textureFactory: WebXTextureFactory) {
     this._textureFactory = textureFactory;
     this._colorIndex = WebXWindow._COLOR_INDEX++;
@@ -209,13 +200,16 @@ export class WebXWindow {
 
     this._material.transparent = (this.alphaMap != null || depth === 32);
 
-    if (isFullWindow) {
-      if (this._lastWindowUpdateTimeMs === 0) {
-        this._lastWindowUpdateTimeMs = Date.now() + Math.random() * WebXWindow.WINDOW_REFRESH_TIME_MS;
-
-      } else {
-        this._lastWindowUpdateTimeMs = Date.now();
+    // Request a window update if it's not a full window
+    if (!isFullWindow) {
+      if (this._windowRefreshTimeout) {
+        clearTimeout(this._windowRefreshTimeout);
+        this._windowRefreshTimeout = null;
       }
+      this._windowRefreshTimeout = setTimeout(() => {
+        this._windowRefreshTimeout = null;
+        this.loadWindowImage().then();
+      }, WebXWindow.WINDOW_REFRESH_TIME_MS);
     }
   }
 
