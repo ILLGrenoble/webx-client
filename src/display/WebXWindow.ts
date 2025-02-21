@@ -225,6 +225,10 @@ export class WebXWindow {
     this._disposeColorMap();
     this._disposeAlphaMap();
     this._material.dispose();
+    if (this._windowRefreshTimeout) {
+      clearTimeout(this._windowRefreshTimeout);
+      this._windowRefreshTimeout = null;
+    }
   }
 
   private _disposeColorMap(): void {
