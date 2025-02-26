@@ -7,10 +7,10 @@ import {
   WebXKeyboardInstruction,
   WebXMouseInstruction,
   WebXScreenInstruction,
-  WebXWindowsInstruction
+  WebXWindowsInstruction,
+  WebXQualityInstruction,
 } from '../instruction';
 import { WebXInstructionBuffer } from '.';
-import { WebXQualityInstruction } from '../instruction/WebXQualityInstruction';
 
 export class WebXInstructionEncoder {
 
@@ -50,8 +50,9 @@ export class WebXInstructionEncoder {
    * Create a new mouse instruction
    * @param instruction the mouse instruction to encode
    * Structure:
-   *   Header: 24 bytes
+   *   Header: 28 bytes
    *    sessionId: 16 bytes
+   *    clientId:4 bytes
    *    type: 4 bytes
    *    id: 4 bytes
    *   Content: 4 bytes
@@ -73,8 +74,9 @@ export class WebXInstructionEncoder {
    * Create a new cursor image instruction
    * @param instruction the cursor image instruction to encode
    * Structure:
-   *   Header: 24 bytes
+   *   Header: 28 bytes
    *    sessionId: 16 bytes
+   *    clientId:4 bytes
    *    type: 4 bytes
    *    id: 4 bytes
    *   Content: 4 bytes
@@ -92,8 +94,9 @@ export class WebXInstructionEncoder {
    * Create a new image instruction
    * @param instruction the image instruction to encode
    * Structure:
-   *   Header: 24 bytes
+   *   Header: 28 bytes
    *    sessionId: 16 bytes
+   *    clientId:4 bytes
    *    type: 4 bytes
    *    id: 4 bytes
    *   Content: 4 bytes
@@ -111,8 +114,9 @@ export class WebXInstructionEncoder {
    * Create a keyboard instruction
    * @param instruction the keyboard instruction to encode
    * Structure:
-   *   Header: 24 bytes
+   *   Header: 28 bytes
    *    sessionId: 16 bytes
+   *    clientId: 4 bytes
    *    type: 4 bytes
    *    id: 4 bytes
    *   Content: 8 bytes
@@ -132,8 +136,9 @@ export class WebXInstructionEncoder {
    * Create a screen instruction
    * @param instruction the screen instruction to encode
    * Structure:
-   *   Header: 24 bytes
+   *   Header: 28 bytes
    *    sessionId: 16 bytes
+   *    clientId: 4 bytes
    *    type: 4 bytes
    *    id: 4 bytes
    */
@@ -145,8 +150,9 @@ export class WebXInstructionEncoder {
   /**
    * Create a windows instruction
    * Structure:
-   *   Header: 24 bytes
+   *   Header: 28 bytes
    *    sessionId: 16 bytes
+   *    clientId: 4 bytes
    *    type: 4 bytes
    *    id: 4 bytes
    * @param instruction the windows instruction to encode
@@ -160,8 +166,9 @@ export class WebXInstructionEncoder {
    * Create a connect instruction
    * @param instruction the connect instruction to encode
    * Structure:
-   *   Header: 24 bytes
+   *   Header: 28 bytes
    *    sessionId: 16 bytes
+   *    clientId: 4 bytes
    *    type: 4 bytes
    *    id: 4 bytes
    */
@@ -175,8 +182,9 @@ export class WebXInstructionEncoder {
    * Create a new quality instruction
    * @param instruction the quality instruction to encode
    * Structure:
-   *   Header: 24 bytes
+   *   Header: 28 bytes
    *    sessionId: 16 bytes
+   *    clientId: 4 bytes
    *    type: 4 bytes
    *    id: 4 bytes
    *   Content: 4 bytes

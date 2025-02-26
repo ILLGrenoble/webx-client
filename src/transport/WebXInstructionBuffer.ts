@@ -6,10 +6,10 @@ export class WebXInstructionBuffer {
   private _offset;
 
   constructor(instruction: WebXInstruction, length: number) {
-    const headerSize = 24; // 16 for sessionID place holder (set by the relay) and 8 for the instruction type and id
+    const headerSize = 28; // 16 for sessionID place holder (set by the relay), 4 for the clientId (set by the relay) and 8 for the instruction type and id
     this._buffer = new ArrayBuffer(length + headerSize);
 
-    this._offset = 16;
+    this._offset = 20;
 
     // add the header
     if (instruction.synchronous) {
