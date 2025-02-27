@@ -26,13 +26,13 @@ export class WebXMessageBuffer {
   }
 
   constructor(private _buffer: ArrayBuffer) {
-    this._readOffset = 16;
+    this._readOffset = 24;
     let unused;
     // eslint-disable-next-line
     [this._messageTypeId, unused, this._messageQueueLength, unused] = this.getUint8Array(4);
     this._messageId = this.getUint32();
     this._bufferLength = this.getUint32();
-    this._readOffset = 32;
+    this._readOffset = 40;
   }
 
   public getInt32(): number {
