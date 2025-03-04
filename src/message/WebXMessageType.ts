@@ -6,4 +6,5 @@ export enum WebXMessageType {
   SUBIMAGES = 5,
   MOUSE = 6,
   CURSOR_IMAGE = 7,
+  PING = 8,
 }

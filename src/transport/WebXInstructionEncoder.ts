@@ -9,6 +9,7 @@ import {
   WebXScreenInstruction,
   WebXWindowsInstruction,
   WebXQualityInstruction,
+  WebXPongInstruction,
 } from '../instruction';
 import { WebXInstructionBuffer } from '.';
 
@@ -42,6 +43,9 @@ export class WebXInstructionEncoder {
 
     } else if (instruction.type === WebXInstructionType.QUALITY) {
       return this._createQualityInstruction(instruction as WebXQualityInstruction);
+
+    } else if (instruction.type === WebXInstructionType.PONG) {
+      return this._createPongInstruction(instruction as WebXPongInstruction);
     }
     return null;
   }
@@ -195,6 +199,24 @@ export class WebXInstructionEncoder {
     return encoder
       // write the contents
       .putUInt32(instruction.qualityIndex)
+      .buffer();
+  }
+
+  /**
+   * Create a new pong instruction
+   * @param instruction the pong instruction to encode
+   * Structure:
+   *   Header: 28 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *   Content: 0 bytes
+   */
+  private _createPongInstruction(instruction: WebXPongInstruction): ArrayBuffer {
+    const encoder = new WebXInstructionBuffer(instruction, 0);
+    return encoder
+      // write the contents
       .buffer();
   }
 

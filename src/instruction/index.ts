@@ -9,3 +9,4 @@ export * from './WebXMouseInstruction';
 export * from './WebXKeyboardInstruction';
 export * from './WebXCursorImageInstruction';
 export * from './WebXQualityInstruction';
+export * from './WebXPongInstruction';

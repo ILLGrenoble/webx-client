@@ -6,7 +6,8 @@ import {
   WebXMouseMessage,
   WebXScreenMessage,
   WebXSubImagesMessage,
-  WebXWindowsMessage
+  WebXWindowsMessage,
+  WebXPingMessage
 } from '../message';
 import { WebXSubImage, WebXTextureFactory, WebXWindowProperties } from '../display';
 import { WebXMessageBuffer } from './WebXMessageBuffer';
@@ -36,6 +37,9 @@ export class WebXMessageDecoder {
 
     } else if (messageTypeId === WebXMessageType.CURSOR_IMAGE) {
       return this._createCursorImageMessage(buffer);
+
+    } else if (messageTypeId === WebXMessageType.PING) {
+      return this._createPingMessage(buffer);
     }
 
     console.error(`Failed to decode message with typeId ${messageTypeId}`);
@@ -166,6 +170,12 @@ export class WebXMessageDecoder {
       const screenWidth: number = buffer.getInt32();
       const screenHeight: number = buffer.getInt32();
       resolve(new WebXScreenMessage({ width: screenWidth, height: screenHeight }, commandId));
+    });
+  }
+
+  private _createPingMessage(buffer: WebXMessageBuffer): Promise<WebXPingMessage> {
+    return new Promise<WebXPingMessage>((resolve) => {
+      resolve(new WebXPingMessage());
     });
   }
 
