@@ -1,3 +1,7 @@
+0.4.0 04/03/2025
+================
+ * Update dependencies (notably three.js up to latest 174)
+
 0.3.0 04/03/2025
 ================
  * Handle ping messages from engine and send pong response instructions
