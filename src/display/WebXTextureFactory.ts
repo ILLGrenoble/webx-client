@@ -1,7 +1,7 @@
-import { WebXTunnel } from '../tunnel';
-import { WebXImageInstruction } from '../instruction';
-import {LinearFilter, Texture} from 'three';
-import { WebXImageMessage } from '../message';
+import {WebXTunnel} from '../tunnel';
+import {WebXImageInstruction} from '../instruction';
+import {LinearFilter, SRGBColorSpace, Texture} from 'three';
+import {WebXImageMessage} from '../message';
 
 export class WebXTextureFactory {
 
@@ -55,6 +55,7 @@ export class WebXTextureFactory {
             texture.needsUpdate = true;
             texture.flipY = false;
             texture.minFilter = LinearFilter;
+            texture.colorSpace = SRGBColorSpace;
 
             resolve(texture);
           })

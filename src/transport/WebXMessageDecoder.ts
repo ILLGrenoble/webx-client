@@ -39,7 +39,7 @@ export class WebXMessageDecoder {
       return this._createCursorImageMessage(buffer);
 
     } else if (messageTypeId === WebXMessageType.PING) {
-      return this._createPingMessage(buffer);
+      return this._createPingMessage();
     }
 
     console.error(`Failed to decode message with typeId ${messageTypeId}`);
@@ -173,7 +173,7 @@ export class WebXMessageDecoder {
     });
   }
 
-  private _createPingMessage(buffer: WebXMessageBuffer): Promise<WebXPingMessage> {
+  private _createPingMessage(): Promise<WebXPingMessage> {
     return new Promise<WebXPingMessage>((resolve) => {
       resolve(new WebXPingMessage());
     });
