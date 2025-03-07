@@ -1,5 +1,5 @@
-import { WebXInstruction, WebXInstructionResponse } from '../instruction';
-import { WebXMessage } from '../message';
+import {WebXDataAckInstruction, WebXInstruction, WebXInstructionResponse, WebXPongInstruction} from '../instruction';
+import {WebXMessage, WebXMessageType} from '../message';
 import { WebXBinarySerializer, WebXMessageBuffer } from '../transport';
 import { WebXQoSHandler } from './WebXQoSHandler';
 import { WebXDefaultQoSHandler } from './WebXDefaultQoSHandler';
@@ -45,17 +45,20 @@ export abstract class WebXTunnel {
   }
 
   protected async onMessage(data: ArrayBuffer): Promise<void> {
-    this.handleReceivedBytes(data);
-
     if (data.byteLength === 0) {
       console.warn('Got a zero length message');
       return null;
-    } else if (data.byteLength < 32) {
+    } else if (data.byteLength < WebXMessageBuffer.MESSAGE_HEADER_LENGTH) {
       console.warn('Message does not contain a valid header');
       return null;
     }
 
     const buffer = new WebXMessageBuffer(data);
+
+    this._handleCriticalMessages(buffer);
+
+    this.handleReceivedBytes(data);
+
     this._qosHandler.handle(buffer.messageQueueLength);
 
     const message = await this._serializer.deserializeMessage(buffer);
@@ -112,6 +115,17 @@ export abstract class WebXTunnel {
 
   getQoSHandler(): WebXQoSHandler {
     return this._qosHandler;
+  }
+
+  private _handleCriticalMessages(buffer: WebXMessageBuffer): void {
+    if (buffer.messageTypeId == WebXMessageType.PING) {
+      // Reply immediately with a pong
+      this.sendInstruction(new WebXPongInstruction(buffer.timestampMs));
+
+    } else if (buffer.messageTypeId == WebXMessageType.SUBIMAGES || buffer.messageTypeId == WebXMessageType.IMAGE) {
+      // Reply immediately with a data ack
+      this.sendInstruction(new WebXDataAckInstruction(buffer.timestampMs, buffer.bufferLength));
+    }
   }
 
 }

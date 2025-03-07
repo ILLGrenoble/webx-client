@@ -20,7 +20,6 @@ import { WebXDisplay, WebXCursorFactory, WebXTextureFactory } from './display';
 import { WebXKeyboard, WebXMouse, WebXMouseState } from './input';
 import { WebXHandler, WebXInstructionHandler, WebXMessageHandler, WebXStatsHandler } from './tracer';
 import { WebXBinarySerializer } from './transport';
-import {WebXPongInstruction} from "./instruction/WebXPongInstruction";
 
 export class WebXClient {
 
@@ -279,10 +278,6 @@ export class WebXClient {
     } else if (message.type === WebXMessageType.MOUSE) {
       const mouseMessage = message as WebXMouseMessage;
       this._display.updateMouse(mouseMessage.x, mouseMessage.y, mouseMessage.cursorId);
-
-    } else if (message.type === WebXMessageType.PING) {
-      // Reply immediately with a pong
-      this._sendInstruction(new WebXPongInstruction());
     }
 
     this._tracers.forEach((value) => {

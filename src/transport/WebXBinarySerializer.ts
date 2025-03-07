@@ -5,8 +5,8 @@ import { WebXTextureFactory } from '../display';
 
 export class WebXBinarySerializer {
 
-  private readonly _instructionEncoder;
-  private readonly _messageDecoder;
+  private readonly _instructionEncoder: WebXInstructionEncoder;
+  private readonly _messageDecoder: WebXMessageDecoder;
 
   constructor(textureFactory: WebXTextureFactory) {
     this._instructionEncoder = new WebXInstructionEncoder();

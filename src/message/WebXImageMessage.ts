@@ -23,7 +23,12 @@ export class WebXImageMessage extends WebXMessage {
     return this._size;
   }
 
-  constructor(private _windowId: number, private _depth: number, private _colorMap: Texture, private _alphaMap: Texture, commandId: number, private _size: number) {
+  constructor(private readonly _windowId: number,
+              private readonly _depth: number,
+              private readonly _colorMap: Texture,
+              private readonly _alphaMap: Texture,
+              commandId: number,
+              private readonly _size: number) {
     super(WebXMessageType.IMAGE, commandId);
   }
 }

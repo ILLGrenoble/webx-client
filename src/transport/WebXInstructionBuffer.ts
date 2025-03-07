@@ -6,7 +6,9 @@ export class WebXInstructionBuffer {
   private _offset;
 
   constructor(instruction: WebXInstruction, length: number) {
-    const headerSize = 28; // 16 for sessionID place holder (set by the relay), 4 for the clientId (set by the relay) and 8 for the instruction type and id
+    // 16 for sessionID place holder (set by the relay), 4 for the clientId (set by the relay) and 8 for the instruction type and id, 4 padding
+    // Maintain 8 bit alignment to ensure long values can be written without additional padding
+    const headerSize = 32;
     this._buffer = new ArrayBuffer(length + headerSize);
 
     this._offset = 20;
@@ -18,6 +20,9 @@ export class WebXInstructionBuffer {
       this.putUInt32(instruction.type);
     }
     this.putUInt32(instruction.id);
+
+    // Padding to make up 32 bytes (maintaining 8 bit alignment)
+    this.putUInt32(0);
   }
 
   private _getNextOffset(sizeOfData: number): number {
@@ -59,6 +64,13 @@ export class WebXInstructionBuffer {
     const offset = this._getNextOffset(4);
     const typedArray = new Uint32Array(this._buffer, offset, 1);
     typedArray[0] = value;
+    return this;
+  }
+
+  putUInt8Array(array: Uint8Array, length: number): WebXInstructionBuffer {
+    const offset = this._getNextOffset(8);
+    const typedArray = new Uint8Array(this._buffer, offset, length);
+    typedArray.set(array);
     return this;
   }
 

@@ -8,6 +8,7 @@ export enum WebXInstructionType {
   CURSOR_IMAGE = 7,
   QUALITY = 8,
   PONG = 9,
+  DATA_ACK = 10,
 }
 
 export namespace WebXInstructionType {
@@ -31,6 +32,8 @@ export namespace WebXInstructionType {
         return WebXInstructionType.QUALITY;
       case 'PONG':
         return WebXInstructionType.PONG;
+      case 'DATA_ACK':
+        return WebXInstructionType.DATA_ACK;
     }
   }
 }
