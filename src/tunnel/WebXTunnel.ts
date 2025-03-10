@@ -5,6 +5,8 @@ import { WebXQoSHandler } from './WebXQoSHandler';
 import { WebXDefaultQoSHandler } from './WebXDefaultQoSHandler';
 
 export abstract class WebXTunnel {
+  private static readonly MIN_BUFFER_LENGTH_FOR_ACK = 32768;
+
   protected _serializer: WebXBinarySerializer;
   private _qosHandler: WebXQoSHandler = new WebXDefaultQoSHandler(this);
 
@@ -123,8 +125,10 @@ export abstract class WebXTunnel {
       this.sendInstruction(new WebXPongInstruction(buffer.timestampMs));
 
     } else if (buffer.messageTypeId == WebXMessageType.SUBIMAGES || buffer.messageTypeId == WebXMessageType.IMAGE) {
-      // Reply immediately with a data ack
-      this.sendInstruction(new WebXDataAckInstruction(buffer.timestampMs, buffer.bufferLength));
+      // Reply immediately with a data ack (if size greater than cutoff)
+      if (buffer.bufferLength > WebXTunnel.MIN_BUFFER_LENGTH_FOR_ACK) {
+        this.sendInstruction(new WebXDataAckInstruction(buffer.timestampMs, buffer.bufferLength));
+      }
     }
   }
 
