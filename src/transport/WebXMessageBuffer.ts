@@ -4,7 +4,6 @@ export class WebXMessageBuffer {
 
   private readonly _timestampMs: Uint8Array;
   private readonly _messageTypeId: number;
-  private readonly _messageQueueLength: number;
   private readonly _messageId: number;
   private readonly _bufferLength: number;
 
@@ -20,10 +19,6 @@ export class WebXMessageBuffer {
     return this._messageTypeId;
   }
 
-  get messageQueueLength(): number {
-    return this._messageQueueLength;
-  }
-
   public get messageId(): number {
     return this._messageId;
   }
@@ -33,11 +28,9 @@ export class WebXMessageBuffer {
   }
 
   constructor(private _buffer: ArrayBuffer) {
-    this._readOffset = 24;
-    let unused;
+    this._readOffset = 24; // Session Id (16) and client index mask (8)
     this._timestampMs = this.getUint8Array(8);
-    // eslint-disable-next-line
-    [this._messageTypeId, unused, this._messageQueueLength, unused] = this.getUint8Array(4);
+    this._messageTypeId = this.getUint32();
     this._messageId = this.getUint32();
     this._bufferLength = this.getUint32();
     this._readOffset = WebXMessageBuffer.MESSAGE_HEADER_LENGTH;

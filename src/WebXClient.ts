@@ -1,4 +1,4 @@
-import { WebXQoSHandler, WebXTunnel } from './tunnel';
+import { WebXTunnel } from './tunnel';
 import {
   WebXInstruction,
   WebXScreenInstruction,
@@ -213,15 +213,6 @@ export class WebXClient {
   setQualityIndex(qualityIndex: number): void {
     const qualityInstruction = new WebXQualityInstruction(qualityIndex);
     this._sendInstruction(qualityInstruction);
-    this._tunnel.getQoSHandler().setQuality(qualityIndex);
-  }
-
-  setQoSHandler(qosHandler: WebXQoSHandler): void {
-    this._tunnel.setQoSHandler(qosHandler);
-  }
-
-  getQoSHandler(): WebXQoSHandler {
-    return this._tunnel.getQoSHandler();
   }
 
   private async _getScreenMessage(): Promise<WebXScreenMessage> {

@@ -1,14 +1,11 @@
 import {WebXDataAckInstruction, WebXInstruction, WebXInstructionResponse, WebXPongInstruction} from '../instruction';
 import {WebXMessage, WebXMessageType} from '../message';
 import { WebXBinarySerializer, WebXMessageBuffer } from '../transport';
-import { WebXQoSHandler } from './WebXQoSHandler';
-import { WebXDefaultQoSHandler } from './WebXDefaultQoSHandler';
 
 export abstract class WebXTunnel {
   private static readonly MIN_BUFFER_LENGTH_FOR_ACK = 32768;
 
   protected _serializer: WebXBinarySerializer;
-  private _qosHandler: WebXQoSHandler = new WebXDefaultQoSHandler(this);
 
   private _instructionResponses: Map<number, WebXInstructionResponse<any>> = new Map<number, WebXInstructionResponse<any>>();
 
@@ -61,8 +58,6 @@ export abstract class WebXTunnel {
 
     this.handleReceivedBytes(data);
 
-    this._qosHandler.handle(buffer.messageQueueLength);
-
     const message = await this._serializer.deserializeMessage(buffer);
     if (message != null) {
 
@@ -109,14 +104,6 @@ export abstract class WebXTunnel {
 
   isConnected(): boolean {
     throw new Error('Method not implemented.');
-  }
-
-  setQoSHandler(qosHandler: WebXQoSHandler): void {
-    this._qosHandler = qosHandler;
-  }
-
-  getQoSHandler(): WebXQoSHandler {
-    return this._qosHandler;
   }
 
   private _handleCriticalMessages(buffer: WebXMessageBuffer): void {
