@@ -1,3 +1,10 @@
+0.5.0 12/03/2025
+================
+ * Add min cutoff for sending data ack
+ * Add timestamp to all message headers
+ * Set instruction header to 32 bytes (8 bit alignment). 
+ * Handle critical messages immediately after reception from websocket: send pong and data-ack instructions immediately so that the server can calculate accurately the latency and bitrate for the client.
+
 0.4.0 04/03/2025
 ================
  * Update dependencies (notably three.js up to latest 174)
