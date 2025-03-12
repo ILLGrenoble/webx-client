@@ -1,3 +1,7 @@
+0.6.0 12/03/2025
+================
+ * Remove QoS elements (handled automatically in server from bitrate/latency calculations)
+
 0.5.0 12/03/2025
 ================
  * Add min cutoff for sending data ack
