@@ -5,7 +5,7 @@ import { WebXWindow } from './WebXWindow';
 import { WebXWindowProperties } from './WebXWindowProperties';
 import { WebXSubImage } from './WebXSubImage';
 import { WebXCursor } from './WebXCursor';
-import * as TWEEN from "@tweenjs/tween.js";
+import { Tween } from "@tweenjs/tween.js";
 import { WebXTextureFactory } from './WebXTextureFactory';
 import { WebXCursorFactory } from './WebXCursorFactory';
 
@@ -118,9 +118,8 @@ export class WebXDisplay {
 
   animate(): void {
     if (!this._disposed) {
-      requestAnimationFrame((time) => {
+      requestAnimationFrame(() => {
         this.animate();
-        TWEEN.update(time);
       });
 
       this._renderer.render(this._scene, this._camera);

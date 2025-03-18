@@ -18,7 +18,13 @@ import {
 } from './message';
 import { WebXDisplay, WebXCursorFactory, WebXTextureFactory } from './display';
 import { WebXKeyboard, WebXMouse, WebXMouseState } from './input';
-import { WebXHandler, WebXInstructionHandler, WebXMessageHandler, WebXStatsHandler } from './tracer';
+import {
+  WebXDebugImageMessageHandler,
+  WebXHandler,
+  WebXInstructionHandler,
+  WebXMessageHandler,
+  WebXStatsHandler
+} from './tracer';
 import { WebXBinarySerializer } from './transport';
 
 export class WebXClient {
@@ -179,6 +185,14 @@ export class WebXClient {
    */
   registerTracer(name: string, handler: WebXHandler): void {
     this._tracers.set(name, handler);
+  }
+
+  createDebugImageMessageHandler(): WebXDebugImageMessageHandler {
+    if (this._display) {
+      return new WebXDebugImageMessageHandler(this._display);
+    }
+    console.log('Cannot create DebugImageMessageHandler as display is null');
+    return null;
   }
 
   resetInputs(): void {

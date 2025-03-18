@@ -146,7 +146,7 @@ During initialisation, the `WebXClient` will:
 
 The `WebXTunnel` is an abstract class used to communicate with a backend server. It provides a callback on message reception and an abstract method to send instructions.
 
-The `WebXWebSocketTunnel` and `WebxSocketIOTunnel` provider concrete implementations of the Tunnel for both a standard websocket or using the socket.io protocol.
+The `WebXWebSocketTunnel` provides a concrete implementations of the Tunnel for a standard websocket.
 
 The Tunnel handles only binary data (`ArrayBuffer`) to and from the backend. A `WebXInstructionEncoder` and `WebXMessageDescoder` are used to encode instructions to the server and decode messages from the server respectively. 
 
