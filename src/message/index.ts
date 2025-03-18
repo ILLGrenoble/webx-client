@@ -7,3 +7,4 @@ export * from './WebXSubImagesMessage';
 export * from './WebXMouseMessage';
 export * from './WebXCursorImageMessage';
 export * from './WebXPingMessage';
+export * from './WebXQualityMessage';

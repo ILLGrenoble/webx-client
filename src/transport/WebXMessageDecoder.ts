@@ -7,7 +7,7 @@ import {
   WebXScreenMessage,
   WebXSubImagesMessage,
   WebXWindowsMessage,
-  WebXPingMessage
+  WebXPingMessage, WebXQualityMessage
 } from '../message';
 import { WebXSubImage, WebXTextureFactory, WebXWindowProperties } from '../display';
 import { WebXMessageBuffer } from './WebXMessageBuffer';
@@ -40,6 +40,9 @@ export class WebXMessageDecoder {
 
     } else if (messageTypeId === WebXMessageType.PING) {
       return this._createPingMessage();
+
+    } else if (messageTypeId === WebXMessageType.QUALITY) {
+      return this._createQualityMessage(buffer);
     }
 
     console.error(`Failed to decode message with typeId ${messageTypeId}`);
@@ -176,6 +179,17 @@ export class WebXMessageDecoder {
   private _createPingMessage(): Promise<WebXPingMessage> {
     return new Promise<WebXPingMessage>((resolve) => {
       resolve(new WebXPingMessage());
+    });
+  }
+
+  private _createQualityMessage(buffer: WebXMessageBuffer): Promise<WebXQualityMessage> {
+    return new Promise<WebXQualityMessage>((resolve) => {
+      const index: number = buffer.getUint32();
+      const imageFPS: number = buffer.getFloat();
+      const rgbQuality: number = buffer.getFloat();
+      const alphaQuality: number = buffer.getFloat();
+      const maxMbps: number = buffer.getFloat();
+      resolve(new WebXQualityMessage(index, imageFPS, rgbQuality, alphaQuality, maxMbps));
     });
   }
 

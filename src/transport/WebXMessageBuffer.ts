@@ -52,6 +52,14 @@ export class WebXMessageBuffer {
     return typedArray[0];
   }
 
+  public getFloat(): number {
+    const offset = this._getNextReadOffset(4);
+
+    const typedArray = new Float32Array(this._buffer, offset, 1);
+
+    return typedArray[0];
+  }
+
   public getUint8Array(length: number): Uint8Array {
     const typedArray = new Uint8Array(this._buffer, this._readOffset, length);
     this._readOffset += length;

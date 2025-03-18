@@ -7,4 +7,6 @@ export enum WebXMessageType {
   MOUSE = 6,
   CURSOR_IMAGE = 7,
   PING = 8,
+  DISCONNECT = 9,
+  QUALITY = 10,
 }
