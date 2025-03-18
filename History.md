@@ -1,3 +1,7 @@
+0.7.0 18/03/2025
+================
+ * Handle Quality messages coming from the engine.
+
 0.6.0 12/03/2025
 ================
  * Remove QoS elements (handled automatically in server from bitrate/latency calculations)
