@@ -1,7 +1,7 @@
 {
   "name": "@illgrenoble/webx-client",
   "description": "Client javascript library to display WebX remote desktop in a browser.",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",

@@ -1,3 +1,9 @@
+0.8.0 18/03/2025
+================
+ * Move DebugImageMessageHandler to webx-client from webx-demo-client so that it can be re-used in other applications (and removes dependency of three.js and tween.js from other applications). 
+ * Remove obsolete socket.io tunnel (and socket.io dependency).
+ * Update tween.js dependency. 
+
 0.7.0 18/03/2025
 ================
  * Handle Quality messages coming from the engine.
