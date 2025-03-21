@@ -256,16 +256,12 @@ export class WebXClient {
           value.handle(command);
         }
       });
-    } else {
-      throw new Error("Tunnel is closed");
     }
   }
 
   private _sendRequest(command: WebXInstruction, timeout?: number): Promise<WebXMessage> {
     if (this._tunnel.isConnected()) {
       return this._tunnel.sendRequest(command, timeout);
-    } else {
-      throw new Error("Tunnel is closed");
     }
   }
 

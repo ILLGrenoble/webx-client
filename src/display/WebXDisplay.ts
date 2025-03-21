@@ -112,6 +112,7 @@ export class WebXDisplay {
     this._clearElements();
 
     this._renderer.dispose();
+    this._renderer.forceContextLoss();
 
     this._disposed = true;
   }
