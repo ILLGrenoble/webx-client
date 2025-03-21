@@ -1,3 +1,7 @@
+0.10.0 21/03/2025
+=================
+ * Minor changes, less errors thrown
+
 0.9.0 21/03/2025
 ================
  * Better handling of closed websockets
