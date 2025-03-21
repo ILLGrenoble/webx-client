@@ -241,7 +241,7 @@ export class WebXClient {
         retry++;
         console.log(`Failed to initialise screen size at attempt ${retry}/3...`)
 
-        if (retry == 3) {
+        if (retry == 3 || !this._tunnel.isConnected()) {
           throw new Error(`unable to get screen size: ${error.message}`);
         }
       }
@@ -249,16 +249,24 @@ export class WebXClient {
   }
 
   private _sendInstruction(command: WebXInstruction): void {
-    this._tunnel.sendInstruction(command);
-    this._tracers.forEach((value) => {
-      if (value instanceof WebXInstructionHandler) {
-        value.handle(command);
-      }
-    });
+    if (this._tunnel.isConnected()) {
+      this._tunnel.sendInstruction(command);
+      this._tracers.forEach((value) => {
+        if (value instanceof WebXInstructionHandler) {
+          value.handle(command);
+        }
+      });
+    } else {
+      throw new Error("Tunnel is closed");
+    }
   }
 
   private _sendRequest(command: WebXInstruction, timeout?: number): Promise<WebXMessage> {
-    return this._tunnel.sendRequest(command, timeout);
+    if (this._tunnel.isConnected()) {
+      return this._tunnel.sendRequest(command, timeout);
+    } else {
+      throw new Error("Tunnel is closed");
+    }
   }
 
   private _handleMessage(message: WebXMessage): void {

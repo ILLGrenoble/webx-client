@@ -5,6 +5,7 @@ export class WebXWebSocketTunnel extends WebXTunnel {
   private readonly _url: string;
   private _socket: WebSocket;
   private _connectionOptions: any;
+  private _socketOpen = false;
 
   constructor(url: string, options: any = {}) {
     super();
@@ -17,8 +18,10 @@ export class WebXWebSocketTunnel extends WebXTunnel {
   }
 
   send(data: ArrayBuffer): void {
-    this._socket.send(data);
-    this.handleSentBytes(data);
+    if (this._socket != null) {
+      this._socket.send(data);
+      this.handleSentBytes(data);
+    }
   }
 
   connect(data: any, serializer: WebXBinarySerializer): Promise<Event> {
@@ -31,6 +34,7 @@ export class WebXWebSocketTunnel extends WebXTunnel {
       this._socket = new WebSocket(url);
       this._socket.binaryType = 'arraybuffer';
       this._socket.onopen = () => {
+        this._socketOpen = true;
         resolve(null);
       };
       this._socket.onerror = (event: Event) => reject(event);
@@ -41,8 +45,15 @@ export class WebXWebSocketTunnel extends WebXTunnel {
 
   disconnect(): void {
     if (this._socket) {
+      this._socketOpen = false;
       this._socket.close()
+      this._socket = null;
     }
   }
+
+  isConnected(): boolean {
+    return this._socketOpen;
+  }
+
 
 }

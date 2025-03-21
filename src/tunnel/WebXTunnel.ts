@@ -19,6 +19,8 @@ export abstract class WebXTunnel {
 
   abstract send(data: ArrayBuffer): void;
 
+  abstract isConnected(): boolean;
+
   sendInstruction(command: WebXInstruction): void {
     // console.log(`Sending command: `, command);
     const message = this._serializer.serializeInstruction(command);
@@ -100,10 +102,6 @@ export abstract class WebXTunnel {
 
   onClosed(): void {
     console.log(`Websocket closed`);
-  }
-
-  isConnected(): boolean {
-    throw new Error('Method not implemented.');
   }
 
   private _handleCriticalMessages(buffer: WebXMessageBuffer): void {
