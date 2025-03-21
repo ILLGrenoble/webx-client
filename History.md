@@ -1,3 +1,7 @@
+0.9.0 21/03/2025
+================
+ * Better handling of closed websockets
+
 0.8.0 18/03/2025
 ================
  * Move DebugImageMessageHandler to webx-client from webx-demo-client so that it can be re-used in other applications (and removes dependency of three.js and tween.js from other applications). 
