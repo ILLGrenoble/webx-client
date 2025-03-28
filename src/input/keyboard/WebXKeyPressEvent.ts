@@ -1,4 +1,5 @@
 import { WebXKeyEvent } from './WebXKeyEvent';
+import { WebXKeyboardUtils } from './WebXKeyboardUtils';
 
 /**
  * Information related to the pressing of a key, which MUST be
@@ -6,23 +7,20 @@ import { WebXKeyEvent } from './WebXKeyEvent';
  * information within this object is browser-dependent.
  */
 export class WebXKeyPressEvent extends WebXKeyEvent {
-  private _key: string;
-  private readonly _location: number;
+  private _charCode: number;
 
-  get key(): string {
-    return this._key;
+  public get charCode(): number {
+    return this._charCode;
   }
 
-  get location(): number {
-    return this._location;
+  public set charCode(charCode: number) {
+    this._charCode = charCode;
   }
 
-  constructor(key: string, location: number) {
+  constructor(charCode: number) {
     super();
-    this._key = key;
-    this._location = location;
-    this._keysym = this.keysymFromKeyIdentifier(key, location);
-
+    this.charCode = charCode;
+    this.keysym = WebXKeyboardUtils.keysymFromCharCode(charCode);
     this.reliable = true;
   }
 }

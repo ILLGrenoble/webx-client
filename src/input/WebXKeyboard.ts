@@ -167,8 +167,10 @@ export class WebXKeyboard {
       return;
     }
 
+    const keyCode = event.which;
+
     // Fix modifier states
-    const keydownEvent = new WebXKeydownEvent(event.key, WebXKeyboard._getEventLocation(event));
+    const keydownEvent = new WebXKeydownEvent(keyCode, event.key, event.key, WebXKeyboard._getEventLocation(event));
 
     if (keydownEvent.keysym == null) {
       return;
@@ -205,12 +207,14 @@ export class WebXKeyboard {
       return;
     }
 
-    // Fix modifier states
-    const keypressEvent = new WebXKeyPressEvent(event.key, WebXKeyboard._getEventLocation(event));
+    const charCode = event.which;
 
-    if (keypressEvent.keysym == null) {
-      return;
-    }
+    // Fix modifier states
+    const keypressEvent = new WebXKeyPressEvent(charCode);
+
+    // if (keypressEvent.keysym == null) {
+    //   return;
+    // }
 
     this._syncModifierStates(event, keypressEvent);
 
@@ -237,12 +241,14 @@ export class WebXKeyboard {
 
     event.preventDefault();
 
-    // Fix modifier states
-    const keyupEvent = new WebXKeyUpEvent(event.key, WebXKeyboard._getEventLocation(event));
+    const keyCode = event.which;
 
-    if (keyupEvent.keysym == null) {
-      return;
-    }
+    // Fix modifier states
+    const keyupEvent = new WebXKeyUpEvent(keyCode, event.key, event.key, WebXKeyboard._getEventLocation(event));
+
+    // if (keyupEvent.keysym == null) {
+    //   return;
+    // }
 
     // Fall back to the most recently pressed keysym associated with the
     // keyCode if the inferred key doesn't seem to actually be pressed

@@ -4,8 +4,26 @@ import { WebXKeyboard } from '../WebXKeyboard';
 export class WebXKeydownEvent extends WebXKeyEvent {
 
   private readonly _keyupReliable: boolean;
+  private _keyCode: number;
+  private _keyIdentifier: string;
   private _key: string;
   private _location: number;
+
+  public get keyCode(): number {
+    return this._keyCode;
+  }
+
+  public set keyCode(keyCode: number) {
+    this._keyCode = keyCode;
+  }
+
+  public get keyIdentifier(): string {
+    return this._keyIdentifier;
+  }
+
+  public set keyIdentifier(keyIdentifier: string) {
+    this._keyIdentifier = keyIdentifier;
+  }
 
   public get key(): string {
     return this._key;
@@ -44,15 +62,21 @@ export class WebXKeydownEvent extends WebXKeyEvent {
    *                          the key pressed, as defined at:
    *                          http://www.w3.org/TR/DOM-Level-3-Events/#events-KeyboardEvent
    */
-  constructor(key: string, location: number) {
+  constructor(keyCode: number, keyIdentifier: string, key: string, location: number) {
     super();
+    this._keyCode = keyCode;
+    this._keyIdentifier = keyIdentifier;
     this._key = key;
     this._location = location;
     this._keyupReliable = !WebXKeyboard.quirks.keyupUnreliable;
-    this._keysym = this.keysymFromKeyIdentifier(key, location);
+    this._keysym = this.keysymFromKeyIdentifier(key, location) || this.keysymFromKeycode(keyCode, location);
 
     if (this._keysym && !this.isPrintable()) {
       this._reliable = true;
+    }
+
+    if (!this._keysym && this.keyIdentifierSane(keyCode, keyIdentifier)) {
+      this._keysym = this.keysymFromKeyIdentifier(keyIdentifier, location, WebXKeyboard.modifiers.shift);
     }
 
     // If a key is pressed while meta is held down, the keyup will
