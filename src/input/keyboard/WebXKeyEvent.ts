@@ -183,13 +183,6 @@ export abstract class WebXKeyEvent {
     225: [0xfe03] // altgraph (iso_level3_shift)
   };
 
-
-  /**
-   * An arbitrary timestamp in milliseconds, indicating this event's
-   * position in time relative to other events.
-   */
-  protected _timestamp = new Date().getTime();
-
   /**
    * Whether the default action of this key event should be prevented.
    */
@@ -208,14 +201,6 @@ export abstract class WebXKeyEvent {
    * and future key events may be a better source of information.
    */
   protected _reliable = false;
-
-  public get timestamp() {
-    return this._timestamp;
-  }
-
-  public set timestamp(timestamp: number) {
-    this._timestamp = timestamp;
-  }
 
   public get defaultPrevented(): boolean {
     return this._defaultPrevented;
@@ -239,18 +224,6 @@ export abstract class WebXKeyEvent {
 
   public set reliable(reliable: boolean) {
     this._reliable = reliable;
-  }
-
-  /**
-   * Returns the number of milliseconds elapsed since this event was
-   * received.
-   *
-   * @return {number} The number of milliseconds elapsed since this
-   *                  event was received.
-   */
-  public getAge(): number {
-    const now = new Date().getTime();
-    return now - this._timestamp;
   }
 
   /**
