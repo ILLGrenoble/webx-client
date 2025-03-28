@@ -7,17 +7,18 @@ export class WebXTextureFactory {
 
   constructor(private _tunnel: WebXTunnel) {}
 
-  public getWindowTexture(windowId: number): Promise<{ depth: number; colorMap: Texture; alphaMap: Texture }> {
-    return new Promise<{ depth: number; colorMap: Texture; alphaMap: Texture }>((resolve) => {
-      return this._tunnel.sendRequest(new WebXImageInstruction(windowId)).then((response: WebXImageMessage) => {
-        resolve({
-          depth: response.depth,
-          colorMap: response.colorMap,
-          alphaMap: response.alphaMap,
-        });
-      })
-        .catch(err => console.warn('Failed to get texture: ' + err));
-    });
+  public async getWindowTexture(windowId: number): Promise<{ depth: number; colorMap: Texture; alphaMap: Texture }> {
+    try {
+      const response = await this._tunnel.sendRequest(new WebXImageInstruction(windowId)) as WebXImageMessage;
+      return {
+        depth: response.depth,
+        colorMap: response.colorMap,
+        alphaMap: response.alphaMap,
+      };
+
+    } catch (err) {
+      console.warn('Failed to get texture: ' + err);
+    }
   }
 
   public createTextureFromBase64Array(imageData: string): Promise<Texture> {
@@ -46,27 +47,22 @@ export class WebXTextureFactory {
     });
   }
 
-  public createTextureFromArray(imageData: Uint8Array, mimetype: string): Promise<Texture> {
-    return new Promise<Texture>((resolve, reject) => {
-      if (imageData != null && imageData.byteLength > 0) {
-        const blob = new Blob([imageData], { type: mimetype });
-        this.createTextureFromBlob(blob)
-          .then(texture => {
-            texture.needsUpdate = true;
-            texture.flipY = false;
-            texture.minFilter = LinearFilter;
-            texture.colorSpace = SRGBColorSpace;
+  public async createTextureFromArray(imageData: Uint8Array, mimetype: string): Promise<Texture> {
+    if (imageData != null && imageData.byteLength > 0) {
+      const blob = new Blob([imageData], { type: mimetype });
+      const texture = await this.createTextureFromBlob(blob);
 
-            resolve(texture);
-          })
-          .catch(error => {
-            reject(error);
-          })
 
-      } else {
-        resolve(null);
-      }
-    });
+      texture.needsUpdate = true;
+      texture.flipY = false;
+      texture.minFilter = LinearFilter;
+      texture.colorSpace = SRGBColorSpace;
+
+      return texture;
+
+    } else {
+      return null;
+    }
   }
 
   public createTextureFromBlob(blob: Blob): Promise<Texture> {

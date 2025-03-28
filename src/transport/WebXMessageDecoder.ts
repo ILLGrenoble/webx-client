@@ -118,79 +118,67 @@ export class WebXMessageDecoder {
     });
   }
 
-  private _createMouseMessage(buffer: WebXMessageBuffer): Promise<WebXMouseMessage> {
-    return new Promise<WebXMouseMessage>((resolve) => {
-      const commandId: number = buffer.getUint32();
+  private async _createMouseMessage(buffer: WebXMessageBuffer): Promise<WebXMouseMessage> {
+    const commandId: number = buffer.getUint32();
+    const x = buffer.getInt32();
+    const y = buffer.getInt32();
+    const cursorId = buffer.getUint32();
+    return new WebXMouseMessage(x, y, cursorId, commandId);
+  }
+
+  private async _createWindowsMessage(buffer: WebXMessageBuffer): Promise<WebXWindowsMessage> {
+    const commandId: number = buffer.getUint32();
+    const numberOfWindows: number = buffer.getUint32();
+    const windows: Array<WebXWindowProperties> = new Array<WebXWindowProperties>();
+    for (let i = 0; i < numberOfWindows; i++) {
+      const windowId = buffer.getUint32();
       const x = buffer.getInt32();
       const y = buffer.getInt32();
-      const cursorId = buffer.getUint32();
-      resolve(new WebXMouseMessage(x, y, cursorId, commandId));
-    });
+      const width = buffer.getInt32();
+      const height = buffer.getInt32();
+
+      windows.push(new WebXWindowProperties({ id: windowId, x: x, y: y, width: width, height: height }));
+    }
+    return new WebXWindowsMessage(windows, commandId);
   }
 
-  private _createWindowsMessage(buffer: WebXMessageBuffer): Promise<WebXWindowsMessage> {
-    return new Promise<WebXWindowsMessage>((resolve) => {
-      const commandId: number = buffer.getUint32();
-      const numberOfWindows: number = buffer.getUint32();
-      const windows: Array<WebXWindowProperties> = new Array<WebXWindowProperties>();
-      for (let i = 0; i < numberOfWindows; i++) {
-        const windowId = buffer.getUint32();
-        const x = buffer.getInt32();
-        const y = buffer.getInt32();
-        const width = buffer.getInt32();
-        const height = buffer.getInt32();
+  private async _createCursorImageMessage(buffer: WebXMessageBuffer): Promise<WebXCursorImageMessage> {
+    const commandId: number = buffer.getUint32();
+    const x = buffer.getInt32();
+    const y = buffer.getInt32();
+    const xHot = buffer.getInt32();
+    const yHot = buffer.getInt32();
+    const cursorId = buffer.getUint32();
+    const imageDataSize = buffer.getUint32();
+    const imageData: Uint8Array = buffer.getUint8Array(imageDataSize);
 
-        windows.push(new WebXWindowProperties({ id: windowId, x: x, y: y, width: width, height: height }));
-      }
-      resolve(new WebXWindowsMessage(windows, commandId));
-    });
+    try {
+      const texture = await this._textureFactory.createTextureFromArray(imageData, 'image/png');
+      return new WebXCursorImageMessage(x, y, xHot, yHot, cursorId, texture, commandId);
+
+    } catch (error) {
+      console.error(`Failed to get texture for cursor image: ${error}`);
+    }
   }
 
-  private _createCursorImageMessage(buffer: WebXMessageBuffer): Promise<WebXCursorImageMessage> {
-    return new Promise<WebXCursorImageMessage>((resolve) => {
-      const commandId: number = buffer.getUint32();
-      const x = buffer.getInt32();
-      const y = buffer.getInt32();
-      const xHot = buffer.getInt32();
-      const yHot = buffer.getInt32();
-      const cursorId = buffer.getUint32();
-      const imageDataSize = buffer.getUint32();
-      const imageData: Uint8Array = buffer.getUint8Array(imageDataSize);
-
-      this._textureFactory.createTextureFromArray(imageData, 'image/png')
-        .then(texture => {
-          resolve(new WebXCursorImageMessage(x, y, xHot, yHot, cursorId, texture, commandId));
-        })
-        .catch(() => {
-          console.error('Failed to get texture for cursor image');
-        });
-    });
+  private async _createScreenMessage(buffer: WebXMessageBuffer): Promise<WebXScreenMessage> {
+    const commandId: number = buffer.getUint32();
+    const screenWidth: number = buffer.getInt32();
+    const screenHeight: number = buffer.getInt32();
+    return new WebXScreenMessage({ width: screenWidth, height: screenHeight }, commandId);
   }
 
-  private _createScreenMessage(buffer: WebXMessageBuffer): Promise<WebXScreenMessage> {
-    return new Promise<WebXScreenMessage>((resolve) => {
-      const commandId: number = buffer.getUint32();
-      const screenWidth: number = buffer.getInt32();
-      const screenHeight: number = buffer.getInt32();
-      resolve(new WebXScreenMessage({ width: screenWidth, height: screenHeight }, commandId));
-    });
+  private async _createPingMessage(): Promise<WebXPingMessage> {
+    return new WebXPingMessage();
   }
 
-  private _createPingMessage(): Promise<WebXPingMessage> {
-    return new Promise<WebXPingMessage>((resolve) => {
-      resolve(new WebXPingMessage());
-    });
-  }
-
-  private _createQualityMessage(buffer: WebXMessageBuffer): Promise<WebXQualityMessage> {
-    return new Promise<WebXQualityMessage>((resolve) => {
-      const index: number = buffer.getUint32();
-      const imageFPS: number = buffer.getFloat();
-      const rgbQuality: number = buffer.getFloat();
-      const alphaQuality: number = buffer.getFloat();
-      const maxMbps: number = buffer.getFloat();
-      resolve(new WebXQualityMessage(index, imageFPS, rgbQuality, alphaQuality, maxMbps));
-    });
+  private async _createQualityMessage(buffer: WebXMessageBuffer): Promise<WebXQualityMessage> {
+    const index: number = buffer.getUint32();
+    const imageFPS: number = buffer.getFloat();
+    const rgbQuality: number = buffer.getFloat();
+    const alphaQuality: number = buffer.getFloat();
+    const maxMbps: number = buffer.getFloat();
+    return new WebXQualityMessage(index, imageFPS, rgbQuality, alphaQuality, maxMbps);
   }
 
 }
