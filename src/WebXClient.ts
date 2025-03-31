@@ -27,6 +27,12 @@ import {
 } from './tracer';
 import { WebXBinarySerializer } from './transport';
 
+/**
+ * The main client class for interacting with the WebX Engine.
+ * 
+ * This class provides methods to connect to the WebX Engine, manage the display,
+ * handle user input (mouse and keyboard), and send/receive instructions and messages.
+ */
 export class WebXClient {
 
   private readonly _textureFactory: WebXTextureFactory;
@@ -59,11 +65,22 @@ export class WebXClient {
     return this._keyboard;
   }
 
+  /**
+   * Creates a new instance of the WebXClient.
+   * 
+   * @param _tunnel The WebXTunnel instance used for communication with the WebX Engine.
+   */
   constructor(private _tunnel: WebXTunnel) {
     this._textureFactory = new WebXTextureFactory(this._tunnel);
     this._cursorFactory = new WebXCursorFactory(this._tunnel);
   }
 
+  /**
+   * Connects to the WebX Engine and initializes the communication tunnel.
+   * 
+   * @param onCloseCallback Callback function to execute when the connection is closed.
+   * @param data Additional data to send during the connection process.
+   */
   async connect(onCloseCallback: () => void, data: any): Promise<void> {
     this._onCloseCallback = onCloseCallback;
     await this._tunnel.connect(data, new WebXBinarySerializer(this._textureFactory));
@@ -74,15 +91,18 @@ export class WebXClient {
     this._tunnel.onClosed = this._onTunnelClosed.bind(this);
   }
 
+  /**
+   * Disconnects from the WebX Engine and cleans up resources.
+   */
   disconnect(): void {
     this._tunnel.disconnect();
   }
 
   /**
-   *
-   * @param containerElement The main container
-   * @param screenWidth  the screen width
-   * @param screenHeight the screen height
+   * Initializes the WebX display and input devices.
+   * 
+   * @param containerElement The HTML element to render the display.
+   * @returns A promise that resolves to the initialized WebXDisplay instance.
    */
   async initialise(containerElement: HTMLElement): Promise<WebXDisplay> {
     // Request 1. : Get screen size
@@ -119,10 +139,12 @@ export class WebXClient {
   }
 
   /**
-   *
-   * @param containerElement The main container
-   * @param screenWidth  the screen width
-   * @param screenHeight the screen height
+   * Creates a new WebXDisplay instance.
+   * 
+   * @param containerElement The HTML element to render the display.
+   * @param screenWidth The width of the screen.
+   * @param screenHeight The height of the screen.
+   * @returns The created WebXDisplay instance.
    */
   createDisplay(containerElement: HTMLElement, screenWidth: number, screenHeight: number): WebXDisplay {
     return new WebXDisplay(containerElement, screenWidth, screenHeight, this._textureFactory, this._cursorFactory);
@@ -144,19 +166,20 @@ export class WebXClient {
     return new WebXKeyboard(element);
   }
 
-
   /**
-   * Sends a mouse event having the properties provided by the given mouse state
-   * @param mouseState the state of the mouse to send in the mouse event
+   * Sends a mouse event to the WebX Engine.
+   * 
+   * @param mouseState The state of the mouse to send in the event.
    */
   public sendMouse(mouseState: WebXMouseState): void {
     this._sendInstruction(new WebXMouseInstruction(mouseState.x, mouseState.y, mouseState.getButtonMask()));
   }
 
   /**
-   * Sends a key event
-   * @param pressed {Boolean} Whether the key is pressed (true) or released (false)
-   * @param key {number} the key to send
+   * Sends a key event to the WebX Engine.
+   * 
+   * @param key The key code to send.
+   * @param pressed Whether the key is pressed (true) or released (false).
    */
   public sendKeyEvent(key: number, pressed: boolean): void {
     this._sendInstruction(new WebXKeyboardInstruction(key, pressed));
@@ -179,9 +202,10 @@ export class WebXClient {
   }
 
   /**
-   * Register a new tracer handler
-   * @param name the name of the tracer (must be unique)
-   * @param handler the tracer handler
+   * Registers a new tracer handler.
+   * 
+   * @param name The unique name of the tracer.
+   * @param handler The tracer handler instance.
    */
   registerTracer(name: string, handler: WebXHandler): void {
     this._tracers.set(name, handler);
@@ -195,6 +219,9 @@ export class WebXClient {
     return null;
   }
 
+  /**
+   * Resets the input devices (mouse and keyboard).
+   */
   resetInputs(): void {
     if (this._mouse) {
       this._mouse.reset();
@@ -205,6 +232,9 @@ export class WebXClient {
     }
   }
 
+  /**
+   * Resizes the WebX display to fit the container.
+   */
   resizeDisplay(): void {
     if (this._display) {
       this._display.resize();
@@ -212,8 +242,9 @@ export class WebXClient {
   }
 
   /**
-   * Unregister a tracer
-   * @param name the name of the tracer
+   * Unregisters a tracer handler.
+   * 
+   * @param name The name of the tracer to unregister.
    */
   unregisterTracer(name: string): void {
     const tracer = this._tracers.get(name);
@@ -224,11 +255,24 @@ export class WebXClient {
     }
   }
 
+  /**
+   * Sets the quality index for the WebX Engine.
+   * 
+   * @param qualityIndex The quality index to set.
+   */
   setQualityIndex(qualityIndex: number): void {
     const qualityInstruction = new WebXQualityInstruction(qualityIndex);
     this._sendInstruction(qualityInstruction);
   }
 
+  /**
+   * Retrieves the screen message from the WebX Engine.
+   * 
+   * This method attempts to get the screen message, retrying up to 3 times
+   * if the initial attempts fail.
+   * 
+   * @returns A promise that resolves to the WebXScreenMessage.
+   */
   private async _getScreenMessage(): Promise<WebXScreenMessage> {
     // Perform retries on the first instruction (client can sometimes be activated before the server connection$
     // has been fully made (difficult to judge when the webx-engine subscribes to the webx-relay instruction publisher
@@ -248,6 +292,14 @@ export class WebXClient {
     }
   }
 
+  /**
+   * Sends an instruction to the WebX Engine.
+   * 
+   * This method sends the provided instruction to the WebX Engine if the tunnel
+   * is connected.
+   * 
+   * @param command The instruction to send.
+   */
   private _sendInstruction(command: WebXInstruction): void {
     if (this._tunnel.isConnected()) {
       this._tunnel.sendInstruction(command);
@@ -259,12 +311,30 @@ export class WebXClient {
     }
   }
 
+  /**
+   * Sends a request to the WebX Engine and returns the response.
+   * 
+   * This method sends the provided request to the WebX Engine and returns a promise
+   * that resolves to the response message.
+   * 
+   * @param command The request to send.
+   * @param timeout Optional timeout for the request.
+   * @returns A promise that resolves to the WebXMessage.
+   */
   private _sendRequest(command: WebXInstruction, timeout?: number): Promise<WebXMessage> {
     if (this._tunnel.isConnected()) {
       return this._tunnel.sendRequest(command, timeout);
     }
   }
 
+  /**
+   * Handles incoming messages from the WebX Engine.
+   * 
+   * This method processes messages received from the WebX Engine and takes
+   * appropriate actions based on the message type.
+   * 
+   * @param message The received message.
+   */
   private _handleMessage(message: WebXMessage): void {
     if (!this._display) {
       return;
@@ -296,6 +366,14 @@ export class WebXClient {
     });
   }
 
+  /**
+   * Handles received bytes from the WebX Engine.
+   * 
+   * This method processes the received bytes and updates the tracers with the
+   * received data.
+   * 
+   * @param data The received data as an ArrayBuffer.
+   */
   private _handleReceivedBytes(data: ArrayBuffer): void {
     this._tracers.forEach((value) => {
       if (value instanceof WebXStatsHandler) {
@@ -304,6 +382,14 @@ export class WebXClient {
     });
   }
 
+  /**
+   * Handles sent bytes to the WebX Engine.
+   * 
+   * This method processes the sent bytes and updates the tracers with the
+   * sent data.
+   * 
+   * @param data The sent data as an ArrayBuffer.
+   */
   private _handleSentBytes(data: ArrayBuffer): void {
     this._tracers.forEach((value) => {
       if (value instanceof WebXStatsHandler) {
@@ -312,6 +398,14 @@ export class WebXClient {
     });
   }
 
+  /**
+   * Handles the quality of the connection to the WebX Engine.
+   * 
+   * This method processes the quality data and updates the tracers with the
+   * quality information.
+   * 
+   * @param data The quality data as an ArrayBuffer.
+   */
   private _handleQuality(data: ArrayBuffer): void {
     this._tracers.forEach((value) => {
       if (value instanceof WebXStatsHandler) {
@@ -320,6 +414,12 @@ export class WebXClient {
     });
   }
 
+  /**
+   * Handles the tunnel closed event.
+   * 
+   * This method performs cleanup and executes the onCloseCallback when the
+   * tunnel is closed.
+   */
   private _onTunnelClosed(): void {
     this._dispose();
 
@@ -328,6 +428,11 @@ export class WebXClient {
     }
   }
 
+  /**
+   * Disposes of the WebX client resources.
+   * 
+   * This method cleans up the display, mouse, and keyboard resources.
+   */
   private _dispose(): void {
     if (this._display) {
       this._display.dispose();
@@ -340,6 +445,12 @@ export class WebXClient {
     }
   }
 
+  /**
+   * Adds mouse event listeners to the WebX client.
+   * 
+   * This method sets up the mouse event listeners for mouse move, mouse out,
+   * mouse down, and mouse up events.
+   */
   private _addMouseListeners(): void {
     this._mouse.onMouseMove = this._mouse.onMouseOut = (mouseState: WebXMouseState) => {
       const scale = this._display.scale;
@@ -354,6 +465,11 @@ export class WebXClient {
     };
   }
 
+  /**
+   * Adds keyboard event listeners to the WebX client.
+   * 
+   * This method sets up the keyboard event listeners for key down and key up events.
+   */
   private _addKeyboardListeners(): void {
     this._keyboard.onKeyDown = key => {
       this.sendKeyDown(key);
