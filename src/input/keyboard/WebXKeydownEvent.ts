@@ -1,6 +1,11 @@
 import { WebXKeyEvent } from './WebXKeyEvent';
 import { WebXKeyboard } from '../WebXKeyboard';
 
+/**
+ * Represents a keydown event in the WebX client.
+ * 
+ * This event is triggered when a key is pressed down.
+ */
 export class WebXKeydownEvent extends WebXKeyEvent {
 
   private readonly _keyupReliable: boolean;
@@ -9,6 +14,11 @@ export class WebXKeydownEvent extends WebXKeyEvent {
   private _key: string;
   private _location: number;
 
+  /**
+   * Gets the key code associated with this keydown event.
+   * 
+   * @returns The key code.
+   */
   public get keyCode(): number {
     return this._keyCode;
   }

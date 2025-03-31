@@ -1,30 +1,32 @@
 /**
- * The state of all supported keyboard modifiers
+ * Represents the state of keyboard modifiers (e.g., Shift, Ctrl, Alt).
+ * 
+ * This class tracks the state of each modifier key and provides methods
+ * to update and retrieve the state.
  */
 export class WebXKeyboardModifierState {
-  
   /**
-   * Whether shift is currently pressed.
+   * Whether the Shift key is pressed.
    */
   private _shift: boolean = false;
 
   /**
-   * Whether ctrl is currently pressed.
+   * Whether the Ctrl key is pressed.
    */
   private _ctrl: boolean = false;
 
   /**
-   * Whether alt is currently pressed.
+   * Whether the Alt key is pressed.
    */
   private _alt: boolean = false;
 
   /**
-   * Whether meta (apple key) is currently pressed.
+   * Whether the Meta key (e.g., Command on macOS) is pressed.
    */
   private _meta: boolean = false;
 
   /**
-   * Whether hyper (windows key) is currently pressed.
+   * Whether the Hyper key is pressed.
    */
   private _hyper: boolean = false;
 
@@ -80,8 +82,10 @@ export class WebXKeyboardModifierState {
   }
 
   /**
-   * Handles the modifier state applicable to the keyboard event given
-   * @param event the keyboard event to be read
+   * Updates the modifier state based on a keyboard event.
+   * 
+   * @param event The keyboard event to process.
+   * @returns The updated modifier state.
    */
   public fromKeyboardEvent(event: KeyboardEvent): this {
     this._shift = event.shiftKey;
@@ -95,7 +99,6 @@ export class WebXKeyboardModifierState {
         || event.getModifierState('Hyper')
         || event.getModifierState('Win');
     }
-
 
     return this;
   }

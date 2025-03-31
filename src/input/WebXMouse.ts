@@ -24,6 +24,9 @@ export class WebXMouse {
     this._createDefaultState();
   }
 
+  /**
+   * Called when the client is disposed: removes any bound listeners
+   */
   dispose(): void {
     this._unbindListeners();
   }
@@ -56,6 +59,9 @@ export class WebXMouse {
     this.reset = this.reset.bind(this);
   }
 
+  /**
+   * Unbinds the mouse listeners
+   */
   private _unbindListeners(): void {
     const element = this._element;
     element.removeEventListener('contextmenu', this._contextMenuHandler, false);
@@ -69,6 +75,9 @@ export class WebXMouse {
     this.reset = this.reset.bind(this);
   }
 
+  /**
+   * Creates the default state
+   */
   private _createDefaultState(): void {
     this._currentState = new WebXMouseState({
       x: 0,
@@ -192,7 +201,6 @@ export class WebXMouse {
    * Fired whenever the user moves the mouse
    * @param mouseState the current mouse state
    */
-  // eslint-disable-next-line
   onMouseMove(mouseState: WebXMouseState): void { }
 
   /**
@@ -203,7 +211,6 @@ export class WebXMouse {
    *
    * @param mouseState the current mouse state
    */
-  // eslint-disable-next-line
   onMouseDown(mouseState: WebXMouseState): void { }
 
   /**
@@ -213,7 +220,6 @@ export class WebXMouse {
    * gesture initiated by dragging two fingers up or down, etc.
    * @param mouseState the current mouse state
    */
-  // eslint-disable-next-line
   onMouseUp(mouseState: WebXMouseState): void { }
 
   /**
@@ -222,7 +228,6 @@ export class WebXMouse {
    *
    * @param mouseState the current mouse state
    */
-  // eslint-disable-next-line
   onMouseOut(mouseState: WebXMouseState): void { }
 
 }

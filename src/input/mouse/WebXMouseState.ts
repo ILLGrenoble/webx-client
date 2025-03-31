@@ -38,10 +38,19 @@ export class WebXMouseState {
    */
   private _down: boolean;
 
+  /**
+   * Whether the shift button is currently pressed.
+   */
   private _shift: boolean;
 
+  /**
+   * Whether the ctrl button is currently pressed.
+   */
   private _ctrl: boolean;
 
+  /**
+   * Whether the alt button is currently pressed.
+   */
   private _alt: boolean;
 
   public get x(): number {

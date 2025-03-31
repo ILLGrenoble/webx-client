@@ -4,6 +4,10 @@ import { WebXKeyboardUtils } from './WebXKeyboardUtils';
  * A key event having a corresponding timestamp. This event is non-specific.
  * Its subclasses should be used instead when recording specific key
  * events.
+ * 
+ * Base class for all keyboard events in the WebX client.
+ * 
+ * This class provides common properties and methods for handling keyboard events.
  */
 export abstract class WebXKeyEvent {
 
@@ -202,26 +206,44 @@ export abstract class WebXKeyEvent {
    */
   protected _reliable = false;
 
+  /**
+   * Gets whether the default action of this key event should be prevented.
+   */
   public get defaultPrevented(): boolean {
     return this._defaultPrevented;
   }
 
+  /**
+   * Sets whether the default action of this key event should be prevented.
+   */
   public set defaultPrevented(defaultPrevented: boolean) {
     this._defaultPrevented = defaultPrevented;
   }
 
+  /**
+   * Gets the keysym of the key associated with this key event.
+   */
   public get keysym(): number {
     return this._keysym;
   }
 
+  /**
+   * Sets the keysym of the key associated with this key event.
+   */
   public set keysym(keysym: number) {
     this._keysym = keysym;
   }
 
+  /**
+   * Gets whether the keysym value of this key event is reliable.
+   */
   public get reliable(): boolean {
     return this._reliable;
   }
 
+  /**
+   * Sets whether the keysym value of this key event is reliable.
+   */
   public set reliable(reliable: boolean) {
     this._reliable = reliable;
   }

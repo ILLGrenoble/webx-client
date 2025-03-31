@@ -7,6 +7,12 @@ import {
   WebXKeyUpEvent
 } from './keyboard';
 
+/**
+ * Represents the keyboard input device in the WebX client.
+ * 
+ * This class handles keyboard events, such as key presses and releases,
+ * and provides methods to interact with the keyboard state.
+ */
 export class WebXKeyboard {
 
   private static _NEXT_ID: number = 0;
@@ -102,8 +108,9 @@ export class WebXKeyboard {
   }
 
   /**
-   * Create a new keyboard instance
-   * @param element the element to bind the keyboard to
+   * Constructs a new WebXKeyboard instance.
+   * 
+   * @param element The HTML element to attach the keyboard events to.
    */
   constructor(element: HTMLElement | Document) {
     this._element = element;
@@ -113,6 +120,9 @@ export class WebXKeyboard {
     this._bindListeners();
   }
 
+  /**
+   * Disposes of the keyboard instance and removes event listeners.
+   */
   dispose(): void {
     this._unbindListeners();
   }
