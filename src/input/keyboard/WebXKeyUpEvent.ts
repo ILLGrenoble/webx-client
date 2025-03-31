@@ -7,46 +7,25 @@ import { WebXKeyEvent } from './WebXKeyEvent';
  */
 export class WebXKeyUpEvent extends WebXKeyEvent {
 
-  private readonly _keyCode: number;
-  private readonly _key: string;
-  private readonly _location: number;
-  private readonly _keyIdentifier: string;
+  /**
+   * The key code of the released key.
+   */
+  public readonly keyCode: number;
 
   /**
-   * Gets the key code associated with this keyup event.
-   * 
-   * @returns The key code.
+   * The key of the released key.
    */
-  public get keyCode(): number {
-    return this._keyCode;
-  }
+  public readonly key: string;
 
   /**
-   * Gets the key associated with this keyup event.
-   * 
-   * @returns The key.
+   * The location of the released key.
    */
-  public get key(): string {
-    return this._key;
-  }
+  public readonly location: number;
 
   /**
-   * Gets the location associated with this keyup event.
-   * 
-   * @returns The location.
+   * The key identifier of the released key.
    */
-  public get location(): number {
-    return this._location;
-  }
-
-  /**
-   * Gets the key identifier associated with this keyup event.
-   * 
-   * @returns The key identifier.
-   */
-  public get keyIdentifier(): string {
-    return this._keyIdentifier;
-  }
+  public readonly keyIdentifier: string;
 
   /**
    * Constructs a new WebXKeyUpEvent.
@@ -58,10 +37,10 @@ export class WebXKeyUpEvent extends WebXKeyEvent {
    */
   constructor(keyCode: number, keyIdentifier: string, key: string, location: number) {
     super();
-    this._keyCode = keyCode;
-    this._key = key;
-    this._location = location;
-    this._keyIdentifier = keyIdentifier;
+    this.keyCode = keyCode;
+    this.key = key;
+    this.location = location;
+    this.keyIdentifier = keyIdentifier;
     this._keysym = this.keysymFromKeycode(keyCode, location) || this.keysymFromKeyIdentifier(key, location);
 
     // Keyup is as reliable as it will ever be

@@ -3,7 +3,7 @@ import { WebXKeyboard } from '../WebXKeyboard';
 
 /**
  * Represents a keydown event in the WebX client.
- * 
+ *
  * This event is triggered when a key is pressed down.
  */
 export class WebXKeydownEvent extends WebXKeyEvent {
@@ -11,108 +11,27 @@ export class WebXKeydownEvent extends WebXKeyEvent {
   /**
    * Indicates whether the keyup event is reliable for this key.
    */
-  private readonly _keyupReliable: boolean;
+  public readonly keyupReliable: boolean;
 
   /**
    * The JavaScript key code of the key pressed.
    */
-  private _keyCode: number;
+  public readonly keyCode: number;
 
   /**
    * The legacy DOM3 "keyIdentifier" of the key pressed.
    */
-  private _keyIdentifier: string;
+  public readonly keyIdentifier: string;
 
   /**
    * The standard name of the key pressed.
    */
-  private _key: string;
+  public readonly key: string;
 
   /**
    * The location on the keyboard corresponding to the key pressed.
    */
-  private _location: number;
-
-  /**
-   * Gets the key code associated with this keydown event.
-   * 
-   * @returns The key code.
-   */
-  public get keyCode(): number {
-    return this._keyCode;
-  }
-
-  /**
-   * Sets the key code associated with this keydown event.
-   * 
-   * @param keyCode The key code to set.
-   */
-  public set keyCode(keyCode: number) {
-    this._keyCode = keyCode;
-  }
-
-  /**
-   * Gets the legacy DOM3 "keyIdentifier" of the key pressed.
-   * 
-   * @returns The key identifier.
-   */
-  public get keyIdentifier(): string {
-    return this._keyIdentifier;
-  }
-
-  /**
-   * Sets the legacy DOM3 "keyIdentifier" of the key pressed.
-   * 
-   * @param keyIdentifier The key identifier to set.
-   */
-  public set keyIdentifier(keyIdentifier: string) {
-    this._keyIdentifier = keyIdentifier;
-  }
-
-  /**
-   * Gets the standard name of the key pressed.
-   * 
-   * @returns The key name.
-   */
-  public get key(): string {
-    return this._key;
-  }
-
-  /**
-   * Sets the standard name of the key pressed.
-   * 
-   * @param key The key name to set.
-   */
-  public set key(key: string) {
-    this._key = key;
-  }
-
-  /**
-   * Gets the location on the keyboard corresponding to the key pressed.
-   * 
-   * @returns The key location.
-   */
-  public get location(): number {
-    return this._location;
-  }
-
-  /**
-   * Sets the location on the keyboard corresponding to the key pressed.
-   * 
-   * @param location The key location to set.
-   */
-  public set location(location: number) {
-    this._location = location;
-  }
-
-  /**
-   * Indicates whether the keyup event is reliable for this key.
-   * 
-   * @returns True if the keyup event is reliable, false otherwise.
-   */
-  public get keyupReliable(): boolean {
-    return this._keyupReliable;
-  }
+  public readonly location: number;
 
   /**
    * Information related to the pressing of a key, which need not be a key
@@ -133,11 +52,11 @@ export class WebXKeydownEvent extends WebXKeyEvent {
    */
   constructor(keyCode: number, keyIdentifier: string, key: string, location: number) {
     super();
-    this._keyCode = keyCode;
-    this._keyIdentifier = keyIdentifier;
-    this._key = key;
-    this._location = location;
-    this._keyupReliable = !WebXKeyboard.quirks.keyupUnreliable;
+    this.keyCode = keyCode;
+    this.keyIdentifier = keyIdentifier;
+    this.key = key;
+    this.location = location;
+    this.keyupReliable = !WebXKeyboard.quirks.keyupUnreliable;
     this._keysym = this.keysymFromKeyIdentifier(key, location) || this.keysymFromKeycode(keyCode, location);
 
     if (this._keysym && !this.isPrintable()) {
@@ -151,9 +70,9 @@ export class WebXKeydownEvent extends WebXKeyEvent {
     // If a key is pressed while meta is held down, the keyup will
     // never be sent in Chrome (bug #108404)
     if (WebXKeyboard.modifiers.meta && this._keysym !== 0xFFE7 && this._keysym !== 0xFFE8) {
-      this._keyupReliable = false;
+      this.keyupReliable = false;
     } else if (this.keysym === 0xFFE5 && WebXKeyboard.quirks.capsLockKeyupUnreliable) {
-      this._keyupReliable = false;
+      this.keyupReliable = false;
     }
 
     // Determine whether default action for Ctrl+combinations must be prevented
