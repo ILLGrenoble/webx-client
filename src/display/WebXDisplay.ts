@@ -41,26 +41,56 @@ export class WebXDisplay {
 
   private _disposed = false;
 
+  /**
+   * Gets the WebGL renderer used for rendering the display.
+   * 
+   * @returns The WebGLRenderer instance.
+   */
   public get renderer(): THREE.WebGLRenderer {
     return this._renderer;
   }
 
+  /**
+   * Gets the width of the screen.
+   * 
+   * @returns The screen width in pixels.
+   */
   public get screenWidth(): number {
     return this._screenWidth;
   }
 
+  /**
+   * Gets the height of the screen.
+   * 
+   * @returns The screen height in pixels.
+   */
   public get screenHeight(): number {
     return this._screenHeight;
   }
 
+  /**
+   * Gets the HTML container element for the display.
+   * 
+   * @returns The container HTMLElement.
+   */
   public get containerElement(): HTMLElement {
     return this._containerElement;
   }
 
+  /**
+   * Gets the current scale factor of the display.
+   * 
+   * @returns The scale factor as a number.
+   */
   public get scale(): number {
     return this._scale;
   }
 
+  /**
+   * Gets the Three.js scene used for rendering.
+   * 
+   * @returns The Scene instance.
+   */
   public get scene(): THREE.Scene {
     return this._scene;
   }
@@ -367,7 +397,7 @@ export class WebXDisplay {
   }
 
   /**
-   * Creates the main display element.
+   * Creates the main display element and sets its dimensions.
    * 
    * @returns The created HTML element.
    */
@@ -391,7 +421,7 @@ export class WebXDisplay {
   }
 
   /**
-   * Renders the display to the screen.
+   * Renders the display by appending the display and bounding elements to the container.
    */
   private _render(): void {
     this._clearElements();

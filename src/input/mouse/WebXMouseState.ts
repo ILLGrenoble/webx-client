@@ -53,82 +53,182 @@ export class WebXMouseState {
    */
   private _alt: boolean;
 
+  /**
+   * Gets the current X position of the mouse pointer.
+   * 
+   * @returns The X-coordinate as a number.
+   */
   public get x(): number {
     return this._x;
   }
 
+  /**
+   * Sets the current X position of the mouse pointer.
+   * 
+   * @param value The new X-coordinate as a number.
+   */
   public set x(value: number) {
     this._x = value;
   }
 
+  /**
+   * Gets the current Y position of the mouse pointer.
+   * 
+   * @returns The Y-coordinate as a number.
+   */
   public get y(): number {
     return this._y;
   }
 
+  /**
+   * Sets the current Y position of the mouse pointer.
+   * 
+   * @param value The new Y-coordinate as a number.
+   */
   public set y(value: number) {
     this._y = value;
   }
 
+  /**
+   * Gets whether the left mouse button is currently pressed.
+   * 
+   * @returns True if the left button is pressed, false otherwise.
+   */
   public get left(): boolean {
     return this._left;
   }
 
+  /**
+   * Sets whether the left mouse button is currently pressed.
+   * 
+   * @param value True to indicate the left button is pressed, false otherwise.
+   */
   public set left(value: boolean) {
     this._left = value;
   }
 
+  /**
+   * Gets whether the middle mouse button is currently pressed.
+   * 
+   * @returns True if the middle button is pressed, false otherwise.
+   */
   public get middle(): boolean {
     return this._middle;
   }
 
+  /**
+   * Sets whether the middle mouse button is currently pressed.
+   * 
+   * @param value True to indicate the middle button is pressed, false otherwise.
+   */
   public set middle(value: boolean) {
     this._middle = value;
   }
 
+  /**
+   * Gets whether the right mouse button is currently pressed.
+   * 
+   * @returns True if the right button is pressed, false otherwise.
+   */
   public get right(): boolean {
     return this._right;
   }
 
+  /**
+   * Sets whether the right mouse button is currently pressed.
+   * 
+   * @param value True to indicate the right button is pressed, false otherwise.
+   */
   public set right(value: boolean) {
     this._right = value;
   }
 
+  /**
+   * Gets whether the up mouse button (scroll up) is currently pressed.
+   * 
+   * @returns True if the up button is pressed, false otherwise.
+   */
   public get up(): boolean {
     return this._up;
   }
 
+  /**
+   * Sets whether the up mouse button (scroll up) is currently pressed.
+   * 
+   * @param value True to indicate the up button is pressed, false otherwise.
+   */
   public set up(value: boolean) {
     this._up = value;
   }
 
+  /**
+   * Gets whether the down mouse button (scroll down) is currently pressed.
+   * 
+   * @returns True if the down button is pressed, false otherwise.
+   */
   public get down(): boolean {
     return this._down;
   }
 
+  /**
+   * Sets whether the down mouse button (scroll down) is currently pressed.
+   * 
+   * @param value True to indicate the down button is pressed, false otherwise.
+   */
   public set down(value: boolean) {
     this._down = value;
   }
 
+  /**
+   * Gets whether the shift key is currently pressed.
+   * 
+   * @returns True if the shift key is pressed, false otherwise.
+   */
   public get shift(): boolean {
     return this._shift;
   }
 
+  /**
+   * Sets whether the shift key is currently pressed.
+   * 
+   * @param value True to indicate the shift key is pressed, false otherwise.
+   */
   public set shift(value: boolean) {
     this._shift = value;
   }
 
+  /**
+   * Gets whether the ctrl key is currently pressed.
+   * 
+   * @returns True if the ctrl key is pressed, false otherwise.
+   */
   public get ctrl(): boolean {
     return this._ctrl;
   }
 
+  /**
+   * Sets whether the ctrl key is currently pressed.
+   * 
+   * @param value True to indicate the ctrl key is pressed, false otherwise.
+   */
   public set ctrl(value: boolean) {
     this._ctrl = value;
   }
 
+  /**
+   * Gets whether the alt key is currently pressed.
+   * 
+   * @returns True if the alt key is pressed, false otherwise.
+   */
   public get alt(): boolean {
     return this._alt;
   }
 
+  /**
+   * Sets whether the alt key is currently pressed.
+   * 
+   * @param value True to indicate the alt key is pressed, false otherwise.
+   */
   public set alt(value: boolean) {
     this._alt = value;
   }
@@ -149,7 +249,7 @@ export class WebXMouseState {
   }
 
   /**
-   * Release all buttons
+   * Releases all mouse buttons by setting their states to false.
    */
   public releaseButtons(): void {
     this._left = false;
@@ -158,7 +258,9 @@ export class WebXMouseState {
   }
 
   /**
-   * Get a button mask for this mouse state
+   * Generates a bitmask representing the current state of mouse buttons and modifiers.
+   * 
+   * @returns A number representing the button mask.
    */
   public getButtonMask(): number {
     let mask = 0;

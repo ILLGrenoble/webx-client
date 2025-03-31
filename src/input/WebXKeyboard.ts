@@ -145,6 +145,11 @@ export class WebXKeyboard {
     }
   }
 
+  /**
+   * Adds a keyboard event to the internal event queue.
+   * 
+   * @param event The keyboard event to add.
+   */
   private _addEvent(event: WebXKeyEvent): void {
     this._events.push(event);
   }
@@ -159,6 +164,9 @@ export class WebXKeyboard {
     element.addEventListener('keyup', this._keyUpHandler, true);
   }
 
+  /**
+   * Unbinds the keyboard listeners from the associated element.
+   */
   private _unbindListeners(): void {
     const element = this._element;
     element.removeEventListener('keydown', this._keyDownHandler, true);
@@ -166,6 +174,11 @@ export class WebXKeyboard {
     element.removeEventListener('keyup', this._keyUpHandler, true);
   }
 
+  /**
+   * Handles the keydown event by interpreting and processing it.
+   * 
+   * @param event The keyboard event to handle.
+   */
   private _bindKeyDownListener(event: KeyboardEvent) {
     // Only intercept if handler set
     if (!this.onKeyDown) {
@@ -205,6 +218,11 @@ export class WebXKeyboard {
     event.stopPropagation();
   }
 
+  /**
+   * Handles the keypress event by interpreting and processing it.
+   * 
+   * @param event The keyboard event to handle.
+   */
   private _bindKeyPressListener(event: KeyboardEvent) {
 
     // Only intercept if handler set
@@ -238,6 +256,11 @@ export class WebXKeyboard {
     event.stopPropagation();
   }
 
+  /**
+   * Handles the keyup event by interpreting and processing it.
+   * 
+   * @param event The keyboard event to handle.
+   */
   private _bindKeyUpListener(event: KeyboardEvent) {
     // Only intercept if handler set
     if (!this.onKeyUp) {
@@ -621,7 +644,7 @@ export class WebXKeyboard {
   }
 
   /**
-   * Clear the key repeat timers
+   * Clears the timers used for key repeat functionality.
    */
   private _clearKeyRepeatTimers(): void {
     clearTimeout(this._keyRepeatTimeout);
@@ -629,8 +652,10 @@ export class WebXKeyboard {
   }
 
   /**
-   * Checks to see if a key is pressed
-   * @param keysym the key to check
+   * Checks if a key is currently pressed.
+   * 
+   * @param keysym The keysym of the key to check.
+   * @returns true if the key is pressed, false otherwise.
    */
   private _isKeyPressed(keysym: number): boolean {
     return this._pressed[keysym];

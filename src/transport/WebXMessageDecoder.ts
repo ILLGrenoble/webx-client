@@ -14,6 +14,8 @@ import { WebXMessageBuffer } from './WebXMessageBuffer';
 
 /**
  * Decodes binary messages received from the WebX Engine into WebXMessage objects.
+ * This class handles various message types and converts them into their respective
+ * WebXMessage implementations.
  */
 export class WebXMessageDecoder {
   /**
@@ -21,8 +23,7 @@ export class WebXMessageDecoder {
    * 
    * @param _textureFactory The texture factory used to create textures from image data.
    */
-  constructor(private _textureFactory: WebXTextureFactory) {
-  }
+  constructor(private _textureFactory: WebXTextureFactory) {}
 
   /**
    * Decodes a binary message buffer into a WebXMessage object.
@@ -61,6 +62,12 @@ export class WebXMessageDecoder {
     console.error(`Failed to decode message with typeId ${messageTypeId}`);
   }
 
+  /**
+   * Determines the MIME type of an image based on its type string.
+   * 
+   * @param imageType The image type string (e.g., 'jpg', 'png').
+   * @returns The corresponding MIME type.
+   */
   private _determineMimeType(imageType: string): string {
     if (imageType.substr(0, 3) === 'jpg') {
       return 'image/jpeg';
@@ -70,6 +77,12 @@ export class WebXMessageDecoder {
     return 'image/bmp';
   }
 
+  /**
+   * Decodes a buffer into a WebXImageMessage.
+   * 
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to a WebXImageMessage.
+   */
   private _createImageMessage(buffer: WebXMessageBuffer): Promise<WebXImageMessage> {
     return new Promise<WebXImageMessage>((resolve) => {
       const commandId: number = buffer.getUint32();
@@ -92,6 +105,12 @@ export class WebXMessageDecoder {
     });
   }
 
+  /**
+   * Decodes a buffer into a WebXSubImagesMessage containing multiple sub-images.
+   * 
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to a WebXSubImagesMessage.
+   */
   private _createSubImagesMessage(buffer: WebXMessageBuffer): Promise<WebXSubImagesMessage> {
     return new Promise<WebXSubImagesMessage>((resolve) => {
       const commandId: number = buffer.getUint32();
@@ -131,6 +150,12 @@ export class WebXMessageDecoder {
     });
   }
 
+  /**
+   * Decodes a buffer into a WebXMouseMessage, which contains mouse position and cursor ID.
+   * 
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to a WebXMouseMessage.
+   */
   private async _createMouseMessage(buffer: WebXMessageBuffer): Promise<WebXMouseMessage> {
     const commandId: number = buffer.getUint32();
     const x = buffer.getInt32();
@@ -139,6 +164,12 @@ export class WebXMessageDecoder {
     return new WebXMouseMessage(x, y, cursorId, commandId);
   }
 
+  /**
+   * Decodes a buffer into a WebXWindowsMessage, which contains information about multiple windows.
+   * 
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to a WebXWindowsMessage.
+   */
   private async _createWindowsMessage(buffer: WebXMessageBuffer): Promise<WebXWindowsMessage> {
     const commandId: number = buffer.getUint32();
     const numberOfWindows: number = buffer.getUint32();
@@ -155,6 +186,12 @@ export class WebXMessageDecoder {
     return new WebXWindowsMessage(windows, commandId);
   }
 
+  /**
+   * Decodes a buffer into a WebXCursorImageMessage, which contains cursor image data.
+   * 
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to a WebXCursorImageMessage.
+   */
   private async _createCursorImageMessage(buffer: WebXMessageBuffer): Promise<WebXCursorImageMessage> {
     const commandId: number = buffer.getUint32();
     const x = buffer.getInt32();
@@ -174,6 +211,12 @@ export class WebXMessageDecoder {
     }
   }
 
+  /**
+   * Decodes a buffer into a WebXScreenMessage, which contains screen dimensions.
+   * 
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to a WebXScreenMessage.
+   */
   private async _createScreenMessage(buffer: WebXMessageBuffer): Promise<WebXScreenMessage> {
     const commandId: number = buffer.getUint32();
     const screenWidth: number = buffer.getInt32();
@@ -181,10 +224,21 @@ export class WebXMessageDecoder {
     return new WebXScreenMessage({ width: screenWidth, height: screenHeight }, commandId);
   }
 
+  /**
+   * Creates a WebXPingMessage, which is used for pinging purposes.
+   * 
+   * @returns A promise that resolves to a WebXPingMessage.
+   */
   private async _createPingMessage(): Promise<WebXPingMessage> {
     return new WebXPingMessage();
   }
 
+  /**
+   * Decodes a buffer into a WebXQualityMessage, which contains quality metrics.
+   * 
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to a WebXQualityMessage.
+   */
   private async _createQualityMessage(buffer: WebXMessageBuffer): Promise<WebXQualityMessage> {
     const index: number = buffer.getUint32();
     const imageFPS: number = buffer.getFloat();

@@ -8,10 +8,29 @@ import { WebXKeyboard } from '../WebXKeyboard';
  */
 export class WebXKeydownEvent extends WebXKeyEvent {
 
+  /**
+   * Indicates whether the keyup event is reliable for this key.
+   */
   private readonly _keyupReliable: boolean;
+
+  /**
+   * The JavaScript key code of the key pressed.
+   */
   private _keyCode: number;
+
+  /**
+   * The legacy DOM3 "keyIdentifier" of the key pressed.
+   */
   private _keyIdentifier: string;
+
+  /**
+   * The standard name of the key pressed.
+   */
   private _key: string;
+
+  /**
+   * The location on the keyboard corresponding to the key pressed.
+   */
   private _location: number;
 
   /**
@@ -23,34 +42,74 @@ export class WebXKeydownEvent extends WebXKeyEvent {
     return this._keyCode;
   }
 
+  /**
+   * Sets the key code associated with this keydown event.
+   * 
+   * @param keyCode The key code to set.
+   */
   public set keyCode(keyCode: number) {
     this._keyCode = keyCode;
   }
 
+  /**
+   * Gets the legacy DOM3 "keyIdentifier" of the key pressed.
+   * 
+   * @returns The key identifier.
+   */
   public get keyIdentifier(): string {
     return this._keyIdentifier;
   }
 
+  /**
+   * Sets the legacy DOM3 "keyIdentifier" of the key pressed.
+   * 
+   * @param keyIdentifier The key identifier to set.
+   */
   public set keyIdentifier(keyIdentifier: string) {
     this._keyIdentifier = keyIdentifier;
   }
 
+  /**
+   * Gets the standard name of the key pressed.
+   * 
+   * @returns The key name.
+   */
   public get key(): string {
     return this._key;
   }
 
+  /**
+   * Sets the standard name of the key pressed.
+   * 
+   * @param key The key name to set.
+   */
   public set key(key: string) {
     this._key = key;
   }
 
+  /**
+   * Gets the location on the keyboard corresponding to the key pressed.
+   * 
+   * @returns The key location.
+   */
   public get location(): number {
     return this._location;
   }
 
+  /**
+   * Sets the location on the keyboard corresponding to the key pressed.
+   * 
+   * @param location The key location to set.
+   */
   public set location(location: number) {
     this._location = location;
   }
 
+  /**
+   * Indicates whether the keyup event is reliable for this key.
+   * 
+   * @returns True if the keyup event is reliable, false otherwise.
+   */
   public get keyupReliable(): boolean {
     return this._keyupReliable;
   }

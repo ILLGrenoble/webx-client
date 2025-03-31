@@ -37,89 +37,189 @@ export class WebXWindow {
     return this._mesh;
   }
 
+  /**
+   * Gets the color index of the window.
+   * 
+   * @returns The color index as a number.
+   */
   get colorIndex(): number {
     return this._colorIndex;
   }
 
+  /**
+   * Gets the unique ID of the window.
+   * 
+   * @returns The window ID as a number.
+   */
   public get id(): number {
     return this._id;
   }
 
+  /**
+   * Gets the visibility status of the window.
+   * 
+   * @returns True if the window is visible, false otherwise.
+   */
   public get visible(): boolean {
     return this._material.visible;
   }
 
+  /**
+   * Sets the visibility status of the window.
+   * 
+   * @param visible True to make the window visible, false to hide it.
+   */
   private set visible(visible: boolean) {
     if (this._material.visible !== visible) {
       this._material.visible = visible;
     }
   }
 
+  /**
+   * Gets the color map texture of the window.
+   * 
+   * @returns The color map as a Texture.
+   */
   public get colorMap(): Texture {
     return this._material.map;
   }
 
+  /**
+   * Sets the color map texture of the window.
+   * 
+   * @param colorMap The new color map as a Texture.
+   */
   private set colorMap(colorMap: Texture) {
     this._material.map = colorMap;
   }
 
+  /**
+   * Gets the alpha map texture of the window.
+   * 
+   * @returns The alpha map as a Texture.
+   */
   get alphaMap(): Texture {
     return this._material.alphaMap;
   }
 
+  /**
+   * Sets the alpha map texture of the window.
+   * 
+   * @param alphaMap The new alpha map as a Texture.
+   */
   private set alphaMap(alphaMap: Texture) {
     this._material.alphaMap = alphaMap;
   }
 
+  /**
+   * Checks if the color map is valid.
+   * 
+   * @returns True if the color map is valid, false otherwise.
+   */
   public get colorMapValid(): boolean {
     return this.colorMap != null && this.colorMap.image.width === this._width && this.colorMap.image.height === this._height;
   }
 
+  /**
+   * Gets the depth of the window.
+   * 
+   * @returns The depth as a number.
+   */
   public get depth(): number {
     return this._depth;
   }
 
+  /**
+   * Gets the x-coordinate of the window.
+   * 
+   * @returns The x-coordinate as a number.
+   */
   get x(): number {
     return this._x;
   }
 
+  /**
+   * Sets the x-coordinate of the window.
+   * 
+   * @param value The new x-coordinate as a number.
+   */
   public set x(value: number) {
     this._x = value;
     this._updatePosition();
   }
 
+  /**
+   * Gets the y-coordinate of the window.
+   * 
+   * @returns The y-coordinate as a number.
+   */
   get y(): number {
     return this._y;
   }
 
+  /**
+   * Sets the y-coordinate of the window.
+   * 
+   * @param value The new y-coordinate as a number.
+   */
   public set y(value: number) {
     this._y = value;
     this._updatePosition();
   }
 
+  /**
+   * Gets the z-index of the window.
+   * 
+   * @returns The z-index as a number.
+   */
   get z(): number {
     return this._z;
   }
 
+  /**
+   * Sets the z-index of the window.
+   * 
+   * @param value The new z-index as a number.
+   */
   public set z(value: number) {
     this._z = value;
     this._updatePosition();
   }
 
+  /**
+   * Gets the width of the window.
+   * 
+   * @returns The width as a number.
+   */
   get width(): number {
     return this._width;
   }
 
+  /**
+   * Sets the width of the window.
+   * 
+   * @param value The new width as a number.
+   */
   public set width(value: number) {
     this._width = value;
     this._updateScale();
     this._updatePosition();
   }
 
+  /**
+   * Gets the height of the window.
+   * 
+   * @returns The height as a number.
+   */
   get height(): number {
     return this._height;
   }
 
+  /**
+   * Sets the height of the window.
+   * 
+   * @param value The new height as a number.
+   */
   public set height(value: number) {
     this._height = value;
     this._updateScale();
@@ -251,14 +351,14 @@ export class WebXWindow {
   }
 
   /**
-   * Updates the scale of the window mesh.
+   * Updates the scale of the window mesh based on its width and height.
    */
   private _updateScale(): void {
     this._mesh.scale.set(this._width, this._height, 1);
   }
 
   /**
-   * Updates the position of the window mesh.
+   * Updates the position of the window mesh based on its x, y, and z coordinates.
    */
   private _updatePosition(): void {
     this._mesh.position.set(this._x + 0.5 * this._width, this._y + 0.5 * this._height, this._z);
@@ -278,7 +378,7 @@ export class WebXWindow {
   }
 
   /**
-   * Disposes of the color map texture.
+   * Disposes of the color map texture, releasing its resources.
    */
   private _disposeColorMap(): void {
     if (this.colorMap) {
@@ -288,7 +388,7 @@ export class WebXWindow {
   }
 
   /**
-   * Disposes of the alpha map texture.
+   * Disposes of the alpha map texture, releasing its resources.
    */
   private _disposeAlphaMap(): void {
     if (this.alphaMap) {

@@ -45,22 +45,37 @@ export class WebXClient {
   private _mouse: WebXMouse;
   private _keyboard: WebXKeyboard;
 
+  /**
+   * Gets the WebXTunnel instance used for communication with the WebX Engine.
+   */
   get tunnel(): WebXTunnel {
     return this._tunnel;
   }
 
+  /**
+   * Gets the map of registered tracer handlers.
+   */
   get tracers(): Map<string, WebXHandler> {
     return this._tracers;
   }
 
+  /**
+   * Gets the WebXDisplay instance used for rendering the display.
+   */
   get display(): WebXDisplay {
     return this._display;
   }
 
+  /**
+   * Gets the WebXMouse instance used for handling mouse input.
+   */
   get mouse(): WebXMouse {
     return this._mouse;
   }
 
+  /**
+   * Gets the WebXKeyboard instance used for handling keyboard input.
+   */
   get keyboard(): WebXKeyboard {
     return this._keyboard;
   }
