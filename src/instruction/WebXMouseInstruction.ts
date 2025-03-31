@@ -1,39 +1,38 @@
 import { WebXInstruction } from './WebXInstruction';
 import { WebXInstructionType } from './WebXInstructionType';
 
+/**
+ * Represents an instruction to update the mouse state in the WebX Engine.
+ * 
+ * This instruction is used to send mouse movement or button state changes to the WebX Engine.
+ */
 export class WebXMouseInstruction extends WebXInstruction {
-  private _x: number;
-  private _y: number;
-  private _buttonMask: number;
+  /**
+   * The x-coordinate of the mouse pointer.
+   */
+  public readonly x: number;
 
-  public get x(): number {
-    return this._x;
-  }
+  /**
+   * The y-coordinate of the mouse pointer.
+   */
+  public readonly y: number;
 
-  public set x(x: number) {
-    this._x = x;
-  }
+  /**
+   * The button mask representing the state of mouse buttons.
+   */
+  public readonly buttonMask: number;
 
-  public get y(): number {
-    return this._y;
-  }
-
-  public set y(y: number) {
-    this._y = y;
-  }
-
-  public get buttonMask(): number {
-    return this._buttonMask;
-  }
-
-  public set buttonMask(buttonMask: number) {
-    this._buttonMask = buttonMask;
-  }
-
+  /**
+   * Constructs a new WebXMouseInstruction.
+   * 
+   * @param x The x-coordinate of the mouse pointer.
+   * @param y The y-coordinate of the mouse pointer.
+   * @param buttonMask The button mask representing the state of mouse buttons.
+   */
   constructor(x: number, y: number, buttonMask: number) {
     super(WebXInstructionType.MOUSE);
-    this._x = x;
-    this._y = y;
-    this._buttonMask = buttonMask;
+    this.x = x;
+    this.y = y;
+    this.buttonMask = buttonMask;
   }
 }

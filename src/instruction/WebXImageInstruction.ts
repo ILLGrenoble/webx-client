@@ -1,19 +1,24 @@
 import { WebXInstruction } from './WebXInstruction';
 import { WebXInstructionType } from './WebXInstructionType';
 
+/**
+ * Represents an instruction to request an image for a specific window.
+ * 
+ * This instruction is used to fetch the image data for a window from the WebX Engine.
+ */
 export class WebXImageInstruction extends WebXInstruction {
-  private _windowId: number;
+  /**
+   * The ID of the window for which the image is requested.
+   */
+  public readonly windowId: number;
 
-  public get windowId(): number {
-    return this._windowId;
-  }
-
-  public set windowId(windowId: number) {
-    this._windowId = windowId;
-  }
-
+  /**
+   * Constructs a new WebXImageInstruction.
+   * 
+   * @param windowId The ID of the window.
+   */
   constructor(windowId: number) {
     super(WebXInstructionType.IMAGE);
-    this._windowId = windowId;
+    this.windowId = windowId;
   }
 }

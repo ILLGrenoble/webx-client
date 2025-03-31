@@ -1,29 +1,31 @@
 import { WebXInstruction } from './WebXInstruction';
 import { WebXInstructionType } from './WebXInstructionType';
 
+/**
+ * Represents an instruction to update the keyboard state in the WebX Engine.
+ * 
+ * This instruction is used to send key press or release events to the WebX Engine.
+ */
 export class WebXKeyboardInstruction extends WebXInstruction {
-  private _key: number;
-  private _pressed: boolean;
+  /**
+   * The key code of the key being pressed or released.
+   */
+  public readonly key: number;
 
-  public get key(): number {
-    return this._key;
-  }
+  /**
+   * Whether the key is being pressed (true) or released (false).
+   */
+  public readonly pressed: boolean;
 
-  public set key(key: number) {
-    this._key = key;
-  }
-
-  public get pressed(): boolean {
-    return this._pressed;
-  }
-
-  public set pressed(pressed: boolean) {
-    this._pressed = pressed;
-  }
-
+  /**
+   * Constructs a new WebXKeyboardInstruction.
+   * 
+   * @param key The key code of the key being pressed or released.
+   * @param pressed Whether the key is being pressed (true) or released (false).
+   */
   constructor(key: number, pressed: boolean) {
     super(WebXInstructionType.KEYBOARD);
-    this._key = key;
-    this._pressed = pressed;
+    this.key = key;
+    this.pressed = pressed;
   }
 }

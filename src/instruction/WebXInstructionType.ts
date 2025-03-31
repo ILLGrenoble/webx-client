@@ -1,17 +1,67 @@
+/**
+ * Enum representing the types of WebX instructions.
+ * 
+ * These types are used to categorize instructions sent to the WebX Engine.
+ */
 export enum WebXInstructionType {
+
+  /**
+   * Instruction to connect to the WebX Engine.
+   */
   CONNECT = 1,
+
+  /**
+   * Instruction to request visible window layout.
+   */
   WINDOWS = 2,
+
+  /**
+   * Instruction to request window image data.
+   */
   IMAGE = 3,
+
+  /**
+   * Instruction to request the screen settings.
+   */
   SCREEN = 4,
+
+  /**
+   * Instruction to send a mouse event.
+   */
   MOUSE = 5,
+
+  /**
+   * Instruction to send a keyboard event.
+   */
   KEYBOARD = 6,
+
+  /**
+   * Instruction to request the cursor image.
+   */
   CURSOR_IMAGE = 7,
+
+  /**
+   * Instruction to set the quality index.
+   */
   QUALITY = 8,
+
+  /**
+   * Instruction to respond to a ping message.
+   */
   PONG = 9,
+
+  /**
+   * Instruction to acknowledge data.
+   */
   DATA_ACK = 10,
 }
 
 export namespace WebXInstructionType {
+  /**
+   * Converts a string representation of a WebX instruction type to its corresponding enum value.
+   * @param value the string representation of the instruction type.
+   * @returns the corresponding WebXInstructionType enum value.
+   */
   export function fromString(value: string): WebXInstructionType {
     switch (value) {
       case 'CONNECT':
