@@ -1,3 +1,10 @@
+1.0.0 31/03/2025
+================
+ * Refactoring: use of public readonly members rather than private readonly with getters
+ * Full code documentation
+ * Refactoring: use of async/await rather than explicit promises
+ * Handling of numlock and numerical keypad
+
 0.10.0 21/03/2025
 =================
  * Minor changes, less errors thrown
