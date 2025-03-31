@@ -1,10 +1,22 @@
 import { WebXInstruction } from '../instruction';
 
+/**
+ * Represents a buffer for encoding and decoding WebX instructions.
+ * 
+ * This class provides methods to write and read data in a structured format
+ * for communication with the WebX Engine.
+ */
 export class WebXInstructionBuffer {
 
   private readonly _buffer: ArrayBuffer;
   private _offset;
 
+  /**
+   * Creates a new instance of WebXInstructionBuffer.
+   * 
+   * @param instruction The WebX instruction.
+   * @param length The length of the buffer in bytes.
+   */
   constructor(instruction: WebXInstruction, length: number) {
     // 16 for sessionID place holder (set by the relay), 4 for the clientId (set by the relay) and 8 for the instruction type and id, 4 padding
     // Maintain 8 bit alignment to ensure long values can be written without additional padding
@@ -37,6 +49,7 @@ export class WebXInstructionBuffer {
 
   /**
    * Write a signed 32 bit integer to the buffer
+   * @param value the value to write
    */
   public putInt32(value: number): WebXInstructionBuffer {
     const offset = this._getNextOffset(4);
@@ -67,6 +80,11 @@ export class WebXInstructionBuffer {
     return this;
   }
 
+  /**
+   * Write an array of unsigned 8 bit integers to the buffer
+   * @param array the array to write
+   * @param length the length of the array
+   */
   putUInt8Array(array: Uint8Array, length: number): WebXInstructionBuffer {
     const offset = this._getNextOffset(8);
     const typedArray = new Uint8Array(this._buffer, offset, length);
@@ -96,6 +114,7 @@ export class WebXInstructionBuffer {
 
   /**
    * Get the array buffer
+   * @returns the array buffer
    */
   public buffer(): ArrayBuffer {
     return this._buffer;

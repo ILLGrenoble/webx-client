@@ -12,11 +12,24 @@ import {
 import { WebXSubImage, WebXTextureFactory, WebXWindowProperties } from '../display';
 import { WebXMessageBuffer } from './WebXMessageBuffer';
 
+/**
+ * Decodes binary messages received from the WebX Engine into WebXMessage objects.
+ */
 export class WebXMessageDecoder {
-
+  /**
+   * Creates a new instance of WebXMessageDecoder.
+   * 
+   * @param _textureFactory The texture factory used to create textures from image data.
+   */
   constructor(private _textureFactory: WebXTextureFactory) {
   }
 
+  /**
+   * Decodes a binary message buffer into a WebXMessage object.
+   * 
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to the decoded WebXMessage.
+   */
   decode(buffer: WebXMessageBuffer): Promise<WebXMessage> {
     const { messageTypeId } = buffer;
 

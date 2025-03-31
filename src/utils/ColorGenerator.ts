@@ -1,3 +1,9 @@
+/**
+ * Utility class for generating colors.
+ * 
+ * This class provides methods to generate random colors or retrieve colors
+ * from a predefined palette based on an index.
+ */
 export class ColorGenerator {
 
   private static _COLOURS = [
@@ -13,15 +19,26 @@ export class ColorGenerator {
     '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'
   ]
 
-    public static randomColour(): string {
-      const index = Math.floor(Math.random() * ColorGenerator._COLOURS.length);
-      return ColorGenerator._COLOURS[index];
-    }
+  /**
+   * Generates a random color from the predefined palette.
+   * 
+   * @returns A random color as a hexadecimal string.
+   */
+  public static randomColour(): string {
+    const index = Math.floor(Math.random() * ColorGenerator._COLOURS.length);
+    return ColorGenerator._COLOURS[index];
+  }
 
-    public static indexedColour(index: number): string {
-      index = index % ColorGenerator._COLOURS.length;
-      return ColorGenerator._COLOURS[index];
-    }
-
-
+  /**
+   * Retrieves a color from the predefined palette based on the given index.
+   * 
+   * If the index exceeds the palette size, it wraps around using modulo.
+   * 
+   * @param index The index of the color to retrieve.
+   * @returns The color as a hexadecimal string.
+   */
+  public static indexedColour(index: number): string {
+    index = index % ColorGenerator._COLOURS.length;
+    return ColorGenerator._COLOURS[index];
+  }
 }

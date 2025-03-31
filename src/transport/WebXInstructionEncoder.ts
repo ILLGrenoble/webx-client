@@ -14,10 +14,18 @@ import {
 } from '../instruction';
 import { WebXInstructionBuffer } from '.';
 
+/**
+ * Encodes WebX instructions into a format suitable for transmission.
+ * This class handles various instruction types and ensures they are
+ * serialized correctly.
+ */
 export class WebXInstructionEncoder {
 
-  // Convert the given instruction to an array buffer ready to be sent along the wire
-  // @param instruction the instruction to encode
+  /**
+   * Convert the given instruction to an array buffer ready to be sent along the wire
+   * @param instruction the instruction to encode
+   * @returns The encoded instruction as an ArrayBuffer.
+   */
   public encode(instruction: WebXInstruction): ArrayBuffer {
     if (instruction.type === WebXInstructionType.MOUSE) {
       return this._createMouseInstruction(instruction as WebXMouseInstruction);
@@ -52,19 +60,21 @@ export class WebXInstructionEncoder {
     return null;
   }
 
-  // Create a new mouse instruction
-  // @param instruction the mouse instruction to encode
-  // Structure:
-  //   Header: 32 bytes
-  //    sessionId: 16 bytes
-  //    clientId:4 bytes
-  //    type: 4 bytes
-  //    id: 4 bytes
-  //    padding: 4 bytes
-  //   Content: 4 bytes
-  //    x: 4 bytes
-  //    y: 4 bytes
-  //    buttonMask: 4 bytes
+  /**
+   * Create a new mouse instruction
+   * @param instruction the mouse instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId:4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   *   Content: 4 bytes
+   *    x: 4 bytes
+   *    y: 4 bytes
+   *    buttonMask: 4 bytes
+   */
   private _createMouseInstruction(instruction: WebXMouseInstruction): ArrayBuffer {
     const encoder = new WebXInstructionBuffer(instruction, 12);
     return encoder
@@ -75,17 +85,19 @@ export class WebXInstructionEncoder {
       .buffer();
   }
 
-  // Create a new cursor image instruction
-  // @param instruction the cursor image instruction to encode
-  // Structure:
-  //   Header: 32 bytes
-  //    sessionId: 16 bytes
-  //    clientId:4 bytes
-  //    type: 4 bytes
-  //    id: 4 bytes
-  //    padding: 4 bytes
-  //   Content: 4 bytes
-  //    cursorId: 4 bytes
+  /**
+   * Create a new cursor image instruction
+   * @param instruction the cursor image instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId:4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   *   Content: 4 bytes
+   *    cursorId: 4 bytes
+   */
   private _createCursorImageInstruction(instruction: WebXCursorImageInstruction): ArrayBuffer {
     const encoder = new WebXInstructionBuffer(instruction, 4);
     return encoder
@@ -94,17 +106,19 @@ export class WebXInstructionEncoder {
       .buffer();
   }
 
-  // Create a new image instruction
-  // @param instruction the image instruction to encode
-  // Structure:
-  //   Header: 32 bytes
-  //    sessionId: 16 bytes
-  //    clientId:4 bytes
-  //    type: 4 bytes
-  //    id: 4 bytes
-  //    padding: 4 bytes
-  //   Content: 4 bytes
-  //    windowId: 4 bytes
+  /**
+   * Create a new image instruction
+   * @param instruction the image instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId:4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   *   Content: 4 bytes
+   *    windowId: 4 bytes
+   */
   private _createImageInstruction(instruction: WebXImageInstruction): ArrayBuffer {
     const encoder = new WebXInstructionBuffer(instruction, 4);
     return encoder
@@ -113,18 +127,20 @@ export class WebXInstructionEncoder {
       .buffer();
   }
 
-  // Create a keyboard instruction
-  // @param instruction the keyboard instruction to encode
-  // Structure:
-  //   Header: 32 bytes
-  //    sessionId: 16 bytes
-  //    clientId: 4 bytes
-  //    type: 4 bytes
-  //    id: 4 bytes
-  //    padding: 4 bytes
-  //   Content: 8 bytes
-  //    key (the keyboard key code): 4 bytes
-  //    pressed: 4 bytes
+  /**
+   * Create a keyboard instruction
+   * @param instruction the keyboard instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   *   Content: 8 bytes
+   *    key (the keyboard key code): 4 bytes
+   *    pressed: 4 bytes
+   */
   private _createKeyboardInstruction(instruction: WebXKeyboardInstruction): ArrayBuffer {
     const encoder = new WebXInstructionBuffer(instruction, 8);
     return encoder
@@ -134,60 +150,68 @@ export class WebXInstructionEncoder {
       .buffer();
   }
 
-  // Create a screen instruction
-  // @param instruction the screen instruction to encode
-  // Structure:
-  //   Header: 32 bytes
-  //    sessionId: 16 bytes
-  //    clientId: 4 bytes
-  //    type: 4 bytes
-  //    id: 4 bytes
-  //    padding: 4 bytes
+  /**
+   * Create a screen instruction
+   * @param instruction the screen instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   */
   private _createScreenInstruction(instruction: WebXScreenInstruction): ArrayBuffer {
     const encoder = new WebXInstructionBuffer(instruction, 0);
     return encoder.buffer();
   }
 
-  // Create a windows instruction
-  // Structure:
-  //   Header: 32 bytes
-  //    sessionId: 16 bytes
-  //    clientId: 4 bytes
-  //    type: 4 bytes
-  //    id: 4 bytes
-  //    padding: 4 bytes
-  // @param instruction the windows instruction to encode
+  /**
+   * Create a windows instruction
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   * @param instruction the windows instruction to encode
+   */
   private _createWindowsInstruction(instruction: WebXWindowsInstruction): ArrayBuffer {
     const encoder = new WebXInstructionBuffer(instruction, 0);
     return encoder.buffer();
   }
 
-  // Create a connect instruction
-  // @param instruction the connect instruction to encode
-  // Structure:
-  //   Header: 32 bytes
-  //    sessionId: 16 bytes
-  //    clientId: 4 bytes
-  //    type: 4 bytes
-  //    id: 4 bytes
-  //    padding: 4 bytes
+  /**
+   * Create a connect instruction
+   * @param instruction the connect instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   */
   private _createConnectInstruction(instruction: WebXConnectInstruction): ArrayBuffer {
     const encoder = new WebXInstructionBuffer(instruction, 0);
     return encoder.buffer();
   }
 
 
-  // Create a new quality instruction
-  // @param instruction the quality instruction to encode
-  // Structure:
-  //   Header: 32 bytes
-  //    sessionId: 16 bytes
-  //    clientId: 4 bytes
-  //    type: 4 bytes
-  //    id: 4 bytes
-  //    padding: 4 bytes
-  //   Content: 4 bytes
-  //    qualityIndex: 4 bytes
+  /**
+   * Create a new quality instruction
+   * @param instruction the quality instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   *   Content: 4 bytes
+   *    qualityIndex: 4 bytes
+   */
   private _createQualityInstruction(instruction: WebXQualityInstruction): ArrayBuffer {
     const encoder = new WebXInstructionBuffer(instruction, 4);
     return encoder
@@ -196,17 +220,19 @@ export class WebXInstructionEncoder {
       .buffer();
   }
 
-  // Create a new pong instruction
-  // @param instruction the pong instruction to encode
-  // Structure:
-  //   Header: 32 bytes
-  //    sessionId: 16 bytes
-  //    clientId: 4 bytes
-  //    type: 4 bytes
-  //    id: 4 bytes
-  //    padding: 4 bytes
-  //   Content: 8 bytes
-  //     timestampMs: 8 bytes
+  /**
+   * Create a new pong instruction
+   * @param instruction the pong instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   *   Content: 8 bytes
+   *     timestampMs: 8 bytes
+   */
   private _createPongInstruction(instruction: WebXPongInstruction): ArrayBuffer {
     const encoder = new WebXInstructionBuffer(instruction, 8);
     return encoder
@@ -215,18 +241,20 @@ export class WebXInstructionEncoder {
       .buffer();
   }
 
-  // Create a new data ack instruction
-  // @param instruction the data ack instruction to encode
-  // Structure:
-  //   Header: 32 bytes
-  //    sessionId: 16 bytes
-  //    clientId: 4 bytes
-  //    type: 4 bytes
-  //    id: 4 bytes
-  //    padding: 4 bytes
-  //   Content: 8 bytes
-  //     timestampMs: 8 bytes
-  //     dataLength: 4 bytes
+  /**
+   * Create a new data ack instruction
+   * @param instruction the data ack instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   *   Content: 8 bytes
+   *     timestampMs: 8 bytes
+   *     dataLength: 4 bytes
+   */
   private _createDataAckInstruction(instruction: WebXDataAckInstruction): ArrayBuffer {
     const encoder = new WebXInstructionBuffer(instruction, 12);
     return encoder
