@@ -6,8 +6,16 @@ import { WebXImageMessage, WebXMessage, WebXMessageType, WebXSubImagesMessage } 
 import { WebXMessageHandler } from "./WebXMessageHandler";
 import { WebXHandler } from "./WebXHandler";
 
+/**
+ * Handles debug image messages for the WebX client.
+ * This class is responsible for rendering debug images in a 3D scene
+ * and managing their lifecycle.
+ */
 export class WebXDebugImageMessageHandler extends WebXMessageHandler implements WebXHandler {
 
+  /**
+   * Geometry used for creating debug image planes.
+   */
   private static _PLANE_GEOMETRY: PlaneGeometry = new PlaneGeometry(1.0, 1.0, 2, 2);
 
   private _scene: Scene;
@@ -16,6 +24,10 @@ export class WebXDebugImageMessageHandler extends WebXMessageHandler implements 
   private _disposed = false;
   private _tweenGroup = new Group();
 
+  /**
+   * Constructs a new WebXDebugImageMessageHandler.
+   * @param _display The WebX display instance used for rendering.
+   */
   constructor(private _display: WebXDisplay) {
     super();
     this._debugLayer.position.set(0, 0, 999);
@@ -25,6 +37,14 @@ export class WebXDebugImageMessageHandler extends WebXMessageHandler implements 
     this._animate();
   }
 
+  /**
+   * Creates a mesh for rendering a debug image.
+   * @param x The x-coordinate of the mesh.
+   * @param y The y-coordinate of the mesh.
+   * @param width The width of the mesh.
+   * @param height The height of the mesh.
+   * @param colour The color of the mesh.
+   */
   private _createMesh(x: number, y: number, width: number, height: number, colour: string): void {
     const material = new MeshBasicMaterial({ color: colour, opacity: 0.8, transparent: true });
     material.side = BackSide;
@@ -42,6 +62,10 @@ export class WebXDebugImageMessageHandler extends WebXMessageHandler implements 
       .start();
   }
 
+  /**
+   * Handles an incoming WebX message.
+   * @param message The WebX message to handle.
+   */
   handle(message: WebXMessage): void {
 
     if (message.type === WebXMessageType.IMAGE) {
@@ -61,6 +85,9 @@ export class WebXDebugImageMessageHandler extends WebXMessageHandler implements 
     }
   }
 
+  /**
+   * Cleans up resources used by this handler.
+   */
   destroy(): void {
     this._disposed = true;
 
@@ -73,6 +100,9 @@ export class WebXDebugImageMessageHandler extends WebXMessageHandler implements 
     this._debugLayer.removeFromParent();
   }
 
+  /**
+   * Animates the debug layer.
+   */
   private _animate(): void {
     if (!this._disposed) {
       requestAnimationFrame((time) => {
