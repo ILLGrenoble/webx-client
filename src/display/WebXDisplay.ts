@@ -5,10 +5,16 @@ import { WebXWindow } from './WebXWindow';
 import { WebXWindowProperties } from './WebXWindowProperties';
 import { WebXSubImage } from './WebXSubImage';
 import { WebXCursor } from './WebXCursor';
-import { Tween } from "@tweenjs/tween.js";
 import { WebXTextureFactory } from './WebXTextureFactory';
 import { WebXCursorFactory } from './WebXCursorFactory';
 
+/**
+ * Manages the rendering of the WebX remote desktop using WebGL.
+ * 
+ * This class handles the creation and management of the WebGL scene, including
+ * windows, cursor, and scaling. It provides methods to update the display
+ * and interact with the rendered elements.
+ */
 export class WebXDisplay {
 
   private readonly _scene: THREE.Scene;
@@ -16,8 +22,8 @@ export class WebXDisplay {
   private readonly _renderer: THREE.WebGLRenderer;
   private readonly _screen: THREE.Object3D;
 
-  private readonly _screenWidth;
-  private readonly _screenHeight;
+  private readonly _screenWidth: number;
+  private readonly _screenHeight: number;
 
   private readonly _textureFactory: WebXTextureFactory;
 
@@ -59,6 +65,15 @@ export class WebXDisplay {
     return this._scene;
   }
 
+  /**
+   * Creates a new instance of WebXDisplay.
+   * 
+   * @param containerElement The HTML element to render the display.
+   * @param screenWidth The width of the screen.
+   * @param screenHeight The height of the screen.
+   * @param textureFactory The texture factory used for creating textures.
+   * @param cursorFactory The cursor factory used for managing cursors.
+   */
   constructor(containerElement: HTMLElement, screenWidth: number, screenHeight: number, textureFactory: WebXTextureFactory, cursorFactory: WebXCursorFactory) {
     this._containerElement = containerElement;
     this._screenWidth = screenWidth;
@@ -93,14 +108,25 @@ export class WebXDisplay {
     this._renderer.render(this._scene, this._camera);
   }
 
+  /**
+   * Displays the screen by adding it to the scene.
+   */
   showScreen(): void {
     this._scene.add(this._screen);
   }
 
+  /**
+   * Hides the screen by removing it from the scene.
+   */
   hideScreen(): void {
     this._scene.remove(this._screen);
   }
 
+  /**
+   * Disposes of all resources used by the display.
+   * 
+   * This includes removing windows, clearing elements, and releasing WebGL resources.
+   */
   dispose(): void {
     this.hideScreen();
 
@@ -117,6 +143,11 @@ export class WebXDisplay {
     this._disposed = true;
   }
 
+  /**
+   * Animates the display by continuously rendering the scene.
+   * 
+   * This method uses `requestAnimationFrame` to update the display at regular intervals.
+   */
   animate(): void {
     if (!this._disposed) {
       requestAnimationFrame(() => {
@@ -127,6 +158,11 @@ export class WebXDisplay {
     }
   }
 
+  /**
+   * Adds a new window to the display.
+   * 
+   * @param window The WebXWindow instance to add.
+   */
   addWindow(window: WebXWindow): void {
     if (this._windows.find(existingWindow => existingWindow.id === window.id) == null) {
       // console.log("Adding window ", window.id)
@@ -135,6 +171,11 @@ export class WebXDisplay {
     }
   }
 
+  /**
+   * Removes a window from the display.
+   * 
+   * @param window The WebXWindow instance to remove.
+   */
   removeWindow(window: WebXWindow): void {
     if (this._windows.find(existingWindow => existingWindow.id === window.id) != null) {
       // console.log("Removing window ", window.id)
@@ -143,6 +184,12 @@ export class WebXDisplay {
     }
   }
 
+  /**
+   * Updates the display with the given windows.
+   * 
+   * @param windows The list of windows to update.
+   * @returns A promise that resolves when all windows are updated.
+   */
   updateWindows(windows: Array<WebXWindowProperties>): Promise<void> {
     return new Promise((resolve) => {
       // Get windows to remove
@@ -190,6 +237,12 @@ export class WebXDisplay {
     })
   }
 
+  /**
+   * Checks if all specified windows are visible.
+   * 
+   * @param windowIds The list of window IDs to check.
+   * @returns True if all windows are visible, false otherwise.
+   */
   checkVisibility(windowIds: number[]): boolean {
     const allVisible = windowIds
       .map(id => this.getWindow(id))
@@ -200,6 +253,14 @@ export class WebXDisplay {
     return allVisible;
   }
 
+  /**
+   * Updates the texture of a window with new image data.
+   * 
+   * @param windowId The ID of the window to update.
+   * @param depth The depth of the image.
+   * @param colorMap The color texture.
+   * @param alphaMap The alpha texture.
+   */
   updateImage(windowId: number, depth: number, colorMap: Texture, alphaMap: Texture): void {
     const window: WebXWindow = this.getWindow(windowId);
     if (window != null && !(colorMap == null && alphaMap == null)) {
@@ -207,6 +268,12 @@ export class WebXDisplay {
     }
   }
 
+  /**
+   * Updates sub-images of a window with new image data.
+   * 
+   * @param windowId The ID of the window to update.
+   * @param subImages The list of sub-images to update.
+   */
   updateSubImages(windowId: number, subImages: WebXSubImage[]): void {
     const window: WebXWindow = this.getWindow(windowId);
     if (window != null && window.colorMapValid) {
@@ -225,28 +292,48 @@ export class WebXDisplay {
     }
   }
 
+  /**
+   * Updates the mouse position and cursor on the display.
+   * 
+   * @param x The x-coordinate of the mouse.
+   * @param y The y-coordinate of the mouse.
+   * @param cursorId The ID of the cursor to display.
+   */
   updateMouse(x: number, y: number, cursorId: number): void {
     this._cursor.updateCursorId(x, y, cursorId);
   }
 
+  /**
+   * Updates the mouse position without changing the cursor.
+   * 
+   * @param x The x-coordinate of the mouse.
+   * @param y The y-coordinate of the mouse.
+   */
   updateMousePosition(x: number, y: number): void {
     this._cursor.setPosition(x, y);
   }
 
+  /**
+   * Retrieves a window by its ID.
+   * 
+   * @param id The ID of the window to retrieve.
+   * @returns The WebXWindow instance, or undefined if not found.
+   */
   getWindow(id: number): WebXWindow {
     return this._windows.find(window => window.id === id);
   }
 
   /**
-   * Set the scale
-   * @param scale the scale (between 0 and 1)
+   * Sets the scale of the display.
+   * 
+   * @param scale The scale factor (between 0 and 1).
    */
   setScale(scale: number): void {
     this._scale = scale;
   }
 
   /**
-   * Scale automatically
+   * Automatically scales the display to fit its container.
    */
   autoScale(): void {
     const container = this._containerElement;
@@ -256,9 +343,9 @@ export class WebXDisplay {
   }
 
   /**
-   * Update the screen scale
-   * @param scale between 0 and 1 or empty. If empty then the display will autoscale
-   *              to fit the dimensions of its container
+   * Resizes the display to fit its container.
+   * 
+   * @param scale Optional scale factor. If not provided, the display will auto-scale.
    */
   resize(scale?: number): void {
     const element = this._boundsElement;
@@ -270,13 +357,20 @@ export class WebXDisplay {
     element.style.transform = `scale(${this._scale},${this._scale})`;
   }
 
-
+  /**
+   * Clears all child elements from the container element.
+   */
   private _clearElements(): void {
     while (this._containerElement.firstChild) {
       this._containerElement.removeChild(this._containerElement.firstChild);
     }
   }
 
+  /**
+   * Creates the main display element.
+   * 
+   * @returns The created HTML element.
+   */
   private _createDisplayElement(): HTMLElement {
     const element = document.createElement('div');
     element.style.width = `${this._screenWidth}px`;
@@ -285,6 +379,11 @@ export class WebXDisplay {
     return element;
   }
 
+  /**
+   * Creates the bounding element for the display.
+   * 
+   * @returns The created HTML element.
+   */
   private _createDisplayBoundingElement(): HTMLElement {
     const element = document.createElement('div');
     element.appendChild(this._displayElement);
@@ -292,7 +391,7 @@ export class WebXDisplay {
   }
 
   /**
-   * Render the display to the screen
+   * Renders the display to the screen.
    */
   private _render(): void {
     this._clearElements();
@@ -302,7 +401,7 @@ export class WebXDisplay {
   }
 
   /**
-   * Bind the event listeners
+   * Binds event listeners for resizing and other interactions.
    */
   private _bindListeners(): void {
     this.resize = this.resize.bind(this);

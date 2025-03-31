@@ -3,10 +3,21 @@ import {WebXImageInstruction} from '../instruction';
 import {LinearFilter, SRGBColorSpace, Texture} from 'three';
 import {WebXImageMessage} from '../message';
 
+/**
+ * Factory class for creating and managing textures for WebX windows.
+ * 
+ * This class retrieves textures from the WebX Engine and caches them for reuse.
+ */
 export class WebXTextureFactory {
 
   constructor(private _tunnel: WebXTunnel) {}
 
+  /**
+   * Retrieves the textures (colorMap and alphaMap) for a specific window ID from the WebX Engine.
+   * 
+   * @param windowId The ID of the window to retrieve the texture for.
+   * @returns A promise that resolves to the textures and associated data.
+   */
   public async getWindowTexture(windowId: number): Promise<{ depth: number; colorMap: Texture; alphaMap: Texture }> {
     try {
       const response = await this._tunnel.sendRequest(new WebXImageInstruction(windowId)) as WebXImageMessage;
@@ -21,6 +32,12 @@ export class WebXTextureFactory {
     }
   }
 
+  /**
+   * Creates a texture from a base64-encoded image data.
+   * 
+   * @param imageData The base64-encoded image data.
+   * @returns A promise that resolves to the created texture.
+   */
   public createTextureFromBase64Array(imageData: string): Promise<Texture> {
     return new Promise<Texture>((resolve, reject) => {
       if (imageData != null && imageData !== '') {
@@ -47,6 +64,13 @@ export class WebXTextureFactory {
     });
   }
 
+  /**
+   * Creates a texture from raw image data.
+   * 
+   * @param imageData The raw image data as a Uint8Array.
+   * @param mimetype The MIME type of the image data (e.g., "image/png").
+   * @returns A promise that resolves to the created texture.
+   */
   public async createTextureFromArray(imageData: Uint8Array, mimetype: string): Promise<Texture> {
     if (imageData != null && imageData.byteLength > 0) {
       const blob = new Blob([imageData], { type: mimetype });
@@ -65,6 +89,12 @@ export class WebXTextureFactory {
     }
   }
 
+  /**
+   * Creates a texture from a Blob object.
+   * 
+   * @param blob The Blob object containing the image data.
+   * @returns A promise that resolves to the created texture.
+   */
   public createTextureFromBlob(blob: Blob): Promise<Texture> {
     // not supported by all of the browsers at the moment
     // https://caniuse.com/createimagebitmap

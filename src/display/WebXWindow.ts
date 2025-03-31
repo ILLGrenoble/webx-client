@@ -2,6 +2,12 @@ import * as THREE from 'three';
 import { WebXTextureFactory } from './WebXTextureFactory';
 import { Texture, LinearFilter } from 'three';
 
+/**
+ * Represents a window in the WebX display.
+ * 
+ * This class manages the rendering of a single window, including its position,
+ * size, and texture updates.
+ */
 export class WebXWindow {
   public static WINDOW_REFRESH_TIME_MS = 5000;
   private static _PLANE_GEOMETRY: THREE.PlaneGeometry = new THREE.PlaneGeometry(1.0, 1.0, 2, 2);
@@ -22,6 +28,11 @@ export class WebXWindow {
 
   private _windowRefreshTimeout: number = null;
 
+  /**
+   * Gets the THREE.js mesh representing the window.
+   * 
+   * @returns The window mesh.
+   */
   public get mesh(): THREE.Mesh {
     return this._mesh;
   }
@@ -115,6 +126,12 @@ export class WebXWindow {
     this._updatePosition();
   }
 
+  /**
+   * Creates a new instance of WebXWindow.
+   * 
+   * @param configuration The properties of the window, such as position and size.
+   * @param textureFactory The factory used to create textures for the window.
+   */
   constructor(configuration: { id: number; x: number; y: number; z: number; width: number; height: number }, textureFactory: WebXTextureFactory) {
     this._textureFactory = textureFactory;
     this._colorIndex = WebXWindow._COLOR_INDEX++;
@@ -139,11 +156,23 @@ export class WebXWindow {
     this._updatePosition();
   }
 
+  /**
+   * Loads the window image from the texture factory.
+   */
   public async loadWindowImage(): Promise<void> {
     const response = await this._textureFactory.getWindowTexture(this._id);
     this.updateTexture(response.depth, response.colorMap, response.alphaMap, true);
   }
 
+  /**
+   * Updates the position and size of the window.
+   * 
+   * @param x The x-coordinate of the window.
+   * @param y The y-coordinate of the window.
+   * @param z The z-index of the window.
+   * @param width The width of the window.
+   * @param height The height of the window.
+   */
   public setRectangle(x: number, y: number, z: number, width: number, height: number): void {
     this._x = x;
     this._y = y;
@@ -168,6 +197,14 @@ export class WebXWindow {
     this._updatePosition();
   }
 
+  /**
+   * Updates the textures of the window with new image data.
+   * 
+   * @param depth The depth of the image.
+   * @param colorMap The color texture.
+   * @param alphaMap The alpha texture.
+   * @param isFullWindow Whether to force an update of the textures.
+   */
   public updateTexture(depth: number, colorMap: Texture, alphaMap: Texture, isFullWindow: boolean): void {
     this._depth = depth;
 
@@ -213,14 +250,23 @@ export class WebXWindow {
     }
   }
 
+  /**
+   * Updates the scale of the window mesh.
+   */
   private _updateScale(): void {
     this._mesh.scale.set(this._width, this._height, 1);
   }
 
+  /**
+   * Updates the position of the window mesh.
+   */
   private _updatePosition(): void {
     this._mesh.position.set(this._x + 0.5 * this._width, this._y + 0.5 * this._height, this._z);
   }
 
+  /**
+   * Disposes of the resources used by the window.
+   */
   dispose(): void {
     this._disposeColorMap();
     this._disposeAlphaMap();
@@ -231,6 +277,9 @@ export class WebXWindow {
     }
   }
 
+  /**
+   * Disposes of the color map texture.
+   */
   private _disposeColorMap(): void {
     if (this.colorMap) {
       this.colorMap.dispose();
@@ -238,6 +287,9 @@ export class WebXWindow {
     }
   }
 
+  /**
+   * Disposes of the alpha map texture.
+   */
   private _disposeAlphaMap(): void {
     if (this.alphaMap) {
       this.alphaMap.dispose();
