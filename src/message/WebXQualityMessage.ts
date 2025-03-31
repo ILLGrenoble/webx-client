@@ -1,29 +1,53 @@
 import { WebXMessage } from './WebXMessage';
 import { WebXMessageType } from './WebXMessageType';
 
+/**
+ * Represents a message containing quality-related information.
+ * 
+ * This message is received from the WebX Engine and contains details about
+ * the quality settings.
+ */
 export class WebXQualityMessage extends WebXMessage {
+  /**
+   * The quality index.
+   */
+  public readonly index: number;
 
-  get index(): number {
-    return this._index;
-  }
+  /**
+   * The frames per second (FPS) for image rendering.
+   */
+  public readonly imageFPS: number;
 
-  get imageFPS(): number {
-    return this._imageFPS;
-  }
+  /**
+   * The quality level for RGB data.
+   */
+  public readonly rgbQuality: number;
 
-  get rgbQuality(): number {
-    return this._rgbQuality;
-  }
+  /**
+   * The quality level for alpha data.
+   */
+  public readonly alphaQuality: number;
 
-  get alphaQuality(): number {
-    return this._alphaQuality;
-  }
+  /**
+   * The maximum bandwidth in Mbps for window image updates.
+   */
+  public readonly maxMbps: number;
 
-  get maxMbps(): number {
-    return this._maxMbps;
-  }
-
-  constructor(private _index: number, private _imageFPS: number, private _rgbQuality: number, private _alphaQuality: number, private _maxMbps: number) {
+  /**
+   * Constructs a new WebXQualityMessage.
+   * 
+   * @param index The quality index.
+   * @param imageFPS The frames per second for image rendering.
+   * @param rgbQuality The quality level for RGB data.
+   * @param alphaQuality The quality level for alpha data.
+   * @param maxMbps The maximum bandwidth in Mbps.
+   */
+  constructor(index: number, imageFPS: number, rgbQuality: number, alphaQuality: number, maxMbps: number) {
     super(WebXMessageType.QUALITY);
+    this.index = index;
+    this.imageFPS = imageFPS;
+    this.rgbQuality = rgbQuality;
+    this.alphaQuality = alphaQuality;
+    this.maxMbps = maxMbps;
   }
 }

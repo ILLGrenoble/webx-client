@@ -2,33 +2,54 @@ import { WebXMessage } from './WebXMessage';
 import { WebXMessageType } from './WebXMessageType';
 import { Texture } from 'three';
 
+/**
+ * Represents a message containing image data for a window.
+ * 
+ * This message is received from the WebX Engine and contains the color and
+ * alpha textures for a specific window.
+ */
 export class WebXImageMessage extends WebXMessage {
-  public get windowId(): number {
-    return this._windowId;
-  }
+  /**
+   * The ID of the window associated with this image.
+   */
+  public readonly windowId: number;
 
-  public get depth(): number {
-    return this._depth;
-  }
+  /**
+   * The depth of the image (e.g., 24-bit or 32-bit).
+   */
+  public readonly depth: number;
 
-  public get colorMap(): Texture {
-    return this._colorMap;
-  }
+  /**
+   * The color texture of the image.
+   */
+  public readonly colorMap: Texture;
 
-  public get alphaMap(): Texture {
-    return this._alphaMap;
-  }
+  /**
+   * The alpha texture of the image.
+   */
+  public readonly alphaMap: Texture;
 
-  public get size(): number {
-    return this._size;
-  }
+  /**
+   * The size of the image.
+   */
+  public readonly size: number;
 
-  constructor(private readonly _windowId: number,
-              private readonly _depth: number,
-              private readonly _colorMap: Texture,
-              private readonly _alphaMap: Texture,
-              commandId: number,
-              private readonly _size: number) {
+  /**
+   * Constructs a new WebXImageMessage.
+   * 
+   * @param windowId The ID of the window.
+   * @param depth The depth of the image.
+   * @param colorMap The color texture.
+   * @param alphaMap The alpha texture.
+   * @param commandId The ID of the command associated with this message.
+   * @param size The size of the image.
+   */
+  constructor(windowId: number, depth: number, colorMap: Texture, alphaMap: Texture, commandId: number, size: number) {
     super(WebXMessageType.IMAGE, commandId);
+    this.windowId = windowId;
+    this.depth = depth;
+    this.colorMap = colorMap;
+    this.alphaMap = alphaMap;
+    this.size = size;
   }
 }

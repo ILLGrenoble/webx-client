@@ -1,13 +1,30 @@
 import { WebXMessageType } from './WebXMessageType';
 
-export class WebXMessage {
-  public get type(): WebXMessageType {
-    return this._messageType;
-  }
+/**
+ * Base class for all WebX messages.
+ * 
+ * Messages are data structures received from the WebX Engine, containing
+ * information about the state of the remote desktop or responses to instructions.
+ */
+export abstract class WebXMessage {
+  /**
+   * The type of the message.
+   */
+  public readonly type: WebXMessageType;
 
-  public get commandId(): number {
-    return this._commandId;
-  }
+  /**
+   * The ID of the command associated with this message.
+   */
+  public readonly commandId: number;
 
-  constructor(private _messageType: WebXMessageType, private _commandId: number = 0) {}
+  /**
+   * Constructs a new WebXMessage.
+   * 
+   * @param type The type of the message.
+   * @param commandId The ID of the command associated with this message.
+   */
+  constructor(type: WebXMessageType, commandId: number = 0) {
+    this.type = type;
+    this.commandId = commandId;
+  }
 }

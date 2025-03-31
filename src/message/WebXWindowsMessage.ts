@@ -1,13 +1,27 @@
 import { WebXMessage } from './WebXMessage';
-import { WebXWindowProperties } from '../display';
 import { WebXMessageType } from './WebXMessageType';
+import { WebXWindowProperties } from '../display';
 
+/**
+ * Represents a message containing information about visible windows.
+ * 
+ * This message is received from the WebX Engine and contains details about
+ * all currently visible windows.
+ */
 export class WebXWindowsMessage extends WebXMessage {
-  public get windows(): Array<WebXWindowProperties> {
-    return this._windows;
-  }
+  /**
+   * The list of visible windows.
+   */
+  public readonly windows: Array<WebXWindowProperties>;
 
-  constructor(private _windows: Array<WebXWindowProperties>, commandId: number) {
+  /**
+   * Constructs a new WebXWindowsMessage.
+   * 
+   * @param windows The list of visible windows.
+   * @param commandId The ID of the command associated with this message.
+   */
+  constructor(windows: Array<WebXWindowProperties>, commandId: number) {
     super(WebXMessageType.WINDOWS, commandId);
+    this.windows = windows;
   }
 }

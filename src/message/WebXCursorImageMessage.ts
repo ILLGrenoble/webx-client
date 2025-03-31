@@ -2,33 +2,61 @@ import { WebXMessage } from './WebXMessage';
 import { WebXMessageType } from './WebXMessageType';
 import { Texture } from 'three';
 
+/**
+ * Represents a message containing cursor image data.
+ * 
+ * This message is received from the WebX Engine and contains details about
+ * the cursor's appearance, including its texture and hotspot coordinates.
+ */
 export class WebXCursorImageMessage extends WebXMessage {
+  /**
+   * The ID of the cursor associated with this message.
+   */
+  public readonly cursorId: number;
 
-  get x(): number {
-    return this._x;
-  }
+  /**
+   * The x-coordinate of the cursor's hotspot.
+   */
+  public readonly xHot: number;
 
-  get y(): number {
-    return this._y;
-  }
+  /**
+   * The y-coordinate of the cursor's hotspot.
+   */
+  public readonly yHot: number;
 
-  get xHot(): number {
-    return this._xHot;
-  }
+  /**
+   * The texture of the cursor.
+   */
+  public readonly texture: Texture;
 
-  get yHot(): number {
-    return this._yHot;
-  }
+  /**
+   * The x-coordinate of the cursor's position.
+   */
+  public readonly x: number;
 
-  get cursorId(): number {
-    return this._cursorId;
-  }
+  /**
+   * The y-coordinate of the cursor's position.
+   */
+  public readonly y: number;
 
-  public get texture(): Texture {
-    return this._texture;
-  }
-
-  constructor(private _x: number, private _y: number, private _xHot: number, private _yHot: number, private _cursorId: number, private _texture: Texture, commandId: number) {
+  /**
+   * Constructs a new WebXCursorImageMessage.
+   * 
+   * @param cursorId The ID of the cursor.
+   * @param xHot The x-coordinate of the cursor's hotspot.
+   * @param yHot The y-coordinate of the cursor's hotspot.
+   * @param texture The texture of the cursor.
+   * @param x The x-coordinate of the cursor's position.
+   * @param y The y-coordinate of the cursor's position.
+   * @param commandId The ID of the command associated with this message.
+   */
+  constructor(x: number, y: number, xHot: number, yHot: number, cursorId: number, texture: Texture, commandId: number) {
     super(WebXMessageType.CURSOR_IMAGE, commandId);
+    this.x = x;
+    this.y = y;
+    this.xHot = xHot;
+    this.yHot = yHot;
+    this.cursorId = cursorId;
+    this.texture = texture;
   }
 }
