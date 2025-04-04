@@ -1,3 +1,7 @@
+1.1.0 04/04/2025
+================
+  * Add screenshot functionality to WebXClient (renders full screen to an image blob of given type and quality).
+
 1.0.0 31/03/2025
 ================
  * Refactoring: use of public readonly members rather than private readonly with getters
