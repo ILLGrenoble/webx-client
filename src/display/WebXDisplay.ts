@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import { Texture } from 'three';
-import { Vector3 } from 'three';
+import {OrthographicCamera, Texture, Vector3} from 'three';
 import { WebXWindow } from './WebXWindow';
 import { WebXWindowProperties } from './WebXWindowProperties';
 import { WebXSubImage } from './WebXSubImage';
@@ -10,7 +9,7 @@ import { WebXCursorFactory } from './WebXCursorFactory';
 
 /**
  * Manages the rendering of the WebX remote desktop using WebGL.
- * 
+ *
  * This class handles the creation and management of the WebGL scene, including
  * windows, cursor, and scaling. It provides methods to update the display
  * and interact with the rendered elements.
@@ -43,7 +42,7 @@ export class WebXDisplay {
 
   /**
    * Gets the WebGL renderer used for rendering the display.
-   * 
+   *
    * @returns The WebGLRenderer instance.
    */
   public get renderer(): THREE.WebGLRenderer {
@@ -52,7 +51,7 @@ export class WebXDisplay {
 
   /**
    * Gets the width of the screen.
-   * 
+   *
    * @returns The screen width in pixels.
    */
   public get screenWidth(): number {
@@ -61,7 +60,7 @@ export class WebXDisplay {
 
   /**
    * Gets the height of the screen.
-   * 
+   *
    * @returns The screen height in pixels.
    */
   public get screenHeight(): number {
@@ -70,7 +69,7 @@ export class WebXDisplay {
 
   /**
    * Gets the HTML container element for the display.
-   * 
+   *
    * @returns The container HTMLElement.
    */
   public get containerElement(): HTMLElement {
@@ -79,7 +78,7 @@ export class WebXDisplay {
 
   /**
    * Gets the current scale factor of the display.
-   * 
+   *
    * @returns The scale factor as a number.
    */
   public get scale(): number {
@@ -88,7 +87,7 @@ export class WebXDisplay {
 
   /**
    * Gets the Three.js scene used for rendering.
-   * 
+   *
    * @returns The Scene instance.
    */
   public get scene(): THREE.Scene {
@@ -96,8 +95,17 @@ export class WebXDisplay {
   }
 
   /**
+   * Gets the Three.js camera used for rendering.
+   *
+   * @returns the Camera instance
+   */
+  get camera(): OrthographicCamera {
+    return this._camera;
+  }
+
+  /**
    * Creates a new instance of WebXDisplay.
-   * 
+   *
    * @param containerElement The HTML element to render the display.
    * @param screenWidth The width of the screen.
    * @param screenHeight The height of the screen.
@@ -154,7 +162,7 @@ export class WebXDisplay {
 
   /**
    * Disposes of all resources used by the display.
-   * 
+   *
    * This includes removing windows, clearing elements, and releasing WebGL resources.
    */
   dispose(): void {
@@ -175,7 +183,7 @@ export class WebXDisplay {
 
   /**
    * Animates the display by continuously rendering the scene.
-   * 
+   *
    * This method uses `requestAnimationFrame` to update the display at regular intervals.
    */
   animate(): void {
@@ -184,13 +192,20 @@ export class WebXDisplay {
         this.animate();
       });
 
-      this._renderer.render(this._scene, this._camera);
+      this.render();
     }
   }
 
   /**
+   * Renders the display by updating the WebGL context.
+   */
+  render(): void {
+    this._renderer.render(this._scene, this._camera);
+  }
+
+  /**
    * Adds a new window to the display.
-   * 
+   *
    * @param window The WebXWindow instance to add.
    */
   addWindow(window: WebXWindow): void {
@@ -203,7 +218,7 @@ export class WebXDisplay {
 
   /**
    * Removes a window from the display.
-   * 
+   *
    * @param window The WebXWindow instance to remove.
    */
   removeWindow(window: WebXWindow): void {
@@ -216,7 +231,7 @@ export class WebXDisplay {
 
   /**
    * Updates the display with the given windows.
-   * 
+   *
    * @param windows The list of windows to update.
    * @returns A promise that resolves when all windows are updated.
    */
@@ -269,7 +284,7 @@ export class WebXDisplay {
 
   /**
    * Checks if all specified windows are visible.
-   * 
+   *
    * @param windowIds The list of window IDs to check.
    * @returns True if all windows are visible, false otherwise.
    */
@@ -285,7 +300,7 @@ export class WebXDisplay {
 
   /**
    * Updates the texture of a window with new image data.
-   * 
+   *
    * @param windowId The ID of the window to update.
    * @param depth The depth of the image.
    * @param colorMap The color texture.
@@ -300,7 +315,7 @@ export class WebXDisplay {
 
   /**
    * Updates sub-images of a window with new image data.
-   * 
+   *
    * @param windowId The ID of the window to update.
    * @param subImages The list of sub-images to update.
    */
@@ -324,7 +339,7 @@ export class WebXDisplay {
 
   /**
    * Updates the mouse position and cursor on the display.
-   * 
+   *
    * @param x The x-coordinate of the mouse.
    * @param y The y-coordinate of the mouse.
    * @param cursorId The ID of the cursor to display.
@@ -335,7 +350,7 @@ export class WebXDisplay {
 
   /**
    * Updates the mouse position without changing the cursor.
-   * 
+   *
    * @param x The x-coordinate of the mouse.
    * @param y The y-coordinate of the mouse.
    */
@@ -345,7 +360,7 @@ export class WebXDisplay {
 
   /**
    * Retrieves a window by its ID.
-   * 
+   *
    * @param id The ID of the window to retrieve.
    * @returns The WebXWindow instance, or undefined if not found.
    */
@@ -355,7 +370,7 @@ export class WebXDisplay {
 
   /**
    * Sets the scale of the display.
-   * 
+   *
    * @param scale The scale factor (between 0 and 1).
    */
   setScale(scale: number): void {
@@ -374,7 +389,7 @@ export class WebXDisplay {
 
   /**
    * Resizes the display to fit its container.
-   * 
+   *
    * @param scale Optional scale factor. If not provided, the display will auto-scale.
    */
   resize(scale?: number): void {
@@ -398,7 +413,7 @@ export class WebXDisplay {
 
   /**
    * Creates the main display element and sets its dimensions.
-   * 
+   *
    * @returns The created HTML element.
    */
   private _createDisplayElement(): HTMLElement {
@@ -411,7 +426,7 @@ export class WebXDisplay {
 
   /**
    * Creates the bounding element for the display.
-   * 
+   *
    * @returns The created HTML element.
    */
   private _createDisplayBoundingElement(): HTMLElement {
