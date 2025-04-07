@@ -1,3 +1,7 @@
+1.2.0 07/04/2025
+================
+  * Add clipboard functionality: send clipboard data to WebX Engine and receive notifications of changes to X11 clipboard.
+
 1.1.0 04/04/2025
 ================
   * Add screenshot functionality to WebXClient (renders full screen to an image blob of given type and quality).
