@@ -11,6 +11,7 @@ import {
   WebXQualityInstruction,
   WebXPongInstruction,
   WebXDataAckInstruction,
+  WebXClipboardInstruction,
 } from '../instruction';
 import { WebXInstructionBuffer } from '.';
 
@@ -56,6 +57,9 @@ export class WebXInstructionEncoder {
 
     } else if (instruction.type === WebXInstructionType.DATA_ACK) {
       return this._createDataAckInstruction(instruction as WebXDataAckInstruction);
+
+    } else if (instruction.type === WebXInstructionType.CLIPBOARD) {
+      return this._createClipboardInstruction(instruction as WebXClipboardInstruction);
     }
     return null;
   }
@@ -261,6 +265,30 @@ export class WebXInstructionEncoder {
       // write the contents
       .putUInt8Array(instruction.timestampMs, 8)
       .putUInt32(instruction.dataLength)
+      .buffer();
+  }
+
+  /**
+   * Create a new clipboard instruction
+   * @param instruction the clipboard instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   *   Content:
+   *     clipboardContentLength: 4 bytes
+   *     clipboardContent: N bytes
+   */
+  private _createClipboardInstruction(instruction: WebXClipboardInstruction): ArrayBuffer {
+    const length = 4 + instruction.clipboardContent.length;
+    const encoder = new WebXInstructionBuffer(instruction, length);
+    return encoder
+      // write the contents
+      .putUInt32(instruction.clipboardContent.length)
+      .putString(instruction.clipboardContent)
       .buffer();
   }
 

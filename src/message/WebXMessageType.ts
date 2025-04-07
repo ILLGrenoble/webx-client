@@ -1,6 +1,6 @@
 /**
  * Enum representing the types of WebX messages.
- * 
+ *
  * These types are used to categorize messages received from the WebX Engine.
  */
 export enum WebXMessageType {
@@ -53,4 +53,9 @@ export enum WebXMessageType {
    * Message containing quality-related information.
    */
   QUALITY = 10,
+
+  /**
+   * Message containing current clipboard content.
+   */
+  CLIPBOARD = 11,
 }

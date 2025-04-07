@@ -5,7 +5,8 @@ import {
   WebXKeyboardInstruction,
   WebXMouseInstruction,
   WebXWindowsInstruction,
-  WebXQualityInstruction
+  WebXQualityInstruction,
+  WebXClipboardInstruction,
 } from './instruction';
 import {
   WebXMessageType,
@@ -14,7 +15,8 @@ import {
   WebXImageMessage,
   WebXSubImagesMessage,
   WebXMouseMessage,
-  WebXScreenMessage
+  WebXScreenMessage,
+  WebXClipboardMessage,
 } from './message';
 import { WebXDisplay, WebXCursorFactory, WebXTextureFactory } from './display';
 import { WebXKeyboard, WebXMouse, WebXMouseState } from './input';
@@ -26,6 +28,7 @@ import {
   WebXStatsHandler
 } from './tracer';
 import { WebXBinarySerializer } from './transport';
+import {Blob} from "buffer";
 
 /**
  * The main client class for interacting with the WebX Engine.
@@ -44,6 +47,8 @@ export class WebXClient {
   private _display: WebXDisplay;
   private _mouse: WebXMouse;
   private _keyboard: WebXKeyboard;
+
+  private _clipboardHandler = (clipboardContent: string) => {};
 
   /**
    * Gets the WebXTunnel instance used for communication with the WebX Engine.
@@ -78,6 +83,14 @@ export class WebXClient {
    */
   get keyboard(): WebXKeyboard {
     return this._keyboard;
+  }
+
+  /**
+   * Handles notification that clipboard data that has been received from the server.
+   * @param handler the handler when clipboard data is received from the server
+   */
+  set clipboardHandler(handler: (clipboardContent: string) => void) {
+    this._clipboardHandler = handler;
   }
 
   /**
@@ -186,7 +199,7 @@ export class WebXClient {
    *
    * @param mouseState The state of the mouse to send in the event.
    */
-  public sendMouse(mouseState: WebXMouseState): void {
+  sendMouse(mouseState: WebXMouseState): void {
     this._sendInstruction(new WebXMouseInstruction(mouseState.x, mouseState.y, mouseState.getButtonMask()));
   }
 
@@ -196,7 +209,7 @@ export class WebXClient {
    * @param key The key code to send.
    * @param pressed Whether the key is pressed (true) or released (false).
    */
-  public sendKeyEvent(key: number, pressed: boolean): void {
+  sendKeyEvent(key: number, pressed: boolean): void {
     this._sendInstruction(new WebXKeyboardInstruction(key, pressed));
   }
 
@@ -204,7 +217,7 @@ export class WebXClient {
    * Sends a key down event
    * @param key {number} the key to send
    */
-  public sendKeyDown(key: number): void {
+  sendKeyDown(key: number): void {
     this.sendKeyEvent(key, true);
   }
 
@@ -212,8 +225,17 @@ export class WebXClient {
    * Sends a key up event
    * @param key {number} the key to send
    */
-  public sendKeyUp(key: number): void {
+  sendKeyUp(key: number): void {
     this.sendKeyEvent(key, false);
+  }
+
+
+  /**
+   * Sends the clipboard content to the WebX Engine.
+   * @param clipboardContent the current clipboard content
+   */
+  sendClipboardContent(clipboardContent: string): void {
+    this._sendInstruction(new WebXClipboardInstruction(clipboardContent));
   }
 
   /**
@@ -393,6 +415,10 @@ export class WebXClient {
     } else if (message.type === WebXMessageType.MOUSE) {
       const mouseMessage = message as WebXMouseMessage;
       this._display.updateMouse(mouseMessage.x, mouseMessage.y, mouseMessage.cursorId);
+
+    } else if (message.type === WebXMessageType.CLIPBOARD) {
+      const clipboardMessage = message as WebXClipboardMessage;
+      this._clipboardHandler(clipboardMessage.clipboardContent);
     }
 
     this._tracers.forEach((value) => {

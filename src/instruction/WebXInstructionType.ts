@@ -1,6 +1,6 @@
 /**
  * Enum representing the types of WebX instructions.
- * 
+ *
  * These types are used to categorize instructions sent to the WebX Engine.
  */
 export enum WebXInstructionType {
@@ -54,6 +54,11 @@ export enum WebXInstructionType {
    * Instruction to acknowledge data.
    */
   DATA_ACK = 10,
+
+  /**
+   * Instruction to send clipboard data to the WebX Engine.
+   */
+  CLIPBOARD = 11,
 }
 
 export namespace WebXInstructionType {
@@ -84,6 +89,8 @@ export namespace WebXInstructionType {
         return WebXInstructionType.PONG;
       case 'DATA_ACK':
         return WebXInstructionType.DATA_ACK;
+      case 'CLIPBOARD':
+        return WebXInstructionType.CLIPBOARD;
     }
   }
 }

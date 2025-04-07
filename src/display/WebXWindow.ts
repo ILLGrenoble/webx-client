@@ -4,7 +4,7 @@ import { Texture, LinearFilter } from 'three';
 
 /**
  * Represents a window in the WebX display.
- * 
+ *
  * This class manages the rendering of a single window, including its position,
  * size, and texture updates.
  */
@@ -30,7 +30,7 @@ export class WebXWindow {
 
   /**
    * Gets the THREE.js mesh representing the window.
-   * 
+   *
    * @returns The window mesh.
    */
   public get mesh(): THREE.Mesh {
@@ -39,7 +39,7 @@ export class WebXWindow {
 
   /**
    * Gets the color index of the window.
-   * 
+   *
    * @returns The color index as a number.
    */
   get colorIndex(): number {
@@ -48,7 +48,7 @@ export class WebXWindow {
 
   /**
    * Gets the unique ID of the window.
-   * 
+   *
    * @returns The window ID as a number.
    */
   public get id(): number {
@@ -57,7 +57,7 @@ export class WebXWindow {
 
   /**
    * Gets the visibility status of the window.
-   * 
+   *
    * @returns True if the window is visible, false otherwise.
    */
   public get visible(): boolean {
@@ -66,7 +66,7 @@ export class WebXWindow {
 
   /**
    * Sets the visibility status of the window.
-   * 
+   *
    * @param visible True to make the window visible, false to hide it.
    */
   private set visible(visible: boolean) {
@@ -77,7 +77,7 @@ export class WebXWindow {
 
   /**
    * Gets the color map texture of the window.
-   * 
+   *
    * @returns The color map as a Texture.
    */
   public get colorMap(): Texture {
@@ -86,7 +86,7 @@ export class WebXWindow {
 
   /**
    * Sets the color map texture of the window.
-   * 
+   *
    * @param colorMap The new color map as a Texture.
    */
   private set colorMap(colorMap: Texture) {
@@ -95,7 +95,7 @@ export class WebXWindow {
 
   /**
    * Gets the alpha map texture of the window.
-   * 
+   *
    * @returns The alpha map as a Texture.
    */
   get alphaMap(): Texture {
@@ -104,7 +104,7 @@ export class WebXWindow {
 
   /**
    * Sets the alpha map texture of the window.
-   * 
+   *
    * @param alphaMap The new alpha map as a Texture.
    */
   private set alphaMap(alphaMap: Texture) {
@@ -113,7 +113,7 @@ export class WebXWindow {
 
   /**
    * Checks if the color map is valid.
-   * 
+   *
    * @returns True if the color map is valid, false otherwise.
    */
   public get colorMapValid(): boolean {
@@ -122,7 +122,7 @@ export class WebXWindow {
 
   /**
    * Gets the depth of the window.
-   * 
+   *
    * @returns The depth as a number.
    */
   public get depth(): number {
@@ -131,7 +131,7 @@ export class WebXWindow {
 
   /**
    * Gets the x-coordinate of the window.
-   * 
+   *
    * @returns The x-coordinate as a number.
    */
   get x(): number {
@@ -140,7 +140,7 @@ export class WebXWindow {
 
   /**
    * Sets the x-coordinate of the window.
-   * 
+   *
    * @param value The new x-coordinate as a number.
    */
   public set x(value: number) {
@@ -150,7 +150,7 @@ export class WebXWindow {
 
   /**
    * Gets the y-coordinate of the window.
-   * 
+   *
    * @returns The y-coordinate as a number.
    */
   get y(): number {
@@ -159,7 +159,7 @@ export class WebXWindow {
 
   /**
    * Sets the y-coordinate of the window.
-   * 
+   *
    * @param value The new y-coordinate as a number.
    */
   public set y(value: number) {
@@ -169,7 +169,7 @@ export class WebXWindow {
 
   /**
    * Gets the z-index of the window.
-   * 
+   *
    * @returns The z-index as a number.
    */
   get z(): number {
@@ -178,7 +178,7 @@ export class WebXWindow {
 
   /**
    * Sets the z-index of the window.
-   * 
+   *
    * @param value The new z-index as a number.
    */
   public set z(value: number) {
@@ -188,7 +188,7 @@ export class WebXWindow {
 
   /**
    * Gets the width of the window.
-   * 
+   *
    * @returns The width as a number.
    */
   get width(): number {
@@ -197,7 +197,7 @@ export class WebXWindow {
 
   /**
    * Sets the width of the window.
-   * 
+   *
    * @param value The new width as a number.
    */
   public set width(value: number) {
@@ -208,7 +208,7 @@ export class WebXWindow {
 
   /**
    * Gets the height of the window.
-   * 
+   *
    * @returns The height as a number.
    */
   get height(): number {
@@ -217,7 +217,7 @@ export class WebXWindow {
 
   /**
    * Sets the height of the window.
-   * 
+   *
    * @param value The new height as a number.
    */
   public set height(value: number) {
@@ -228,7 +228,7 @@ export class WebXWindow {
 
   /**
    * Creates a new instance of WebXWindow.
-   * 
+   *
    * @param configuration The properties of the window, such as position and size.
    * @param textureFactory The factory used to create textures for the window.
    */
@@ -261,12 +261,14 @@ export class WebXWindow {
    */
   public async loadWindowImage(): Promise<void> {
     const response = await this._textureFactory.getWindowTexture(this._id);
-    this.updateTexture(response.depth, response.colorMap, response.alphaMap, true);
+    if (response) {
+      this.updateTexture(response.depth, response.colorMap, response.alphaMap, true);
+    }
   }
 
   /**
    * Updates the position and size of the window.
-   * 
+   *
    * @param x The x-coordinate of the window.
    * @param y The y-coordinate of the window.
    * @param z The z-index of the window.
@@ -299,7 +301,7 @@ export class WebXWindow {
 
   /**
    * Updates the textures of the window with new image data.
-   * 
+   *
    * @param depth The depth of the image.
    * @param colorMap The color texture.
    * @param alphaMap The alpha texture.

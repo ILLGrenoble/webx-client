@@ -7,7 +7,9 @@ import {
   WebXScreenMessage,
   WebXSubImagesMessage,
   WebXWindowsMessage,
-  WebXPingMessage, WebXQualityMessage
+  WebXPingMessage,
+  WebXQualityMessage,
+  WebXClipboardMessage,
 } from '../message';
 import { WebXSubImage, WebXTextureFactory, WebXWindowProperties } from '../display';
 import { WebXMessageBuffer } from './WebXMessageBuffer';
@@ -20,14 +22,14 @@ import { WebXMessageBuffer } from './WebXMessageBuffer';
 export class WebXMessageDecoder {
   /**
    * Creates a new instance of WebXMessageDecoder.
-   * 
+   *
    * @param _textureFactory The texture factory used to create textures from image data.
    */
   constructor(private _textureFactory: WebXTextureFactory) {}
 
   /**
    * Decodes a binary message buffer into a WebXMessage object.
-   * 
+   *
    * @param buffer The binary message buffer to decode.
    * @returns A promise that resolves to the decoded WebXMessage.
    */
@@ -57,6 +59,9 @@ export class WebXMessageDecoder {
 
     } else if (messageTypeId === WebXMessageType.QUALITY) {
       return this._createQualityMessage(buffer);
+
+    } else if (messageTypeId === WebXMessageType.CLIPBOARD) {
+      return this._createClipboardMessage(buffer);
     }
 
     console.error(`Failed to decode message with typeId ${messageTypeId}`);
@@ -64,7 +69,7 @@ export class WebXMessageDecoder {
 
   /**
    * Determines the MIME type of an image based on its type string.
-   * 
+   *
    * @param imageType The image type string (e.g., 'jpg', 'png').
    * @returns The corresponding MIME type.
    */
@@ -79,7 +84,7 @@ export class WebXMessageDecoder {
 
   /**
    * Decodes a buffer into a WebXImageMessage.
-   * 
+   *
    * @param buffer The binary message buffer to decode.
    * @returns A promise that resolves to a WebXImageMessage.
    */
@@ -107,7 +112,7 @@ export class WebXMessageDecoder {
 
   /**
    * Decodes a buffer into a WebXSubImagesMessage containing multiple sub-images.
-   * 
+   *
    * @param buffer The binary message buffer to decode.
    * @returns A promise that resolves to a WebXSubImagesMessage.
    */
@@ -152,7 +157,7 @@ export class WebXMessageDecoder {
 
   /**
    * Decodes a buffer into a WebXMouseMessage, which contains mouse position and cursor ID.
-   * 
+   *
    * @param buffer The binary message buffer to decode.
    * @returns A promise that resolves to a WebXMouseMessage.
    */
@@ -166,7 +171,7 @@ export class WebXMessageDecoder {
 
   /**
    * Decodes a buffer into a WebXWindowsMessage, which contains information about multiple windows.
-   * 
+   *
    * @param buffer The binary message buffer to decode.
    * @returns A promise that resolves to a WebXWindowsMessage.
    */
@@ -188,7 +193,7 @@ export class WebXMessageDecoder {
 
   /**
    * Decodes a buffer into a WebXCursorImageMessage, which contains cursor image data.
-   * 
+   *
    * @param buffer The binary message buffer to decode.
    * @returns A promise that resolves to a WebXCursorImageMessage.
    */
@@ -213,7 +218,7 @@ export class WebXMessageDecoder {
 
   /**
    * Decodes a buffer into a WebXScreenMessage, which contains screen dimensions.
-   * 
+   *
    * @param buffer The binary message buffer to decode.
    * @returns A promise that resolves to a WebXScreenMessage.
    */
@@ -226,7 +231,7 @@ export class WebXMessageDecoder {
 
   /**
    * Creates a WebXPingMessage, which is used for pinging purposes.
-   * 
+   *
    * @returns A promise that resolves to a WebXPingMessage.
    */
   private async _createPingMessage(): Promise<WebXPingMessage> {
@@ -235,7 +240,7 @@ export class WebXMessageDecoder {
 
   /**
    * Decodes a buffer into a WebXQualityMessage, which contains quality metrics.
-   * 
+   *
    * @param buffer The binary message buffer to decode.
    * @returns A promise that resolves to a WebXQualityMessage.
    */
@@ -246,6 +251,18 @@ export class WebXMessageDecoder {
     const alphaQuality: number = buffer.getFloat();
     const maxMbps: number = buffer.getFloat();
     return new WebXQualityMessage(index, imageFPS, rgbQuality, alphaQuality, maxMbps);
+  }
+
+  /**
+   * Decodes a buffer into a WebXClipboardMessage, which contains X11 clipboard content.
+   *
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to a WebXClipboardMessage.
+   */
+  private async _createClipboardMessage(buffer: WebXMessageBuffer): Promise<WebXClipboardMessage> {
+    const clipboardContentSize: number = buffer.getUint32();
+    const clipboardContent: string = buffer.getString(clipboardContentSize);
+    return new WebXClipboardMessage(clipboardContent);
   }
 
 }
