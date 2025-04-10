@@ -338,14 +338,12 @@ export class WebXDisplay {
   }
 
   /**
-   * Updates the mouse position and cursor on the display.
+   * Updates the mouse cursor on the display.
    *
-   * @param x The x-coordinate of the mouse.
-   * @param y The y-coordinate of the mouse.
    * @param cursorId The ID of the cursor to display.
    */
-  updateMouse(x: number, y: number, cursorId: number): void {
-    this._cursor.updateCursorId(x, y, cursorId);
+  setMouseCursor(cursorId: number): void {
+    this._cursor.setCursorId(cursorId);
   }
 
   /**
@@ -354,7 +352,7 @@ export class WebXDisplay {
    * @param x The x-coordinate of the mouse.
    * @param y The y-coordinate of the mouse.
    */
-  updateMousePosition(x: number, y: number): void {
+  setMousePosition(x: number, y: number): void {
     this._cursor.setPosition(x, y);
   }
 

@@ -55,7 +55,7 @@ export class WebXMouseState {
 
   /**
    * Gets the current X position of the mouse pointer.
-   * 
+   *
    * @returns The X-coordinate as a number.
    */
   public get x(): number {
@@ -64,7 +64,7 @@ export class WebXMouseState {
 
   /**
    * Sets the current X position of the mouse pointer.
-   * 
+   *
    * @param value The new X-coordinate as a number.
    */
   public set x(value: number) {
@@ -73,7 +73,7 @@ export class WebXMouseState {
 
   /**
    * Gets the current Y position of the mouse pointer.
-   * 
+   *
    * @returns The Y-coordinate as a number.
    */
   public get y(): number {
@@ -82,7 +82,7 @@ export class WebXMouseState {
 
   /**
    * Sets the current Y position of the mouse pointer.
-   * 
+   *
    * @param value The new Y-coordinate as a number.
    */
   public set y(value: number) {
@@ -91,7 +91,7 @@ export class WebXMouseState {
 
   /**
    * Gets whether the left mouse button is currently pressed.
-   * 
+   *
    * @returns True if the left button is pressed, false otherwise.
    */
   public get left(): boolean {
@@ -100,7 +100,7 @@ export class WebXMouseState {
 
   /**
    * Sets whether the left mouse button is currently pressed.
-   * 
+   *
    * @param value True to indicate the left button is pressed, false otherwise.
    */
   public set left(value: boolean) {
@@ -109,7 +109,7 @@ export class WebXMouseState {
 
   /**
    * Gets whether the middle mouse button is currently pressed.
-   * 
+   *
    * @returns True if the middle button is pressed, false otherwise.
    */
   public get middle(): boolean {
@@ -118,7 +118,7 @@ export class WebXMouseState {
 
   /**
    * Sets whether the middle mouse button is currently pressed.
-   * 
+   *
    * @param value True to indicate the middle button is pressed, false otherwise.
    */
   public set middle(value: boolean) {
@@ -127,7 +127,7 @@ export class WebXMouseState {
 
   /**
    * Gets whether the right mouse button is currently pressed.
-   * 
+   *
    * @returns True if the right button is pressed, false otherwise.
    */
   public get right(): boolean {
@@ -136,7 +136,7 @@ export class WebXMouseState {
 
   /**
    * Sets whether the right mouse button is currently pressed.
-   * 
+   *
    * @param value True to indicate the right button is pressed, false otherwise.
    */
   public set right(value: boolean) {
@@ -145,7 +145,7 @@ export class WebXMouseState {
 
   /**
    * Gets whether the up mouse button (scroll up) is currently pressed.
-   * 
+   *
    * @returns True if the up button is pressed, false otherwise.
    */
   public get up(): boolean {
@@ -154,7 +154,7 @@ export class WebXMouseState {
 
   /**
    * Sets whether the up mouse button (scroll up) is currently pressed.
-   * 
+   *
    * @param value True to indicate the up button is pressed, false otherwise.
    */
   public set up(value: boolean) {
@@ -163,7 +163,7 @@ export class WebXMouseState {
 
   /**
    * Gets whether the down mouse button (scroll down) is currently pressed.
-   * 
+   *
    * @returns True if the down button is pressed, false otherwise.
    */
   public get down(): boolean {
@@ -172,7 +172,7 @@ export class WebXMouseState {
 
   /**
    * Sets whether the down mouse button (scroll down) is currently pressed.
-   * 
+   *
    * @param value True to indicate the down button is pressed, false otherwise.
    */
   public set down(value: boolean) {
@@ -181,7 +181,7 @@ export class WebXMouseState {
 
   /**
    * Gets whether the shift key is currently pressed.
-   * 
+   *
    * @returns True if the shift key is pressed, false otherwise.
    */
   public get shift(): boolean {
@@ -190,7 +190,7 @@ export class WebXMouseState {
 
   /**
    * Sets whether the shift key is currently pressed.
-   * 
+   *
    * @param value True to indicate the shift key is pressed, false otherwise.
    */
   public set shift(value: boolean) {
@@ -199,7 +199,7 @@ export class WebXMouseState {
 
   /**
    * Gets whether the ctrl key is currently pressed.
-   * 
+   *
    * @returns True if the ctrl key is pressed, false otherwise.
    */
   public get ctrl(): boolean {
@@ -208,7 +208,7 @@ export class WebXMouseState {
 
   /**
    * Sets whether the ctrl key is currently pressed.
-   * 
+   *
    * @param value True to indicate the ctrl key is pressed, false otherwise.
    */
   public set ctrl(value: boolean) {
@@ -217,7 +217,7 @@ export class WebXMouseState {
 
   /**
    * Gets whether the alt key is currently pressed.
-   * 
+   *
    * @returns True if the alt key is pressed, false otherwise.
    */
   public get alt(): boolean {
@@ -226,7 +226,7 @@ export class WebXMouseState {
 
   /**
    * Sets whether the alt key is currently pressed.
-   * 
+   *
    * @param value True to indicate the alt key is pressed, false otherwise.
    */
   public set alt(value: boolean) {
@@ -259,7 +259,7 @@ export class WebXMouseState {
 
   /**
    * Generates a bitmask representing the current state of mouse buttons and modifiers.
-   * 
+   *
    * @returns A number representing the button mask.
    */
   public getButtonMask(): number {
@@ -273,6 +273,18 @@ export class WebXMouseState {
     mask |= this._ctrl ? 1 << 2 : 0;
     mask |= this._alt ? 1 << 3 : 0;
     return mask;
+  }
+
+  public clone(): WebXMouseState {
+    return new WebXMouseState({
+      x: this._x,
+      y: this._y,
+      left: this._left,
+      middle: this._middle,
+      right: this._right,
+      up: this._up,
+      down: this._down
+    });
   }
 
 }

@@ -95,19 +95,18 @@ export class WebXMouse {
    * @param event the mouse event
    */
   private _handleMouseUp(event: MouseEvent): void {
-    const currentState = this._currentState;
     switch (event.button) {
       case 0:
-        currentState.left = false;
+        this._currentState.left = false;
         break;
       case 1:
-        currentState.middle = false;
+        this._currentState.middle = false;
         break;
       case 2:
-        currentState.right = false;
+        this._currentState.right = false;
         break;
     }
-    this.onMouseUp(currentState);
+    this._notifyMouseUp();
   }
 
   /**
@@ -116,19 +115,18 @@ export class WebXMouse {
    */
   private _handleMouseDown(event: MouseEvent): void {
     this._cancelEvent(event);
-    const currentState = this._currentState;
     switch (event.button) {
       case 0:
-        currentState.left = true;
+        this._currentState.left = true;
         break;
       case 1:
-        currentState.middle = true;
+        this._currentState.middle = true;
         break;
       case 2:
-        currentState.right = true;
+        this._currentState.right = true;
         break;
     }
-    this.onMouseDown(currentState);
+    this._notifyMouseDown();
   }
 
   /**
@@ -136,35 +134,31 @@ export class WebXMouse {
    * @param event the mouse event
    */
   private _handleMouseWheel(event: WheelEvent): void {
-    const currentState = this._currentState;
     if (event.deltaY < 0) {
-      currentState.up = true;
-      this.onMouseDown(currentState);
+      this._currentState.up = true;
+      this._notifyMouseDown();
 
-      currentState.up = false;
-      this.onMouseUp(currentState);
+      this._currentState.up = false;
+      this._notifyMouseUp();
     }
 
     if (event.deltaY > 0) {
-      currentState.down = true;
-      this.onMouseDown(currentState);
+      this._currentState.down = true;
+      this._notifyMouseDown();
 
-      currentState.down = false;
-      this.onMouseUp(currentState);
+      this._currentState.down = false;
+      this._notifyMouseUp();
     }
     this._cancelEvent(event);
   }
 
   /**
    * Process mouse out event
-   * @param event the mouse event
    */
   private _handleMouseOut(): void {
     // reset all buttons
-    const currentState = this._currentState;
-    currentState.releaseButtons();
-    this.onMouseUp(currentState);
-    this.onMouseOut(currentState);
+    this._currentState.releaseButtons();
+    this._notifyMouseOut();
   }
 
   /**
@@ -173,19 +167,18 @@ export class WebXMouse {
    */
   private _handleMouseMove(event: MouseEvent): void {
     this._cancelEvent(event);
-    const currentState = this._currentState;
     // get the container wrapping the display canvas element
     const bounds = this._element.firstElementChild.getBoundingClientRect();
-    currentState.x = event.clientX - bounds.left;
-    currentState.y = event.clientY - bounds.top;
-    this.onMouseMove(currentState);
+    this._currentState.x = event.clientX - bounds.left;
+    this._currentState.y = event.clientY - bounds.top;
+    this._notifyMouseMove();
   }
 
   /**
    * Resets the mouse state
    */
   public reset(): void {
-    this._createDefaultState();
+    this._currentState.releaseButtons();
   }
   /**
    * Process the context menu event
@@ -196,6 +189,37 @@ export class WebXMouse {
     this._cancelEvent(event);
   }
 
+  /**
+   * Notify listener of the mouse move event
+   * @Note: Sends a clone of the current state to avoid mutating the state
+   */
+  private _notifyMouseMove(): void {
+    this.onMouseMove(this._currentState.clone());
+  }
+
+  /**
+   * Notify listener of the mouse up event
+   * @Note: Sends a clone of the current state to avoid mutating the state
+   */
+  private _notifyMouseUp(): void {
+    this.onMouseUp(this._currentState.clone());
+  }
+
+  /**
+   * Notify listener of the mouse down event
+   * @Note: Sends a clone of the current state to avoid mutating the state
+   */
+  private _notifyMouseDown(): void {
+    this.onMouseDown(this._currentState.clone());
+  }
+
+  /**
+   * Notify listener of the mouse out event
+   * @Note: Sends a clone of the current state to avoid mutating the state
+   */
+  private _notifyMouseOut(): void {
+    this.onMouseOut(this._currentState.clone());
+  }
 
   /**
    * Fired whenever the user moves the mouse

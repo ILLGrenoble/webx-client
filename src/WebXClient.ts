@@ -414,7 +414,10 @@ export class WebXClient {
 
     } else if (message.type === WebXMessageType.MOUSE) {
       const mouseMessage = message as WebXMouseMessage;
-      this._display.updateMouse(mouseMessage.x, mouseMessage.y, mouseMessage.cursorId);
+      if (mouseMessage.x > 0 && mouseMessage.y > 0) {
+        this._display.setMousePosition(mouseMessage.x, mouseMessage.y);
+      }
+      this._display.setMouseCursor(mouseMessage.cursorId);
 
     } else if (message.type === WebXMessageType.CLIPBOARD) {
       const clipboardMessage = message as WebXClipboardMessage;
@@ -519,10 +522,13 @@ export class WebXClient {
       mouseState.x = mouseState.x / scale;
       mouseState.y = mouseState.y / scale;
       this.sendMouse(mouseState);
-      this._display.updateMousePosition(mouseState.x, mouseState.y);
+      this._display.setMousePosition(mouseState.x, mouseState.y);
     };
 
     this._mouse.onMouseDown = this._mouse.onMouseUp = (mouseState: WebXMouseState) => {
+      const scale = this._display.scale;
+      mouseState.x = mouseState.x / scale;
+      mouseState.y = mouseState.y / scale;
       this.sendMouse(mouseState);
     };
   }

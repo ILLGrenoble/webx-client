@@ -4,7 +4,7 @@ import { WebXCursorFactory } from './WebXCursorFactory';
 
 /**
  * Represents the cursor in the WebX display.
- * 
+ *
  * This class manages the cursor's position, appearance, and updates based on
  * the cursor ID and coordinates provided by the WebX Engine.
  */
@@ -16,8 +16,8 @@ export class WebXCursor {
   private readonly _material: THREE.MeshBasicMaterial;
   private readonly _mesh: THREE.Mesh;
 
-  private _x: number;
-  private _y: number;
+  private _x: number = -1;
+  private _y: number = -1;
   private _xHot: number = 0;
   private _yHot: number = 0;
   private _width: number = 1;
@@ -25,7 +25,7 @@ export class WebXCursor {
 
   /**
    * Gets the THREE.js mesh representing the cursor.
-   * 
+   *
    * @returns The cursor mesh.
    */
   public get mesh(): THREE.Mesh {
@@ -34,7 +34,7 @@ export class WebXCursor {
 
   /**
    * Gets the cursor ID.
-   * 
+   *
    * @returns The cursor ID.
    */
   public get cursorId(): number {
@@ -43,7 +43,7 @@ export class WebXCursor {
 
   /**
    * Gets the texture of the cursor.
-   * 
+   *
    * @returns The cursor texture.
    */
   public get texture(): Texture {
@@ -52,7 +52,7 @@ export class WebXCursor {
 
   /**
    * Sets the x-coordinate of the cursor.
-   * 
+   *
    * @param value The x-coordinate.
    */
   public set x(value: number) {
@@ -62,7 +62,7 @@ export class WebXCursor {
 
   /**
    * Sets the y-coordinate of the cursor.
-   * 
+   *
    * @param value The y-coordinate.
    */
   public set y(value: number) {
@@ -72,8 +72,8 @@ export class WebXCursor {
 
   /**
    * Creates a new instance of WebXCursor.
-   * 
-   * @param cursorFactory The factory used to create cursor textures.
+   *
+   * @param _cursorFactory The factory used to create cursor textures.
    */
   constructor(private _cursorFactory: WebXCursorFactory) {
     this._material = new THREE.MeshBasicMaterial({ transparent: true });
@@ -83,26 +83,13 @@ export class WebXCursor {
 
     this._mesh = new THREE.Mesh(WebXCursor._PLANE_GEOMETRY, this._material);
 
-    this._cursorId = 0;
-    this._x = 0;
-    this._y = 0;
-    this._xHot = 0;
-    this._yHot = 0;
-    this._width = 16;
-    this._height = 20;
-    this._updateScale();
-    this._updatePosition();
-
-    this._cursorFactory.getCursor().then(cursorData => {
-      const cursor = cursorData.cursor;
-      if (this._cursorId === 0 || this._cursorId === cursor.cursorId)
-      this.update(cursorData.x, cursorData.y, cursor.xHot, cursor.yHot, cursor.cursorId, cursor.texture);
-    });
+    this.setPosition(-1, -1);
+    this.setCursorId(0);
   }
 
   /**
    * Sets the position of the cursor.
-   * 
+   *
    * @param x The x-coordinate of the cursor.
    * @param y The y-coordinate of the cursor.
    */
@@ -115,37 +102,34 @@ export class WebXCursor {
 
   /**
    * Updates the cursor's position and appearance based on the given cursor ID and coordinates.
-   * 
+   *
    * @param x The x-coordinate of the cursor.
    * @param y The y-coordinate of the cursor.
    * @param cursorId The ID of the cursor to display.
    */
-  public updateCursorId(x: number, y: number, cursorId: number): void {
-    this._x = x;
-    this._y = y;
+  public setCursorId(cursorId: number): void {
     this._cursorId = cursorId;
     this._cursorFactory.getCursor(cursorId).then(cursorData => {
       const cursor = cursorData.cursor;
 
-      if (this._cursorId === 0 || this._cursorId === cursor.cursorId)
-      this.update(cursorData.x != null ? cursorData.x : this._x, cursorData.y != null ? cursorData.y : this._y, cursor.xHot, cursor.yHot, cursor.cursorId, cursor.texture);
+      if (this._x < 0 || this._y < 0) {
+        this.setPosition(cursorData.x, cursorData.y);
+        console.log(`Setting cursor position to ${cursorData.x}, ${cursorData.y}`);
+      }
+
+      this._updateCursor(cursor.xHot, cursor.yHot, cursor.cursorId, cursor.texture);
     });
-    this._updatePosition();
   }
 
   /**
-   * Updates the cursor's position, appearance, and texture.
-   * 
-   * @param x The x-coordinate of the cursor.
-   * @param y The y-coordinate of the cursor.
+   * Updates the mouse cursor, appearance, and texture.
+   *
    * @param xHot The x-coordinate of the cursor's hotspot.
    * @param yHot The y-coordinate of the cursor's hotspot.
    * @param cursorId The ID of the cursor to display.
    * @param texture The texture of the cursor.
    */
-  public update(x: number, y: number, xHot: number, yHot: number, cursorId: number, texture: Texture): void {
-    this._x = x;
-    this._y = y;
+  private _updateCursor(xHot: number, yHot: number, cursorId: number, texture: Texture): void {
     this._xHot = xHot;
     this._yHot = yHot;
     this._cursorId = cursorId;
@@ -162,17 +146,9 @@ export class WebXCursor {
       this._material.map = texture;
       this._material.visible = true;
       this._material.needsUpdate = true;
+
+      this._mesh.scale.set(this._width, this._height, 1);
     }
-
-    this._updateScale();
-    this._updatePosition();
-  }
-
-  /**
-   * Updates the scale of the cursor mesh based on its width and height.
-   */
-  private _updateScale(): void {
-    this._mesh.scale.set(this._width, this._height, 1);
   }
 
   /**

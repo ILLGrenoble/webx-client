@@ -15,7 +15,7 @@ export interface WebXCursorData {
 
 /**
  * Factory class for creating and managing cursor textures.
- * 
+ *
  * This class retrieves cursor textures based on cursor IDs and caches them
  * for reuse.
  */
@@ -26,14 +26,14 @@ export class WebXCursorFactory {
 
   /**
    * Retrieves the cursor texture for the given cursor ID.
-   * 
+   *
    * If the cursor texture is not already cached, it will be fetched and cached
    * for future use.
-   * 
+   *
    * @param cursorId The ID of the cursor to retrieve.
    * @returns A promise that resolves to the cursor texture and its dimensions.
    */
-  public async getCursor(cursorId?: number): Promise<{x?: number; y?: number; cursor: WebXCursorData}> {
+  public async getCursor(cursorId: number): Promise<{x?: number; y?: number; cursor: WebXCursorData}> {
     const cursorData = this._cursorMap.get(cursorId);
     if (cursorData != null) {
       return { cursor: cursorData };
