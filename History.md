@@ -1,3 +1,9 @@
+1.3.0 10/04/2025
+================
+  * Handle separately the cursor position and the cursor icon. 
+  * Handle mouse events from the server with negative positions (indicating that only the cursor is to be updated). 
+  * Fix some bugs with mouse event handling and state mutation.
+
 1.2.0 07/04/2025
 ================
   * Add clipboard functionality: send clipboard data to WebX Engine and receive notifications of changes to X11 clipboard.
