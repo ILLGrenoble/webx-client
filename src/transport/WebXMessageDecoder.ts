@@ -13,6 +13,7 @@ import {
 } from '../message';
 import { WebXSubImage, WebXTextureFactory, WebXWindowProperties } from '../display';
 import { WebXMessageBuffer } from './WebXMessageBuffer';
+import {LinearSRGBColorSpace, SRGBColorSpace} from "three";
 
 /**
  * Decodes binary messages received from the WebX Engine into WebXMessage objects.
@@ -100,8 +101,8 @@ export class WebXMessageDecoder {
       const colorData: Uint8Array = buffer.getUint8Array(colorDataSize);
       const alphaData: Uint8Array = buffer.getUint8Array(alphaDataSize);
 
-      const colorMapPromise = this._textureFactory.createTextureFromArray(colorData, mimetype);
-      const alphaMapPromise = this._textureFactory.createTextureFromArray(alphaData, mimetype);
+      const colorMapPromise = this._textureFactory.createTextureFromArray(colorData, mimetype, SRGBColorSpace);
+      const alphaMapPromise = this._textureFactory.createTextureFromArray(alphaData, mimetype, LinearSRGBColorSpace);
 
       Promise.all([colorMapPromise, alphaMapPromise])
         .then(([colorMap, alphaMap]) => {
@@ -136,8 +137,8 @@ export class WebXMessageDecoder {
         const alphaData: Uint8Array = buffer.getUint8Array(alphaDataSize);
 
         const imagePromise = new Promise<WebXSubImage>((innerResolve, innerReject) => {
-          const colorMapPromise = this._textureFactory.createTextureFromArray(colorData, mimetype);
-          const alphaMapPromise = this._textureFactory.createTextureFromArray(alphaData, mimetype);
+          const colorMapPromise = this._textureFactory.createTextureFromArray(colorData, mimetype, SRGBColorSpace);
+          const alphaMapPromise = this._textureFactory.createTextureFromArray(alphaData, mimetype, LinearSRGBColorSpace);
 
           Promise.all([colorMapPromise, alphaMapPromise])
             .then(([colorMap, alphaMap]) => {
@@ -208,7 +209,7 @@ export class WebXMessageDecoder {
     const imageData: Uint8Array = buffer.getUint8Array(imageDataSize);
 
     try {
-      const texture = await this._textureFactory.createTextureFromArray(imageData, 'image/png');
+      const texture = await this._textureFactory.createTextureFromArray(imageData, 'image/png', SRGBColorSpace);
       return new WebXCursorImageMessage(x, y, xHot, yHot, cursorId, texture, commandId);
 
     } catch (error) {

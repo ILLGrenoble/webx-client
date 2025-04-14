@@ -5,7 +5,7 @@ import {WebXImageMessage} from '../message';
 
 /**
  * Factory class for creating and managing textures for WebX windows.
- * 
+ *
  * This class retrieves textures from the WebX Engine and caches them for reuse.
  */
 export class WebXTextureFactory {
@@ -14,7 +14,7 @@ export class WebXTextureFactory {
 
   /**
    * Retrieves the textures (colorMap and alphaMap) for a specific window ID from the WebX Engine.
-   * 
+   *
    * @param windowId The ID of the window to retrieve the texture for.
    * @returns A promise that resolves to the textures and associated data.
    */
@@ -34,7 +34,7 @@ export class WebXTextureFactory {
 
   /**
    * Creates a texture from a base64-encoded image data.
-   * 
+   *
    * @param imageData The base64-encoded image data.
    * @returns A promise that resolves to the created texture.
    */
@@ -66,12 +66,12 @@ export class WebXTextureFactory {
 
   /**
    * Creates a texture from raw image data.
-   * 
+   *
    * @param imageData The raw image data as a Uint8Array.
    * @param mimetype The MIME type of the image data (e.g., "image/png").
    * @returns A promise that resolves to the created texture.
    */
-  public async createTextureFromArray(imageData: Uint8Array, mimetype: string): Promise<Texture> {
+  public async createTextureFromArray(imageData: Uint8Array, mimetype: string, colorSpace: string): Promise<Texture> {
     if (imageData != null && imageData.byteLength > 0) {
       const blob = new Blob([imageData], { type: mimetype });
       const texture = await this.createTextureFromBlob(blob);
@@ -80,7 +80,7 @@ export class WebXTextureFactory {
       texture.needsUpdate = true;
       texture.flipY = false;
       texture.minFilter = LinearFilter;
-      texture.colorSpace = SRGBColorSpace;
+      texture.colorSpace = colorSpace;
 
       return texture;
 
@@ -91,7 +91,7 @@ export class WebXTextureFactory {
 
   /**
    * Creates a texture from a Blob object.
-   * 
+   *
    * @param blob The Blob object containing the image data.
    * @returns A promise that resolves to the created texture.
    */
