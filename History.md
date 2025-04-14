@@ -1,3 +1,7 @@
+1.4.0 14/04/2025
+================
+* Use LinearSRGBColorSpace for alpha maps (fixes transparency appearing too transparent).
+
 1.3.0 10/04/2025
 ================
   * Handle separately the cursor position and the cursor icon. 
