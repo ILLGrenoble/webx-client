@@ -108,6 +108,10 @@ export class WebXCursor {
    * @param cursorId The ID of the cursor to display.
    */
   public setCursorId(cursorId: number): void {
+    if (this._cursorId === cursorId) {
+      return;
+    }
+
     this._cursorId = cursorId;
     this._cursorFactory.getCursor(cursorId).then(cursorData => {
       const cursor = cursorData.cursor;
@@ -137,11 +141,12 @@ export class WebXCursor {
     if (texture != null && texture.image != null) {
       this._width = texture.image.width;
       this._height = texture.image.height;
+      // console.log(`WebXCursor ${cursorId}: ${xHot}, ${yHot}, ${this._width}, ${this._height}`);
 
       this._texture = texture;
 
       this._texture.minFilter = LinearFilter;
-      this._texture.repeat.set(this._width / this._texture.image.width, this._height / this._texture.image.height);
+      // this._texture.repeat.set(this._width / this._texture.image.width, this._height / this._texture.image.height);
 
       this._material.map = texture;
       this._material.visible = true;
