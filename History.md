@@ -1,3 +1,7 @@
+1.4.1 17/04/2025
+================
+* Only update the cursor if it has changed
+
 1.4.0 14/04/2025
 ================
 * Use LinearSRGBColorSpace for alpha maps (fixes transparency appearing too transparent).
