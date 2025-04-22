@@ -1,3 +1,7 @@
+1.4.2 22/04/2025
+================
+* Remove cursor log
+
 1.4.1 17/04/2025
 ================
 * Only update the cursor if it has changed
