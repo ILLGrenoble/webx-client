@@ -118,7 +118,6 @@ export class WebXCursor {
 
       if (this._x < 0 || this._y < 0) {
         this.setPosition(cursorData.x, cursorData.y);
-        console.log(`Setting cursor position to ${cursorData.x}, ${cursorData.y}`);
       }
 
       this._updateCursor(cursor.xHot, cursor.yHot, cursor.cursorId, cursor.texture);
