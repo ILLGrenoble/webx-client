@@ -1,14 +1,18 @@
+1.4.4 23/04/2025
+================
+ * Make client mouse and keyboard optional: VISA for example creates its own mouse and keyboard and associated listeners.
+
 1.4.3 22/04/2025
 ================
-* Remove cursor log
+ * Remove cursor log
 
 1.4.1 17/04/2025
 ================
-* Only update the cursor if it has changed
+ * Only update the cursor if it has changed
 
 1.4.0 14/04/2025
 ================
-* Use LinearSRGBColorSpace for alpha maps (fixes transparency appearing too transparent).
+ * Use LinearSRGBColorSpace for alpha maps (fixes transparency appearing too transparent).
 
 1.3.0 10/04/2025
 ================
