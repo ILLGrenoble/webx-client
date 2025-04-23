@@ -31,6 +31,14 @@ import { WebXBinarySerializer } from './transport';
 import {Blob} from "buffer";
 
 /**
+ * Configuration options for the WebXClient.
+ */
+export interface WebXClientConfig {
+  useDefaultMouseAdapter?: boolean;
+  useDefaultKeyboardAdapter?: boolean;
+}
+
+/**
  * The main client class for interacting with the WebX Engine.
  *
  * This class provides methods to connect to the WebX Engine, manage the display,
@@ -130,11 +138,15 @@ export class WebXClient {
    * Initializes the WebX display and input devices.
    *
    * @param containerElement The HTML element to render the display.
+   * @param config Optional configuration for the WebX client.
    * @returns A promise that resolves to the initialized WebXDisplay instance.
    */
-  async initialise(containerElement: HTMLElement): Promise<WebXDisplay> {
+  async initialise(containerElement: HTMLElement, config?: WebXClientConfig): Promise<WebXDisplay> {
     // Request 1. : Get screen size
     try {
+      config = {...{useDefaultMouseAdapter: true, useDefaultKeyboardAdapter: true}, ...config};
+      const { useDefaultMouseAdapter, useDefaultKeyboardAdapter } = config;
+
       const screenMessage = await this._getScreenMessage();
       const { width, height } = screenMessage.screenSize;
 
@@ -150,12 +162,16 @@ export class WebXClient {
       this._display.showScreen();
 
       // Create mouse and add listeners
-      this._mouse = this.createMouse(containerElement);
-      this._addMouseListeners();
+      if (useDefaultMouseAdapter) {
+        this._mouse = this.createMouse(containerElement);
+        this._addMouseListeners();
+      }
 
       // Create keyboard and add listeners
-      this._keyboard = this.createKeyboard(document.body);
-      this._addKeyboardListeners();
+      if (useDefaultKeyboardAdapter) {
+        this._keyboard = this.createKeyboard(document.body);
+        this._addKeyboardListeners();
+      }
 
       return this._display;
 
@@ -190,7 +206,7 @@ export class WebXClient {
    * Create a new keyboard and bind it to an element
    * @param element the element to attach the keyboard to
    */
-  createKeyboard(element: HTMLElement): WebXKeyboard {
+  createKeyboard(element: HTMLElement | Document): WebXKeyboard {
     return new WebXKeyboard(element);
   }
 
@@ -200,6 +216,7 @@ export class WebXClient {
    * @param mouseState The state of the mouse to send in the event.
    */
   sendMouse(mouseState: WebXMouseState): void {
+    this._display.setMousePosition(mouseState.x, mouseState.y);
     this._sendInstruction(new WebXMouseInstruction(mouseState.x, mouseState.y, mouseState.getButtonMask()));
   }
 
@@ -522,7 +539,6 @@ export class WebXClient {
       mouseState.x = mouseState.x / scale;
       mouseState.y = mouseState.y / scale;
       this.sendMouse(mouseState);
-      this._display.setMousePosition(mouseState.x, mouseState.y);
     };
 
     this._mouse.onMouseDown = this._mouse.onMouseUp = (mouseState: WebXMouseState) => {
