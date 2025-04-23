@@ -41,11 +41,13 @@ class WebXConnectionHandler {
         resolve();
       } else {
         this._timeout = window.setTimeout(() => {
+          this._timeout = null;
           reject(new Error("Connection timed out"));
         }, timeout || 10000);
 
         this._connectionCallback = () => {
           window.clearTimeout(this._timeout);
+          this._timeout = null;
           resolve();
         }
       }
@@ -56,6 +58,12 @@ class WebXConnectionHandler {
   public setConnected(): void {
     this._connected = true;
     this._connectionCallback();
+  }
+
+  public dispose(): void {
+    if (this._timeout) {
+      window.clearTimeout(this._timeout);
+    }
   }
 }
 
@@ -174,7 +182,7 @@ export class WebXClient {
    */
   async initialise(containerElement: HTMLElement, config?: WebXClientConfig): Promise<WebXDisplay> {
     try {
-      config = {...{useDefaultMouseAdapter: true, useDefaultKeyboardAdapter: true, waitForConnectionTimeout: 10000 }, ...config};
+      config = {...{useDefaultMouseAdapter: true, useDefaultKeyboardAdapter: true, waitForConnectionWithTimeout: 10000 }, ...config};
       const { useDefaultMouseAdapter, useDefaultKeyboardAdapter, waitForConnectionWithTimeout } = config;
 
       // Wait for connection (requires webx-relay >= 1.2.0)
@@ -557,6 +565,7 @@ export class WebXClient {
    * This method cleans up the display, mouse, and keyboard resources.
    */
   private _dispose(): void {
+    this._connectionHandler.dispose();
     if (this._display) {
       this._display.dispose();
     }

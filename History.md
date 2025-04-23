@@ -1,3 +1,7 @@
+1.5.1 23/04/2025
+================
+ * Fix bug on default value for timeout waiting for connection message.
+
 1.5.0 23/04/2025
 ================
  * Explicit wait for a Connection message before initialising the display (rather than relying on timeouts from requests to the engine). Requires webx-relay >= 1.2.0.
