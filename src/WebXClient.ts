@@ -1,25 +1,25 @@
-import { WebXTunnel } from './tunnel';
+import {WebXTunnel} from './tunnel';
 import {
+  WebXClipboardInstruction,
   WebXInstruction,
-  WebXScreenInstruction,
   WebXKeyboardInstruction,
   WebXMouseInstruction,
-  WebXWindowsInstruction,
   WebXQualityInstruction,
-  WebXClipboardInstruction,
+  WebXScreenInstruction,
+  WebXWindowsInstruction,
 } from './instruction';
 import {
-  WebXMessageType,
-  WebXMessage,
-  WebXWindowsMessage,
+  WebXClipboardMessage,
   WebXImageMessage,
-  WebXSubImagesMessage,
+  WebXMessage,
+  WebXMessageType,
   WebXMouseMessage,
   WebXScreenMessage,
-  WebXClipboardMessage,
+  WebXSubImagesMessage,
+  WebXWindowsMessage,
 } from './message';
-import { WebXDisplay, WebXCursorFactory, WebXTextureFactory } from './display';
-import { WebXKeyboard, WebXMouse, WebXMouseState } from './input';
+import {WebXCursorFactory, WebXDisplay, WebXTextureFactory} from './display';
+import {WebXKeyboard, WebXMouse, WebXMouseState} from './input';
 import {
   WebXDebugImageMessageHandler,
   WebXHandler,
@@ -27,8 +27,37 @@ import {
   WebXMessageHandler,
   WebXStatsHandler
 } from './tracer';
-import { WebXBinarySerializer } from './transport';
+import {WebXBinarySerializer} from './transport';
 import {Blob} from "buffer";
+
+class WebXConnectionHandler {
+  private _connected = false;
+  private _timeout: number;
+  private _connectionCallback: () => void = () => {};
+
+  public onConnected(timeout?: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (this._connected) {
+        resolve();
+      } else {
+        this._timeout = window.setTimeout(() => {
+          reject(new Error("Connection timed out"));
+        }, timeout || 10000);
+
+        this._connectionCallback = () => {
+          window.clearTimeout(this._timeout);
+          resolve();
+        }
+      }
+
+    });
+  }
+
+  public setConnected(): void {
+    this._connected = true;
+    this._connectionCallback();
+  }
+}
 
 /**
  * Configuration options for the WebXClient.
@@ -36,6 +65,7 @@ import {Blob} from "buffer";
 export interface WebXClientConfig {
   useDefaultMouseAdapter?: boolean;
   useDefaultKeyboardAdapter?: boolean;
+  waitForConnectionWithTimeout?: number;
 }
 
 /**
@@ -57,6 +87,7 @@ export class WebXClient {
   private _keyboard: WebXKeyboard;
 
   private _clipboardHandler = (clipboardContent: string) => {};
+  private _connectionHandler = new WebXConnectionHandler();
 
   /**
    * Gets the WebXTunnel instance used for communication with the WebX Engine.
@@ -119,12 +150,12 @@ export class WebXClient {
    */
   async connect(onCloseCallback: () => void, data: any): Promise<void> {
     this._onCloseCallback = onCloseCallback;
-    await this._tunnel.connect(data, new WebXBinarySerializer(this._textureFactory));
-
     this._tunnel.handleMessage = this._handleMessage.bind(this);
     this._tunnel.handleReceivedBytes = this._handleReceivedBytes.bind(this);
     this._tunnel.handleSentBytes = this._handleSentBytes.bind(this);
     this._tunnel.onClosed = this._onTunnelClosed.bind(this);
+
+    await this._tunnel.connect(data, new WebXBinarySerializer(this._textureFactory));
   }
 
   /**
@@ -142,11 +173,16 @@ export class WebXClient {
    * @returns A promise that resolves to the initialized WebXDisplay instance.
    */
   async initialise(containerElement: HTMLElement, config?: WebXClientConfig): Promise<WebXDisplay> {
-    // Request 1. : Get screen size
     try {
-      config = {...{useDefaultMouseAdapter: true, useDefaultKeyboardAdapter: true}, ...config};
-      const { useDefaultMouseAdapter, useDefaultKeyboardAdapter } = config;
+      config = {...{useDefaultMouseAdapter: true, useDefaultKeyboardAdapter: true, waitForConnectionTimeout: 10000 }, ...config};
+      const { useDefaultMouseAdapter, useDefaultKeyboardAdapter, waitForConnectionWithTimeout } = config;
 
+      // Wait for connection (requires webx-relay >= 1.2.0)
+      if (waitForConnectionWithTimeout > 0) {
+        await this._connectionHandler.onConnected(waitForConnectionWithTimeout);
+      }
+
+      // Request 1. : Get screen size
       const screenMessage = await this._getScreenMessage();
       const { width, height } = screenMessage.screenSize;
 
@@ -411,6 +447,11 @@ export class WebXClient {
    * @param message The received message.
    */
   private _handleMessage(message: WebXMessage): void {
+    if (message.type === WebXMessageType.CONNECTION) {
+      this._connectionHandler.setConnected();
+      return;
+    }
+
     if (!this._display) {
       return;
     }

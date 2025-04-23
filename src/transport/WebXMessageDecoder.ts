@@ -10,6 +10,7 @@ import {
   WebXPingMessage,
   WebXQualityMessage,
   WebXClipboardMessage,
+  WebXConnectionMessage,
 } from '../message';
 import { WebXSubImage, WebXTextureFactory, WebXWindowProperties } from '../display';
 import { WebXMessageBuffer } from './WebXMessageBuffer';
@@ -37,7 +38,10 @@ export class WebXMessageDecoder {
   decode(buffer: WebXMessageBuffer): Promise<WebXMessage> {
     const { messageTypeId } = buffer;
 
-    if (messageTypeId === WebXMessageType.SCREEN) {
+    if (messageTypeId === WebXMessageType.CONNECTION) {
+      return this._createConnectionMessage();
+
+    } else  if (messageTypeId === WebXMessageType.SCREEN) {
       return this._createScreenMessage(buffer);
 
     } else if (messageTypeId === WebXMessageType.WINDOWS) {
@@ -81,6 +85,13 @@ export class WebXMessageDecoder {
       return 'image/png';
     }
     return 'image/bmp';
+  }
+
+  /**
+   * Creates a WebXConnectionMessage, which is used for connection-related messages.
+   */
+  private async _createConnectionMessage(): Promise<WebXMessage> {
+    return new WebXConnectionMessage();
   }
 
   /**
