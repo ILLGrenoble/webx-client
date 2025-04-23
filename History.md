@@ -1,3 +1,7 @@
+1.5.0 23/04/2025
+================
+ * Explicit wait for a Connection message before initialising the display (rather than relying on timeouts from requests to the engine). Requires webx-relay >= 1.2.0.
+
 1.4.4 23/04/2025
 ================
  * Make client mouse and keyboard optional: VISA for example creates its own mouse and keyboard and associated listeners.
