@@ -96,6 +96,7 @@ export class WebXClient {
 
   private _clipboardHandler = (clipboardContent: string) => {};
   private _connectionHandler = new WebXConnectionHandler();
+  private _maxQualityIndex: number = 10;
 
   /**
    * Gets the WebXTunnel instance used for communication with the WebX Engine.
@@ -138,6 +139,13 @@ export class WebXClient {
    */
   set clipboardHandler(handler: (clipboardContent: string) => void) {
     this._clipboardHandler = handler;
+  }
+
+  /**
+   * Gets the max quality index of the display.
+   */
+  get maxQualityIndex(): number {
+    return this._maxQualityIndex;
   }
 
   /**
@@ -193,6 +201,7 @@ export class WebXClient {
       // Request 1. : Get screen size
       const screenMessage = await this._getScreenMessage();
       const { width, height } = screenMessage.screenSize;
+      this._maxQualityIndex = screenMessage.maxQualityIndex;
 
       // Initialise the display
       this._display = this.createDisplay(containerElement, width, height);

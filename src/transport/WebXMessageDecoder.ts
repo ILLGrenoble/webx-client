@@ -238,7 +238,12 @@ export class WebXMessageDecoder {
     const commandId: number = buffer.getUint32();
     const screenWidth: number = buffer.getInt32();
     const screenHeight: number = buffer.getInt32();
-    return new WebXScreenMessage({ width: screenWidth, height: screenHeight }, commandId);
+    let maxQualityIndex = 10;
+    // Read the maxQualityIndex if the buffer contains it
+    if (buffer.bufferLength - buffer.readOffset > 4) {
+      maxQualityIndex = buffer.getInt32();
+    }
+    return new WebXScreenMessage({ width: screenWidth, height: screenHeight }, maxQualityIndex, commandId);
   }
 
   /**

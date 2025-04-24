@@ -1,6 +1,6 @@
 /**
  * Represents a buffer for encoding and decoding WebX messages.
- * 
+ *
  * This class provides methods to write and read data in a structured format
  * for communication with the WebX Engine.
  */
@@ -30,12 +30,21 @@ export class WebXMessageBuffer {
    */
   public readonly bufferLength: number;
 
+  /**
+   * Gets the current read offset
+   */
+  public get readOffset(): number {
+    return this._readOffset;
+  }
+
   private _readOffset: number = 24;
   private _encoder: TextDecoder = new TextDecoder('utf-8');
 
+
+
   /**
    * Creates a new instance of WebXMessageBuffer.
-   * 
+   *
    * @param _buffer The buffer to read from.
    */
   constructor(private _buffer: ArrayBuffer) {
@@ -49,7 +58,7 @@ export class WebXMessageBuffer {
 
   /**
    * Reads a 32-bit signed integer from the buffer.
-   * 
+   *
    * @returns The read value.
    */
   public getInt32(): number {
@@ -60,7 +69,7 @@ export class WebXMessageBuffer {
 
   /**
    * Reads a 32-bit unsigned integer from the buffer.
-   * 
+   *
    * @returns The read value.
    */
   public getUint32(): number {
@@ -71,7 +80,7 @@ export class WebXMessageBuffer {
 
   /**
    * Reads a 32-bit floating point number from the buffer.
-   * 
+   *
    * @returns The read value.
    */
   public getFloat(): number {
@@ -82,7 +91,7 @@ export class WebXMessageBuffer {
 
   /**
    * Reads a Uint8Array from the buffer.
-   * 
+   *
    * @param length The length of the array to read.
    * @returns The read Uint8Array.
    */
@@ -94,7 +103,7 @@ export class WebXMessageBuffer {
 
   /**
    * Reads a string from the buffer.
-   * 
+   *
    * @param length The length of the string to read.
    * @returns The read string.
    */
@@ -106,7 +115,7 @@ export class WebXMessageBuffer {
 
   /**
    * Calculates the next read offset, ensuring alignment.
-   * 
+   *
    * @param sizeOfData The size of the data to read.
    * @returns The next read offset.
    */
