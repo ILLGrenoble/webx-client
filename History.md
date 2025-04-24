@@ -1,3 +1,7 @@
+1.6.0 24/04/2025
+================
+ * Read the max quality index in the Screen message (if it exists). Add it as a readonly value in the WebXClient.
+
 1.5.1 23/04/2025
 ================
  * Fix bug on default value for timeout waiting for connection message.
