@@ -240,7 +240,7 @@ export class WebXMessageDecoder {
     const screenHeight: number = buffer.getInt32();
     let maxQualityIndex = 10;
     // Read the maxQualityIndex if the buffer contains it
-    if (buffer.bufferLength - buffer.readOffset > 4) {
+    if (buffer.bufferLength - buffer.readOffset >= 4) {
       maxQualityIndex = buffer.getInt32();
     }
     return new WebXScreenMessage({ width: screenWidth, height: screenHeight }, maxQualityIndex, commandId);
