@@ -10,3 +10,4 @@ export * from './WebXPingMessage';
 export * from './WebXQualityMessage';
 export * from './WebXClipboardMessage';
 export * from './WebXConnectionMessage';
+export * from './WebXNopMessage';

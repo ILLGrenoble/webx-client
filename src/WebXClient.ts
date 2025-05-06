@@ -33,23 +33,30 @@ import {Blob} from "buffer";
 class WebXConnectionHandler {
   private _connected = false;
   private _timeout: number;
+  private _timeoutMs: number;
   private _connectionCallback: () => void = () => {};
+  private _connectionError: () => void = () => {};
 
-  public onConnected(timeout?: number): Promise<void> {
+  public onConnected(timeoutMs?: number): Promise<void> {
+    this._timeoutMs = timeoutMs || 10000;
+
     return new Promise<void>((resolve, reject) => {
       if (this._connected) {
         resolve();
       } else {
-        this._timeout = window.setTimeout(() => {
-          this._timeout = null;
-          reject(new Error("Connection timed out"));
-        }, timeout || 10000);
 
         this._connectionCallback = () => {
           window.clearTimeout(this._timeout);
           this._timeout = null;
           resolve();
         }
+
+        this._connectionError = () => {
+          this._timeout = null;
+          reject(new Error("Connection timed out"));
+        }
+
+        this._createTimer();
       }
 
     });
@@ -60,10 +67,24 @@ class WebXConnectionHandler {
     this._connectionCallback();
   }
 
+  public resetTimer(): void {
+    if (this._timeout) {
+      window.clearTimeout(this._timeout);
+      this._timeout = null;
+      this._createTimer();
+    }
+  }
+
   public dispose(): void {
     if (this._timeout) {
       window.clearTimeout(this._timeout);
     }
+  }
+
+  private _createTimer(): void {
+    this._timeout = window.setTimeout(() => {
+      this._connectionError();
+    }, this._timeoutMs);
   }
 }
 
@@ -467,6 +488,9 @@ export class WebXClient {
     if (message.type === WebXMessageType.CONNECTION) {
       this._connectionHandler.setConnected();
       return;
+
+    } else if (message.type === WebXMessageType.NOP) {
+      this._connectionHandler.resetTimer();
     }
 
     if (!this._display) {

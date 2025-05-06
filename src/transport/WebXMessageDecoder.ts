@@ -11,6 +11,7 @@ import {
   WebXQualityMessage,
   WebXClipboardMessage,
   WebXConnectionMessage,
+  WebXNopMessage,
 } from '../message';
 import { WebXSubImage, WebXTextureFactory, WebXWindowProperties } from '../display';
 import { WebXMessageBuffer } from './WebXMessageBuffer';
@@ -38,10 +39,13 @@ export class WebXMessageDecoder {
   decode(buffer: WebXMessageBuffer): Promise<WebXMessage> {
     const { messageTypeId } = buffer;
 
-    if (messageTypeId === WebXMessageType.CONNECTION) {
+    if (messageTypeId === WebXMessageType.NOP) {
+      return this._createNopMessage();
+
+    } else if (messageTypeId === WebXMessageType.CONNECTION) {
       return this._createConnectionMessage();
 
-    } else  if (messageTypeId === WebXMessageType.SCREEN) {
+    } else if (messageTypeId === WebXMessageType.SCREEN) {
       return this._createScreenMessage(buffer);
 
     } else if (messageTypeId === WebXMessageType.WINDOWS) {
@@ -85,6 +89,13 @@ export class WebXMessageDecoder {
       return 'image/png';
     }
     return 'image/bmp';
+  }
+
+  /**
+   * Creates a WebXNopMessage, which is used for no-operation messages.
+   */
+  private async _createNopMessage(): Promise<WebXMessage> {
+    return new WebXNopMessage();
   }
 
   /**

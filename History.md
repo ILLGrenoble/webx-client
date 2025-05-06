@@ -1,3 +1,7 @@
+1.7.0 06/05/2025
+================
+ * Handle Nop messages (resetting connection timeouts if received)
+
 1.6.1 24/04/2025
 ================
  * Fix reading max quality index from buffer
