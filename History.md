@@ -1,4 +1,4 @@
-1.7.0 06/05/2025
+1.7.1 06/05/2025
 ================
  * Handle Nop messages (resetting connection timeouts if received)
 
