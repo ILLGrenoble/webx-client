@@ -1,3 +1,8 @@
+1.8.0 07/05/2025
+================
+ * Read the WebX engine version from the Screen Message (if it is sent).
+ * Send the webx-client version (from the package.json) in the websocket connection request.
+
 1.7.1 06/05/2025
 ================
  * Handle Nop messages (resetting connection timeouts if received)
