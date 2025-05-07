@@ -1,2 +1,3 @@
-export * from './ColorGenerator'
+export * from './WebXColorGenerator'
+export * from './WebXVersion'
 

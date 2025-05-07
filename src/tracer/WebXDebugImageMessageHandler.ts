@@ -1,6 +1,6 @@
 import { Object3D, Scene, PlaneGeometry, MeshBasicMaterial, BackSide, Mesh } from 'three';
 import { Tween, Group, Easing } from '@tweenjs/tween.js';
-import { ColorGenerator } from "../utils";
+import { WebXColorGenerator } from "../utils";
 import { WebXDisplay } from "../display";
 import { WebXImageMessage, WebXMessage, WebXMessageType, WebXSubImagesMessage } from "../message";
 import { WebXMessageHandler } from "./WebXMessageHandler";
@@ -73,14 +73,14 @@ export class WebXDebugImageMessageHandler extends WebXMessageHandler implements 
       const window = this._display.getWindow(imageMessage.windowId);
       const { width, height } = imageMessage.colorMap.image;
 
-      this._createMesh(window.x, window.y, width, height, ColorGenerator.indexedColour(window.colorIndex));
+      this._createMesh(window.x, window.y, width, height, WebXColorGenerator.indexedColour(window.colorIndex));
 
     } else if (message.type === WebXMessageType.SUBIMAGES) {
       const subImageMessage = message as WebXSubImagesMessage;
       const window = this._display.getWindow(subImageMessage.windowId);
 
       subImageMessage.subImages.forEach(subImage => {
-        this._createMesh(window.x + subImage.x, window.y + subImage.y, subImage.width, subImage.height, ColorGenerator.indexedColour(window.colorIndex));
+        this._createMesh(window.x + subImage.x, window.y + subImage.y, subImage.width, subImage.height, WebXColorGenerator.indexedColour(window.colorIndex));
       });
     }
   }

@@ -16,6 +16,7 @@ import {
 import { WebXSubImage, WebXTextureFactory, WebXWindowProperties } from '../display';
 import { WebXMessageBuffer } from './WebXMessageBuffer';
 import {LinearSRGBColorSpace, SRGBColorSpace} from "three";
+import {WebXVersion} from "../utils";
 
 /**
  * Decodes binary messages received from the WebX Engine into WebXMessage objects.
@@ -254,7 +255,16 @@ export class WebXMessageDecoder {
     if (buffer.bufferLength - buffer.readOffset >= 4) {
       maxQualityIndex = buffer.getInt32();
     }
-    return new WebXScreenMessage({ width: screenWidth, height: screenHeight }, maxQualityIndex, commandId);
+    // Read the engine version values if the buffer contains it
+    let majorVersion = 0;
+    let minorVersion = 0;
+    let patchVersion = 0;
+    if (buffer.bufferLength - buffer.readOffset >= 12) {
+      majorVersion = buffer.getUint32();
+      minorVersion = buffer.getUint32();
+      patchVersion = buffer.getUint32();
+    }
+    return new WebXScreenMessage({ width: screenWidth, height: screenHeight }, maxQualityIndex, new WebXVersion(majorVersion, minorVersion, patchVersion), commandId);
   }
 
   /**

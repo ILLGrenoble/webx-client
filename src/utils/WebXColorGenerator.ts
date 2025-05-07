@@ -1,10 +1,10 @@
 /**
  * Utility class for generating colors.
- * 
+ *
  * This class provides methods to generate random colors or retrieve colors
  * from a predefined palette based on an index.
  */
-export class ColorGenerator {
+export class WebXColorGenerator {
 
   private static _COLOURS = [
     '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
@@ -21,24 +21,24 @@ export class ColorGenerator {
 
   /**
    * Generates a random color from the predefined palette.
-   * 
+   *
    * @returns A random color as a hexadecimal string.
    */
   public static randomColour(): string {
-    const index = Math.floor(Math.random() * ColorGenerator._COLOURS.length);
-    return ColorGenerator._COLOURS[index];
+    const index = Math.floor(Math.random() * WebXColorGenerator._COLOURS.length);
+    return WebXColorGenerator._COLOURS[index];
   }
 
   /**
    * Retrieves a color from the predefined palette based on the given index.
-   * 
+   *
    * If the index exceeds the palette size, it wraps around using modulo.
-   * 
+   *
    * @param index The index of the color to retrieve.
    * @returns The color as a hexadecimal string.
    */
   public static indexedColour(index: number): string {
-    index = index % ColorGenerator._COLOURS.length;
-    return ColorGenerator._COLOURS[index];
+    index = index % WebXColorGenerator._COLOURS.length;
+    return WebXColorGenerator._COLOURS[index];
   }
 }
