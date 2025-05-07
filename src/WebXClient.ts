@@ -29,6 +29,7 @@ import {
 } from './tracer';
 import {WebXBinarySerializer} from './transport';
 import {Blob} from "buffer";
+const {version} = require('../package.json');
 
 class WebXConnectionHandler {
   private _connected = false;
@@ -192,7 +193,7 @@ export class WebXClient {
     this._tunnel.handleSentBytes = this._handleSentBytes.bind(this);
     this._tunnel.onClosed = this._onTunnelClosed.bind(this);
 
-    await this._tunnel.connect(data, new WebXBinarySerializer(this._textureFactory));
+    await this._tunnel.connect({...data, 'client-version': version}, new WebXBinarySerializer(this._textureFactory));
   }
 
   /**
