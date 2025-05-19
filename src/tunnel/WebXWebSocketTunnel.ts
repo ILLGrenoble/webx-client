@@ -3,7 +3,7 @@ import { WebXBinarySerializer } from '../transport';
 
 /**
  * Represents a WebSocket-based implementation of the WebX communication tunnel.
- * 
+ *
  * This class manages the WebSocket connection to the WebX Engine, handles
  * sending and receiving data, and processes events related to the connection.
  */
@@ -16,6 +16,22 @@ export class WebXWebSocketTunnel extends WebXTunnel {
   constructor(url: string, options: any = {}) {
     super();
     this._connectionOptions = options;
+
+    // Ensure that the URL is a valid WebSocket URL for older browsers
+    if (url.substring(0, 3) !== "ws:" && url.substring(0, 4) !== "wss:") {
+      const location = window.location;
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const hostname = location.hostname;
+      const port = location.port ? `:${location.port}` : '';
+
+      if (url.substring(0, 1) === "/")
+        url = `${protocol}//${hostname}${port}${url}`;
+
+      else {
+        url = `${protocol}//${hostname}${port}/${url}`;
+      }
+    }
+
     this._url = url;
   }
 
@@ -25,7 +41,7 @@ export class WebXWebSocketTunnel extends WebXTunnel {
 
   /**
    * Sends data to the WebX Engine over the WebSocket connection.
-   * 
+   *
    * @param data The data to send.
    */
   send(data: ArrayBuffer): void {
@@ -37,7 +53,7 @@ export class WebXWebSocketTunnel extends WebXTunnel {
 
   /**
    * Establishes a WebSocket connection to the WebX Engine.
-   * 
+   *
    * @param data The connection options.
    * @param serializer The serializer to use for encoding/decoding messages.
    * @returns A promise that resolves when the connection is successfully established.
@@ -74,7 +90,7 @@ export class WebXWebSocketTunnel extends WebXTunnel {
 
   /**
    * Checks if the WebSocket connection is currently open.
-   * 
+   *
    * @returns True if the WebSocket is open, false otherwise.
    */
   isConnected(): boolean {
