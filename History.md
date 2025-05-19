@@ -1,3 +1,7 @@
+1.8.1 19/05/2025
+================
+ * Explicitly set websocket url with the protocol, host and port if it doesn't already have them (older browser versions consider the URL to be invalid otherwise).
+
 1.8.0 07/05/2025
 ================
  * Read the WebX engine version from the Screen Message (if it is sent).
