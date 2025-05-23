@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { WebXTextureFactory } from './WebXTextureFactory';
+import { WebXMaterial } from './WebXMaterial';
 import { Texture, LinearFilter } from 'three';
 
 /**
@@ -16,7 +17,7 @@ export class WebXWindow {
   private readonly _textureFactory: WebXTextureFactory;
   private readonly _colorIndex: number;
   private readonly _id: number;
-  private readonly _material: THREE.MeshBasicMaterial;
+  private readonly _material: WebXMaterial;
   private readonly _mesh: THREE.Mesh;
   private _depth: number;
 
@@ -236,9 +237,9 @@ export class WebXWindow {
     this._textureFactory = textureFactory;
     this._colorIndex = WebXWindow._COLOR_INDEX++;
 
-    // this._material = new THREE.MeshBasicMaterial( { color: WebXColourGenerator.indexedColour(this._colorIndex) } );
-    this._material = new THREE.MeshBasicMaterial({ transparent: true });
-    this._material.side = THREE.BackSide;
+    // this._material = new THREE.MeshBasicMaterial({ transparent: true });
+    // this._material.side = THREE.BackSide;
+    this._material = new WebXMaterial();
 
     // Wait for texture before rendering the window
     this.visible = false;
@@ -246,6 +247,7 @@ export class WebXWindow {
     const { id, x, y, z, width, height } = configuration;
     this._id = id;
     this._mesh = new THREE.Mesh(WebXWindow._PLANE_GEOMETRY, this._material);
+    this._mesh.onBeforeRender = () => this._material.onBeforeRender();
 
     this._x = x;
     this._y = y;
