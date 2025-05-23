@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { WebXTextureFactory } from './WebXTextureFactory';
 import { WebXMaterial } from './WebXMaterial';
 import { Texture, LinearFilter } from 'three';
+import {WebXEngine} from "../WebXEngine";
 
 /**
  * Represents a window in the WebX display.
@@ -26,6 +27,7 @@ export class WebXWindow {
   private _z: number;
   private _width: number = 1;
   private _height: number = 1;
+  private _shaped: boolean = false;
 
   private _windowRefreshTimeout: number = null;
 
@@ -110,6 +112,24 @@ export class WebXWindow {
    */
   private set alphaMap(alphaMap: Texture) {
     this._material.alphaMap = alphaMap;
+  }
+
+  /**
+   * Gets the stencil map texture of the window.
+   *
+   * @returns The stencil map as a Texture.
+   */
+  get stencilMap(): Texture {
+    return this._material.stencilMap;
+  }
+
+  /**
+   * Sets the stencil map texture of the window.
+   *
+   * @param stencilMap The new stencil map as a Texture.
+   */
+  private set stencilMap(stencilMap: Texture) {
+    this._material.stencilMap = stencilMap;
   }
 
   /**
@@ -233,7 +253,7 @@ export class WebXWindow {
    * @param configuration The properties of the window, such as position and size.
    * @param textureFactory The factory used to create textures for the window.
    */
-  constructor(configuration: { id: number; x: number; y: number; z: number; width: number; height: number }, textureFactory: WebXTextureFactory) {
+  constructor(configuration: { id: number; x: number; y: number; z: number; width: number; height: number; shaped: boolean }, textureFactory: WebXTextureFactory) {
     this._textureFactory = textureFactory;
     this._colorIndex = WebXWindow._COLOR_INDEX++;
 
@@ -244,7 +264,7 @@ export class WebXWindow {
     // Wait for texture before rendering the window
     this.visible = false;
 
-    const { id, x, y, z, width, height } = configuration;
+    const { id, x, y, z, width, height, shaped } = configuration;
     this._id = id;
     this._mesh = new THREE.Mesh(WebXWindow._PLANE_GEOMETRY, this._material);
     this._mesh.onBeforeRender = () => this._material.onBeforeRender();
@@ -254,6 +274,7 @@ export class WebXWindow {
     this._z = z;
     this._width = width;
     this._height = height;
+    this._shaped = shaped && WebXEngine.version.versionNumber >= 1.4;
     this._updateScale();
     this._updatePosition();
   }
@@ -265,6 +286,33 @@ export class WebXWindow {
     const response = await this._textureFactory.getWindowTexture(this._id);
     if (response) {
       this.updateTexture(response.depth, response.colorMap, response.alphaMap, true);
+    }
+  }
+
+  /**
+   * Loads the window shape (stencil map) from the texture factory.
+   */
+  public async loadWindowShape(): Promise<void> {
+    const response = await this._textureFactory.getWindowStencilTexture(this._id);
+    if (response) {
+      this.updateStencilTexture(response.stencilMap);
+    } else {
+      this._shaped = false;
+      this.visible = this.colorMap != null;
+    }
+  }
+
+  /**
+   * Loads the window image and shape (if needed) from the texture factory.
+   */
+  public async loadWindowImageAndShape(): Promise<void> {
+    if (this._shaped) {
+      const imagePromise = this.loadWindowImage();
+      const shapePromise = this.loadWindowShape();
+      await Promise.all([imagePromise, shapePromise]);
+
+    } else {
+      return this.loadWindowImage();
     }
   }
 
@@ -293,7 +341,7 @@ export class WebXWindow {
 
       // Force reload of image of dimensions differ
       if (this.colorMap.image.width !== this._width || this.colorMap.image.height !== this._height) {
-        this.loadWindowImage().then();
+        Promise.all([this.loadWindowImage(), this.loadWindowShape()]);
       }
     }
 
@@ -321,7 +369,7 @@ export class WebXWindow {
     if (colorMap) {
       colorMap.minFilter = LinearFilter;
       this.colorMap.repeat.set(this._width / this.colorMap.image.width, this._height / this.colorMap.image.height);
-      this.visible = true;
+      this.visible = (!this._shaped || this.stencilMap != null);
       this._material.needsUpdate = true;
     }
 
@@ -351,6 +399,25 @@ export class WebXWindow {
         this._windowRefreshTimeout = null;
         this.loadWindowImage().then();
       }, WebXWindow.WINDOW_REFRESH_TIME_MS);
+    }
+  }
+
+  /**
+   * Updates the stencil map texture of the window with new image data.
+   *
+   * @param stencilMap The stencil map texture.
+   */
+  public updateStencilTexture(stencilMap: Texture): void {
+    // Dispose of previous texture
+    if (stencilMap != this.stencilMap) {
+      this._disposeStencilMap();
+      this.stencilMap = stencilMap;
+    }
+
+    if (stencilMap) {
+      stencilMap.minFilter = LinearFilter;
+      this.visible = this.colorMap != null;
+      this._material.needsUpdate = true;
     }
   }
 
@@ -398,6 +465,16 @@ export class WebXWindow {
     if (this.alphaMap) {
       this.alphaMap.dispose();
       this.alphaMap = null;
+    }
+  }
+
+  /**
+   * Disposes of the stencil map texture, releasing its resources.
+   */
+  private _disposeStencilMap(): void {
+    if (this.stencilMap) {
+      this.stencilMap.dispose();
+      this.stencilMap = null;
     }
   }
 }

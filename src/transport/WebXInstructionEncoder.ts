@@ -12,6 +12,7 @@ import {
   WebXPongInstruction,
   WebXDataAckInstruction,
   WebXClipboardInstruction,
+  WebXShapeInstruction,
 } from '../instruction';
 import { WebXInstructionBuffer } from '.';
 
@@ -60,6 +61,9 @@ export class WebXInstructionEncoder {
 
     } else if (instruction.type === WebXInstructionType.CLIPBOARD) {
       return this._createClipboardInstruction(instruction as WebXClipboardInstruction);
+
+    } else if (instruction.type === WebXInstructionType.SHAPE) {
+      return this._createShapeInstruction(instruction as WebXShapeInstruction);
     }
     return null;
   }
@@ -289,6 +293,27 @@ export class WebXInstructionEncoder {
       // write the contents
       .putUInt32(instruction.clipboardContent.length)
       .putString(instruction.clipboardContent)
+      .buffer();
+  }
+
+  /**
+   * Create a new shape instruction
+   * @param instruction the shape instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   *   Content: 4 bytes
+   *    windowId: 4 bytes
+   */
+  private _createShapeInstruction(instruction: WebXShapeInstruction): ArrayBuffer {
+    const encoder = new WebXInstructionBuffer(instruction, 4);
+    return encoder
+      // write the contents
+      .putUInt32(instruction.windowId)
       .buffer();
   }
 

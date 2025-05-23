@@ -257,12 +257,13 @@ export class WebXDisplay {
             y: window.y,
             z: index,
             width: window.width,
-            height: window.height
+            height: window.height,
+            shaped: window.shaped,
           }, this._textureFactory);
 
           this.addWindow(webXWindow);
 
-          webXWindow.loadWindowImage()
+          webXWindow.loadWindowImageAndShape()
             .then(() => {
               // When all windows are visible then callback. This is only really needed for the startup
               if (this.checkVisibility(windows.map(window => window.id))) {

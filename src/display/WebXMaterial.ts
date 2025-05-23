@@ -13,6 +13,9 @@ uniform mat3 alphaMapTransform;
 varying vec2 vAlphaMapUv;
 #endif
 
+#ifdef USE_STENCILMAP
+varying vec2 vStencilMapUv;
+#endif
 
 void main() {
 #ifdef USE_MAP
@@ -21,6 +24,10 @@ void main() {
 
 #ifdef USE_ALPHAMAP
   vAlphaMapUv = (alphaMapTransform * vec3(uv, 1)).xy;
+#endif
+
+#ifdef USE_STENCILMAP
+  vStencilMapUv = uv;
 #endif
 
   gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
@@ -41,9 +48,20 @@ uniform sampler2D alphaMap;
 varying vec2 vAlphaMapUv;
 #endif
 
+#ifdef USE_STENCILMAP
+uniform sampler2D stencilMap;
+varying vec2 vStencilMapUv;
+#endif
 
 void main() {
   vec4 diffuseColor = vec4(diffuse, opacity);
+
+#ifdef USE_STENCILMAP
+  vec4 stencil = texture2D(stencilMap, vStencilMapUv);
+  if (stencil.r < 0.1) {
+    discard;
+  }
+#endif
 
 #ifdef USE_MAP
   vec4 sampledDiffuseColor = texture2D(map, vMapUv);
@@ -77,6 +95,15 @@ export class WebXMaterial extends ShaderMaterial {
     this.uniforms.alphaMap.value = value;
   }
 
+  get stencilMap(): Texture {
+    return this.uniforms.stencilMap.value;
+  }
+
+  set stencilMap(value: Texture) {
+    this.uniforms.stencilMap.value = value;
+    this.defines.USE_STENCILMAP = value ? '' : undefined;
+  }
+
   get color(): Color {
     return this.uniforms.diffuse.value;
   }
@@ -94,6 +121,7 @@ export class WebXMaterial extends ShaderMaterial {
       uniforms: {
         map: { value: null },
         alphaMap: { value: null },
+        stencilMap: { value: null },
         mapTransform: { value: new Matrix3() },
         alphaMapTransform: { value: new Matrix3() },
         diffuse: { value: new Color(0xffffff) },

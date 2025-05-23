@@ -1,7 +1,7 @@
 import {WebXTunnel} from '../tunnel';
-import {WebXImageInstruction} from '../instruction';
-import {LinearFilter, SRGBColorSpace, Texture} from 'three';
-import {WebXImageMessage} from '../message';
+import {WebXImageInstruction, WebXShapeInstruction} from '../instruction';
+import {LinearFilter, Texture} from 'three';
+import {WebXImageMessage, WebXShapeMessage} from '../message';
 
 /**
  * Factory class for creating and managing textures for WebX windows.
@@ -29,6 +29,25 @@ export class WebXTextureFactory {
 
     } catch (err) {
       console.warn('Failed to get texture: ' + err);
+    }
+  }
+
+  /**
+   * Retrieves the stencil textures for a specific window ID from the WebX Engine.
+   *
+   * @param windowId The ID of the window to retrieve the texture for.
+   * @returns A promise that resolves to the stencil texture
+   */
+  public async getWindowStencilTexture(windowId: number): Promise<{ stencilMap: Texture }> {
+    try {
+      const response = await this._tunnel.sendRequest(new WebXShapeInstruction(windowId)) as WebXShapeMessage;
+      return {
+        stencilMap: response.stencilMap,
+      };
+
+    } catch (err) {
+      console.warn('Failed to get stencil texture: ' + err);
+      return null;
     }
   }
 
@@ -69,6 +88,7 @@ export class WebXTextureFactory {
    *
    * @param imageData The raw image data as a Uint8Array.
    * @param mimetype The MIME type of the image data (e.g., "image/png").
+   * @param colorSpace The color space of the image data (e.g., "srgb").
    * @returns A promise that resolves to the created texture.
    */
   public async createTextureFromArray(imageData: Uint8Array, mimetype: string, colorSpace: string): Promise<Texture> {

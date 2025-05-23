@@ -12,11 +12,13 @@ import {
   WebXClipboardMessage,
   WebXConnectionMessage,
   WebXNopMessage,
+  WebXShapeMessage,
 } from '../message';
 import { WebXSubImage, WebXTextureFactory, WebXWindowProperties } from '../display';
 import { WebXMessageBuffer } from './WebXMessageBuffer';
 import {LinearSRGBColorSpace, SRGBColorSpace} from "three";
 import {WebXVersion} from "../utils";
+import {WebXEngine} from "../WebXEngine";
 
 /**
  * Decodes binary messages received from the WebX Engine into WebXMessage objects.
@@ -72,6 +74,9 @@ export class WebXMessageDecoder {
 
     } else if (messageTypeId === WebXMessageType.CLIPBOARD) {
       return this._createClipboardMessage(buffer);
+
+    } else if (messageTypeId === WebXMessageType.SHAPE) {
+      return this._createShapeMessage(buffer);
     }
 
     console.error(`Failed to decode message with typeId ${messageTypeId}`);
@@ -202,7 +207,7 @@ export class WebXMessageDecoder {
   private async _createWindowsMessage(buffer: WebXMessageBuffer): Promise<WebXWindowsMessage> {
     const commandId: number = buffer.getUint32();
     const numberOfWindows: number = buffer.getUint32();
-    const windows: Array<WebXWindowProperties> = new Array<WebXWindowProperties>();
+    const windowData: Array<{ id: number, x: number, y: number, width: number, height: number, shaped: boolean}> = new Array<{ id: number, x: number, y: number, width: number, height: number, shaped: boolean }>();
     for (let i = 0; i < numberOfWindows; i++) {
       const windowId = buffer.getUint32();
       const x = buffer.getInt32();
@@ -210,9 +215,19 @@ export class WebXMessageDecoder {
       const width = buffer.getInt32();
       const height = buffer.getInt32();
 
-      windows.push(new WebXWindowProperties({ id: windowId, x: x, y: y, width: width, height: height }));
+      windowData.push({ id: windowId, x: x, y: y, width: width, height: height, shaped: false });
     }
-    return new WebXWindowsMessage(windows, commandId);
+
+    // Update from webx-engine 1.4.0: inclusion of list of windows that have shapes (require stencil buffer)
+    if (WebXEngine.version.versionNumber >= 1.4 && buffer.bufferLength - buffer.readOffset >= 4) {
+      const numberOfShapedWindows: number = buffer.getUint32();
+      for (let i = 0; i < numberOfShapedWindows; i++) {
+        const windowId = buffer.getUint32();
+        windowData.find(window => window.id === windowId).shaped = true;
+      }
+    }
+
+    return new WebXWindowsMessage(windowData.map(data => new WebXWindowProperties(data)), commandId);
   }
 
   /**
@@ -301,6 +316,27 @@ export class WebXMessageDecoder {
     const clipboardContentSize: number = buffer.getUint32();
     const clipboardContent: string = buffer.getString(clipboardContentSize);
     return new WebXClipboardMessage(clipboardContent);
+  }
+
+  /**
+   * Decodes a buffer into a WebXShapeMessage.
+   *
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to a WebXShapeMessage.
+   */
+  private _createShapeMessage(buffer: WebXMessageBuffer): Promise<WebXShapeMessage> {
+    return new Promise<WebXShapeMessage>((resolve) => {
+      const commandId: number = buffer.getUint32();
+      const windowId = buffer.getUint32();
+      const imageType = buffer.getString(4);
+      const mimetype = this._determineMimeType(imageType);
+      const stencilDataSize = buffer.getUint32();
+      const stencilData: Uint8Array = buffer.getUint8Array(stencilDataSize);
+
+      this._textureFactory.createTextureFromArray(stencilData, mimetype, LinearSRGBColorSpace).then(stencilMap => {
+        resolve(new WebXShapeMessage(windowId, stencilMap, commandId, buffer.bufferLength))
+      })
+    });
   }
 
 }

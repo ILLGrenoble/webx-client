@@ -25,6 +25,11 @@ export class WebXVersion {
   public readonly version: string;
 
   /**
+   * The version major.minor as a number
+   */
+  public readonly versionNumber: number;
+
+  /**
    * Constructs a new WebXVersion object.
    *
    * @param major The major version number.
@@ -36,5 +41,6 @@ export class WebXVersion {
     this.minor = minor;
     this.patch = patch;
     this.version = `${major}.${minor}.${patch}`;
+    this.versionNumber = parseFloat(`${major}.${minor}`);
   }
 }

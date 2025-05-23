@@ -59,6 +59,11 @@ export enum WebXInstructionType {
    * Instruction to send clipboard data to the WebX Engine.
    */
   CLIPBOARD = 11,
+
+  /**
+   * Instruction to request the window shape image (stencil image).
+   */
+  SHAPE = 12,
 }
 
 export namespace WebXInstructionType {
@@ -91,6 +96,8 @@ export namespace WebXInstructionType {
         return WebXInstructionType.DATA_ACK;
       case 'CLIPBOARD':
         return WebXInstructionType.CLIPBOARD;
+      case 'SHAPE':
+        return WebXInstructionType.SHAPE;
     }
   }
 }

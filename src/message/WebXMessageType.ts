@@ -64,4 +64,9 @@ export enum WebXMessageType {
    * Message containing current clipboard content.
    */
   CLIPBOARD = 11,
+
+  /**
+   * Message containing window shape information (stencil image).
+   */
+  SHAPE = 12,
 }

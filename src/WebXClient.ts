@@ -30,6 +30,7 @@ import {
 import {WebXBinarySerializer} from './transport';
 import {Blob} from "buffer";
 import {WebXVersion} from "./utils";
+import {WebXEngine} from "./WebXEngine";
 const {version} = require('../package.json');
 
 class WebXConnectionHandler {
@@ -120,7 +121,6 @@ export class WebXClient {
   private _clipboardHandler = (clipboardContent: string) => {};
   private _connectionHandler = new WebXConnectionHandler();
   private _maxQualityIndex: number = 10;
-  private _engineVersion = new WebXVersion();
 
   /**
    * Gets the WebXTunnel instance used for communication with the WebX Engine.
@@ -226,7 +226,7 @@ export class WebXClient {
       const screenMessage = await this._getScreenMessage();
       const { width, height } = screenMessage.screenSize;
       this._maxQualityIndex = screenMessage.maxQualityIndex;
-      this._engineVersion = screenMessage.engineVersion;
+      WebXEngine.version = screenMessage.engineVersion;
 
       // Initialise the display
       this._display = this.createDisplay(containerElement, width, height);
