@@ -15,6 +15,7 @@ import {
   WebXMessageType,
   WebXMouseMessage,
   WebXScreenMessage,
+  WebXShapeMessage,
   WebXSubImagesMessage,
   WebXWindowsMessage,
 } from './message';
@@ -514,6 +515,11 @@ export class WebXClient {
       const subImagesMessage = message as WebXSubImagesMessage;
       // console.log(`Updating sub images ${windowId}\n`);
       this._display.updateSubImages(subImagesMessage.windowId, subImagesMessage.subImages);
+
+    } else if (message.type === WebXMessageType.SHAPE) {
+      const shapeMessage = message as WebXShapeMessage;
+      // console.log(`Updating shape for ${shapeMessage.windowId}\n`);
+      this._display.updateShape(shapeMessage.windowId, shapeMessage.stencilMap);
 
     } else if (message.type === WebXMessageType.MOUSE) {
       const mouseMessage = message as WebXMouseMessage;

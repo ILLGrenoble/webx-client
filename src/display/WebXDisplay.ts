@@ -339,6 +339,19 @@ export class WebXDisplay {
   }
 
   /**
+   * Updates the texture of a window stencil map with.
+   *
+   * @param windowId The ID of the window to update.
+   * @param stencilMap The stencil texture.
+   */
+  updateShape(windowId: number, stencilMap: Texture): void {
+    const window: WebXWindow = this.getWindow(windowId);
+    if (window != null && stencilMap != null) {
+      window.updateStencilTexture(stencilMap);
+    }
+  }
+
+  /**
    * Updates the mouse cursor on the display.
    *
    * @param cursorId The ID of the cursor to display.

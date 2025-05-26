@@ -33,7 +33,7 @@ export class WebXShapeMessage extends WebXMessage {
    * @param size The size of the image.
    */
   constructor(windowId: number, stencilMap: Texture, commandId: number, size: number) {
-    super(WebXMessageType.IMAGE, commandId);
+    super(WebXMessageType.SHAPE, commandId);
     this.windowId = windowId;
     this.stencilMap = stencilMap;
     this.size = size;

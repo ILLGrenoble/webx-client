@@ -58,7 +58,7 @@ void main() {
 
 #ifdef USE_STENCILMAP
   vec4 stencil = texture2D(stencilMap, vStencilMapUv);
-  if (stencil.r < 0.1) {
+  if (stencil.r < 0.5) {
     discard;
   }
 #endif
