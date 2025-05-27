@@ -40,6 +40,8 @@ export class WebXDisplay {
 
   private _disposed = false;
 
+  private _sceneDirty = false;
+
   /**
    * Gets the WebGL renderer used for rendering the display.
    *
@@ -104,6 +106,22 @@ export class WebXDisplay {
   }
 
   /**
+   * Returns when the scene is dirty and needs to be re-rendered.
+   * @return true if the scene is dirty, false otherwise
+   */
+  get sceneDirty(): boolean {
+    return this._sceneDirty;
+  }
+
+  /**
+   * Explicitly sets the scene dirty flag to indicate that the scene needs to be re-rendered.
+   * @param value the scene dirty value
+   */
+  set sceneDirty(value: boolean) {
+    this._sceneDirty = value;
+  }
+
+  /**
    * Creates a new instance of WebXDisplay.
    *
    * @param containerElement The HTML element to render the display.
@@ -151,6 +169,7 @@ export class WebXDisplay {
    */
   showScreen(): void {
     this._scene.add(this._screen);
+    this._sceneDirty = true;
   }
 
   /**
@@ -158,6 +177,7 @@ export class WebXDisplay {
    */
   hideScreen(): void {
     this._scene.remove(this._screen);
+    this._sceneDirty = true;
   }
 
   /**
@@ -193,7 +213,10 @@ export class WebXDisplay {
         this.animate();
       });
 
-      this.render();
+      if (this._sceneDirty) {
+        this._sceneDirty = false;
+        this.render();
+      }
     }
   }
 
@@ -214,6 +237,7 @@ export class WebXDisplay {
       // console.log("Adding window ", window.id)
       this._windows.push(window);
       this._screen.add(window.mesh);
+      this._sceneDirty = true;
     }
   }
 
@@ -228,6 +252,7 @@ export class WebXDisplay {
       this._windows = this._windows.filter(existingWindow => existingWindow.id !== window.id);
       window.dispose();
       this._screen.remove(window.mesh);
+      this._sceneDirty = true;
     }
   }
 
@@ -313,6 +338,7 @@ export class WebXDisplay {
     const window: WebXWindow = this.getWindow(windowId);
     if (window != null && !(colorMap == null && alphaMap == null)) {
       window.updateTexture(depth, colorMap, alphaMap, true);
+      this._sceneDirty = true;
     }
   }
 
@@ -337,6 +363,7 @@ export class WebXDisplay {
         }
       }
       window.updateTexture(window.depth, colorMap, alphaMap, false);
+      this._sceneDirty = true;
     }
   }
 
@@ -350,6 +377,7 @@ export class WebXDisplay {
     const window: WebXWindow = this.getWindow(windowId);
     if (window != null && stencilMap != null) {
       window.updateStencilTexture(stencilMap);
+      this._sceneDirty = true;
     }
   }
 
@@ -360,6 +388,7 @@ export class WebXDisplay {
    */
   setMouseCursor(cursorId: number): void {
     this._cursor.setCursorId(cursorId);
+    this._sceneDirty = true;
   }
 
   /**
@@ -370,6 +399,7 @@ export class WebXDisplay {
    */
   setMousePosition(x: number, y: number): void {
     this._cursor.setPosition(x, y);
+    this._sceneDirty = true;
   }
 
   /**
@@ -389,6 +419,7 @@ export class WebXDisplay {
    */
   setScale(scale: number): void {
     this._scale = scale;
+    this._sceneDirty = true;
   }
 
   /**
@@ -399,6 +430,7 @@ export class WebXDisplay {
     const { clientWidth, clientHeight } = container;
     const { screenWidth, screenHeight } = this;
     this._scale = Math.min(clientWidth / screenWidth, clientHeight / screenHeight);
+    this._sceneDirty = true;
   }
 
   /**

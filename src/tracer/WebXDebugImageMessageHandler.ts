@@ -59,6 +59,7 @@ export class WebXDebugImageMessageHandler extends WebXMessageHandler implements 
       .to({ opacity: 0.0 }, 500)
       .easing(Easing.Quadratic.Out)
       .onComplete(() => this._debugLayer.remove(mesh))
+      .onUpdate(() => this._display.sceneDirty = true)
       .start();
   }
 
