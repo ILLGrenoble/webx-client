@@ -173,10 +173,11 @@ export class WebXDisplay {
       window.dispose();
     }
 
+    this._cursor.dispose();
+
     this._clearElements();
 
     this._renderer.dispose();
-    this._renderer.forceContextLoss();
 
     this._disposed = true;
   }
@@ -225,6 +226,7 @@ export class WebXDisplay {
     if (this._windows.find(existingWindow => existingWindow.id === window.id) != null) {
       // console.log("Removing window ", window.id)
       this._windows = this._windows.filter(existingWindow => existingWindow.id !== window.id);
+      window.dispose();
       this._screen.remove(window.mesh);
     }
   }

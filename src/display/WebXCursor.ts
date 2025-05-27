@@ -124,6 +124,15 @@ export class WebXCursor {
     });
   }
 
+  public dispose(): void {
+    if (this._texture) {
+      this._texture.dispose();
+    }
+    this._material.dispose();
+    this._mesh.geometry.dispose();
+    this._mesh.parent?.remove(this._mesh);
+  }
+
   /**
    * Updates the mouse cursor, appearance, and texture.
    *

@@ -441,6 +441,7 @@ export class WebXWindow {
   dispose(): void {
     this._disposeColorMap();
     this._disposeAlphaMap();
+    this._disposeStencilMap();
     this._material.dispose();
     if (this._windowRefreshTimeout) {
       clearTimeout(this._windowRefreshTimeout);
