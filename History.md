@@ -1,3 +1,7 @@
+1.9.0 11/06/2025
+================
+ * Use pure Guacamole keyboard handling (rather than typescript conversion). Ensures that keyboard behaviour is as good as guacamole, fixing/improving keypress activity and removing repeating keys on the remote server.
+
 1.8.1 19/05/2025
 ================
  * Explicitly set websocket url with the protocol, host and port if it doesn't already have them (older browser versions consider the URL to be invalid otherwise).
