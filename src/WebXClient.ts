@@ -30,9 +30,9 @@ import {
 } from './tracer';
 import {WebXBinarySerializer} from './transport';
 import {Blob} from "buffer";
-import {WebXVersion} from "./utils";
 import {WebXEngine} from "./WebXEngine";
 const {version} = require('../package.json');
+// const Guacamole = require('./input/GuacamoleKeyboard');
 
 class WebXConnectionHandler {
   private _connected = false;

@@ -188,5 +188,5 @@ The WebX Engine converts the keysym value into a keyboard X11 event.
 
 ## Acknowledgements 
 
- * A lot of the keyboard management is derived from the [Apache Guacamole Common Js](https://github.com/padarom/guacamole-common-js) library
+ * The keyboard management is derived from the [Apache Guacamole Common Js](https://github.com/padarom/guacamole-common-js) library
  * The [three.js](https://github.com/mrdoob/three.js/) library is used to simplify the WebGL rendering

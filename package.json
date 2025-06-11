@@ -5,8 +5,9 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "build": "tsc",
-    "build:watch": "tsc --watch"
+    "copy": "cp src/input/GuacamoleKeyboard.js dist/input/GuacamoleKeyboard.js",
+    "build": "tsc && npm run copy",
+    "build:watch": "nodemon --watch src --ext ts,js --exec 'npm run build'"
   },
   "keywords": [
     "webx"
@@ -31,6 +32,7 @@
     "@typescript-eslint/parser": "^4.33.0",
     "buffer": "^6.0.3",
     "eslint": "^7.32.0",
+    "nodemon": "^3.1.10",
     "prettier": "^2.4.1",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.2"
