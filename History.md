@@ -1,3 +1,7 @@
+1.9.3 11/06/2025
+================
+ * Fix version build in npm
+
 1.9.2 11/06/2025
 ================
  * Remove debugging logging in keyboard
