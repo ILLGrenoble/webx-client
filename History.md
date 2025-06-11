@@ -1,6 +1,10 @@
+1.9.2 11/06/2025
+================
+ * Remove debugging logging in keyboard
+
 1.9.1 11/06/2025
 ================
- * Fix version numbering;
+ * Fix version numbering
 
 1.9.0 11/06/2025
 ================

@@ -57,7 +57,6 @@ export class WebXKeyboard {
    * @param key The key being pressed
    */
   private onKeyDownHandler(key: any): void {
-    console.log(key);
     this._onKeyDown(key);
   }
 
