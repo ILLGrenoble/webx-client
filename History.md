@@ -1,3 +1,7 @@
+1.9.1 11/06/2025
+================
+ * Fix version numbering;
+
 1.9.0 11/06/2025
 ================
  * Use pure Guacamole keyboard handling (rather than typescript conversion). Ensures that keyboard behaviour is as good as guacamole, fixing/improving keypress activity and removing repeating keys on the remote server.
