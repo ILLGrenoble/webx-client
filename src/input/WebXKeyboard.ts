@@ -9,15 +9,13 @@ const Guacamole = require('./GuacamoleKeyboard');
 export class WebXKeyboard {
 
   private _keyboard: Guacamole.Keyboard;
-  private _onKeyDown: (key: any) => void = () => {};
-  private _onKeyUp: (key: any) => void = () => {};
 
   public set onKeyDown(onKeyDown: (key: any) => void) {
-    this._onKeyDown = onKeyDown;
+    this._keyboard.onkeydown = onKeyDown;
   }
 
   public set onKeyUp(onKeyUp: (key: any) => void) {
-    this._onKeyUp = onKeyUp;
+    this._keyboard.onkeyup = onKeyUp;
   }
 
   /**
@@ -28,8 +26,6 @@ export class WebXKeyboard {
    */
   constructor(element: HTMLElement | Document) {
     this._keyboard = new Guacamole.Keyboard(element);
-    this._keyboard.onkeydown = (key) => this.onKeyDownHandler(key);
-    this._keyboard.onkeyup = (key) => this.onKeyUpHandler(key);
   }
 
   /**
@@ -38,8 +34,7 @@ export class WebXKeyboard {
   public dispose(): void {
     this._keyboard.onkeydown = null;
     this._keyboard.onkeyup = null;
-    this.onKeyDown = () => {};
-    this.onKeyUp = () => {};
+    this._keyboard.dispose();
   }
 
   /**
@@ -48,26 +43,6 @@ export class WebXKeyboard {
    */
   public reset(): void {
     this._keyboard.reset();
-  }
-
-  /**
-   * Fired whenever the user presses a key with the element associated
-   * with this keyboard in focus.
-   *
-   * @param key The key being pressed
-   */
-  private onKeyDownHandler(key: any): void {
-    this._onKeyDown(key);
-  }
-
-  /**
-   * Fired whenever the user releases a key with the element associated
-   * with this keyboard in focus.
-   *
-   * @param key The key being released
-   */
-  private onKeyUpHandler(key: any): void {
-    this._onKeyUp(key);
   }
 
 }

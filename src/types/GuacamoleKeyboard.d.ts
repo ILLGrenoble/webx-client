@@ -4,5 +4,6 @@ declare namespace Guacamole {
     onkeydown: (key: number) => void;
     onkeyup: (key: number) => void;
     reset(): void;
+    dispose(): void;
   }
 }

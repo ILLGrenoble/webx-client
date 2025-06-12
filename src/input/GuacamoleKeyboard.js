@@ -1299,6 +1299,122 @@ Guacamole.Keyboard = function Keyboard(element) {
 
   };
 
+  var keyDownListener = function(e) {
+
+    // Only intercept if handler set
+    if (!guac_keyboard.onkeydown) return;
+
+    // Ignore events which have already been handled
+    if (!markEvent(e)) return;
+
+    var keydownEvent = new KeydownEvent(e);
+
+    // Ignore (but do not prevent) the event if explicitly marked as composing,
+    // or when the "composition" keycode sent by some browsers when an IME is in use
+    // (see: http://lists.w3.org/Archives/Public/www-dom/2010JulSep/att-0182/keyCode-spec.html)
+    if (e.isComposing || keydownEvent.keyCode === 229)
+      return;
+
+    // Log event
+    eventLog.push(keydownEvent);
+
+    // Interpret as many events as possible, prevent default if indicated
+    if (interpret_events())
+      e.preventDefault();
+
+  }
+
+  var keyPressListener = function(e) {
+
+    // Only intercept if handler set
+    if (!guac_keyboard.onkeydown && !guac_keyboard.onkeyup) return;
+
+    // Ignore events which have already been handled
+    if (!markEvent(e)) return;
+
+    // Log event
+    eventLog.push(new KeypressEvent(e));
+
+    // Interpret as many events as possible, prevent default if indicated
+    if (interpret_events())
+      e.preventDefault();
+  }
+
+  var keyUpListener = function(e) {
+
+    // Only intercept if handler set
+    if (!guac_keyboard.onkeyup) return;
+
+    // Ignore events which have already been handled
+    if (!markEvent(e)) return;
+
+    e.preventDefault();
+
+    // Log event, call for interpretation
+    eventLog.push(new KeyupEvent(e));
+    interpret_events();
+  }
+
+  /**
+   * Handles the given "input" event, typing the data within the input text.
+   *
+   * @private
+   * @param {!InputEvent} e
+   *     The "input" event to handle.
+   */
+  var handleInput = function handleInput(e) {
+
+    // Only intercept if handler set
+    if (!guac_keyboard.onkeydown && !guac_keyboard.onkeyup) return;
+
+    // Ignore events which have already been handled
+    if (!markEvent(e)) return;
+
+    // Type all content written
+    if (e.data && !e.isComposing)
+      guac_keyboard.type(e.data);
+
+  };
+
+  /**
+   * Handles the given "compositionstart" event, automatically removing
+   * the "input" event handler, as "input" events should only be handled
+   * if composition events are not provided by the browser.
+   *
+   * @private
+   * @param {!CompositionEvent} e
+   *     The "compositionstart" event to handle.
+   */
+  var handleCompositionStart = function handleCompositionStart(e) {
+
+    // Remove the "input" event handler now that the browser is known
+    // to send composition events
+    element.removeEventListener("input", handleInput, false);
+
+  };
+
+  /**
+   * Handles the given "compositionend" event, typing the data within the
+   * composed text.
+   *
+   * @private
+   * @param {!CompositionEvent} e
+   *     The "compositionend" event to handle.
+   */
+  var handleCompositionEnd = function handleCompositionEnd(e) {
+
+    // Only intercept if handler set
+    if (!guac_keyboard.onkeydown && !guac_keyboard.onkeyup) return;
+
+    // Ignore events which have already been handled
+    if (!markEvent(e)) return;
+
+    // Type all content written
+    if (e.data)
+      guac_keyboard.type(e.data);
+
+  };
+
   /**
    * Attaches event listeners to the given Element, automatically translating
    * received key, input, and composition events into simple keydown/keyup
@@ -1312,125 +1428,14 @@ Guacamole.Keyboard = function Keyboard(element) {
   this.listenTo = function listenTo(element) {
 
     // When key pressed
-    element.addEventListener("keydown", function(e) {
-
-      // Only intercept if handler set
-      if (!guac_keyboard.onkeydown) return;
-
-      // Ignore events which have already been handled
-      if (!markEvent(e)) return;
-
-      var keydownEvent = new KeydownEvent(e);
-
-      // Ignore (but do not prevent) the event if explicitly marked as composing,
-      // or when the "composition" keycode sent by some browsers when an IME is in use
-      // (see: http://lists.w3.org/Archives/Public/www-dom/2010JulSep/att-0182/keyCode-spec.html)
-      if (e.isComposing || keydownEvent.keyCode === 229)
-        return;
-
-      // Log event
-      eventLog.push(keydownEvent);
-
-      // Interpret as many events as possible, prevent default if indicated
-      if (interpret_events())
-        e.preventDefault();
-
-    }, true);
+    element.addEventListener("keydown", keyDownListener, true);
 
     // When key pressed
-    element.addEventListener("keypress", function(e) {
-
-      // Only intercept if handler set
-      if (!guac_keyboard.onkeydown && !guac_keyboard.onkeyup) return;
-
-      // Ignore events which have already been handled
-      if (!markEvent(e)) return;
-
-      // Log event
-      eventLog.push(new KeypressEvent(e));
-
-      // Interpret as many events as possible, prevent default if indicated
-      if (interpret_events())
-        e.preventDefault();
-
-    }, true);
+    element.addEventListener("keypress", keyPressListener, true);
 
     // When key released
-    element.addEventListener("keyup", function(e) {
+    element.addEventListener("keyup", keyUpListener, true);
 
-      // Only intercept if handler set
-      if (!guac_keyboard.onkeyup) return;
-
-      // Ignore events which have already been handled
-      if (!markEvent(e)) return;
-
-      e.preventDefault();
-
-      // Log event, call for interpretation
-      eventLog.push(new KeyupEvent(e));
-      interpret_events();
-
-    }, true);
-
-    /**
-     * Handles the given "input" event, typing the data within the input text.
-     *
-     * @private
-     * @param {!InputEvent} e
-     *     The "input" event to handle.
-     */
-    var handleInput = function handleInput(e) {
-
-      // Only intercept if handler set
-      if (!guac_keyboard.onkeydown && !guac_keyboard.onkeyup) return;
-
-      // Ignore events which have already been handled
-      if (!markEvent(e)) return;
-
-      // Type all content written
-      if (e.data && !e.isComposing)
-        guac_keyboard.type(e.data);
-
-    };
-
-    /**
-     * Handles the given "compositionstart" event, automatically removing
-     * the "input" event handler, as "input" events should only be handled
-     * if composition events are not provided by the browser.
-     *
-     * @private
-     * @param {!CompositionEvent} e
-     *     The "compositionstart" event to handle.
-     */
-    var handleCompositionStart = function handleCompositionStart(e) {
-
-      // Remove the "input" event handler now that the browser is known
-      // to send composition events
-      element.removeEventListener("input", handleInput, false);
-
-    };
-
-    /**
-     * Handles the given "compositionend" event, typing the data within the
-     * composed text.
-     *
-     * @private
-     * @param {!CompositionEvent} e
-     *     The "compositionend" event to handle.
-     */
-    var handleCompositionEnd = function handleCompositionEnd(e) {
-
-      // Only intercept if handler set
-      if (!guac_keyboard.onkeydown && !guac_keyboard.onkeyup) return;
-
-      // Ignore events which have already been handled
-      if (!markEvent(e)) return;
-
-      // Type all content written
-      if (e.data)
-        guac_keyboard.type(e.data);
-
-    };
 
     // Automatically type text entered into the wrapped field
     element.addEventListener("input", handleInput, false);
@@ -1443,7 +1448,21 @@ Guacamole.Keyboard = function Keyboard(element) {
   if (element)
     guac_keyboard.listenTo(element);
 
+  this.dispose = function dispose() {
+    // Stop listening to key events
+    if (element) {
+      element.removeEventListener("keydown", keyDownListener, true);
+      element.removeEventListener("keypress", keyPressListener, true);
+      element.removeEventListener("keyup", keyUpListener, true);
+      element.removeEventListener("input", handleInput, false);
+      element.removeEventListener("compositionend", handleCompositionEnd, false);
+      element.removeEventListener("compositionstart", handleCompositionStart, false);
+    }
+  }
+
 };
+
+
 
 /**
  * The unique numerical identifier to assign to the next Guacamole.Keyboard
