@@ -1,3 +1,7 @@
+1.9.4 12/06/2025
+================
+ * Allow for unbinding of listeners with guacamole keyboard (add dispose method). Remove event handlers from WebXKeyboard (direct setting inside quacamole keyboard).
+
 1.9.3 11/06/2025
 ================
  * Fix version build in npm
