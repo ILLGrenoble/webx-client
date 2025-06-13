@@ -1,3 +1,7 @@
+1.9.5 13/06/2025
+================
+ * Ensure that material shader is recompiled when a stencil is added.
+
 1.9.4 12/06/2025
 ================
  * Allow for unbinding of listeners with guacamole keyboard (add dispose method). Remove event handlers from WebXKeyboard (direct setting inside quacamole keyboard).
