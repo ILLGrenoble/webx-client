@@ -418,6 +418,10 @@ export class WebXWindow {
       stencilMap.minFilter = LinearFilter;
       this.visible = this.colorMap != null;
       this._material.needsUpdate = true;
+      this._shaped = true;
+
+    } else {
+      this._shaped = false;
     }
   }
 

@@ -112,10 +112,6 @@ export class WebXMaterial extends ShaderMaterial {
     this.uniforms.diffuse.value.copy(value);
   }
 
-  set needsUpdate(value: boolean) {
-    this.uniformsNeedUpdate = value;
-  }
-
   constructor(params?: any) {
     super({
       uniforms: {
