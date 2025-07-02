@@ -300,6 +300,7 @@ export class WebXDisplay {
 
         } else {
           // Update window
+          webXWindow.shaped = window.shaped;
           webXWindow.setRectangle(window.x, window.y, index, window.width, window.height);
         }
       });

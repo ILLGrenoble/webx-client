@@ -101,7 +101,11 @@ export class WebXMaterial extends ShaderMaterial {
 
   set stencilMap(value: Texture) {
     this.uniforms.stencilMap.value = value;
-    this.defines.USE_STENCILMAP = value ? '' : undefined;
+    if (value) {
+      this.defines.USE_STENCILMAP = '';
+    } else {
+      delete this.defines.USE_STENCILMAP;
+    }
   }
 
   get color(): Color {

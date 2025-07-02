@@ -248,6 +248,26 @@ export class WebXWindow {
   }
 
   /**
+   * Gets whether the window is shaped (has a stencil map).
+   *
+   * @return True if the window is shaped, false otherwise.
+   */
+  get shaped(): boolean {
+    return this._shaped;
+  }
+
+  /**
+   * Sets whether the window is shaped (has a stencil map).
+   * @param value True to indicate the window is shaped, false otherwise.
+   */
+  set shaped(value: boolean) {
+    this._shaped = value;
+    if (!value) {
+      this.updateStencilTexture(null);
+    }
+  }
+
+  /**
    * Creates a new instance of WebXWindow.
    *
    * @param configuration The properties of the window, such as position and size.
@@ -341,7 +361,7 @@ export class WebXWindow {
 
       // Force reload of image of dimensions differ
       if (this.colorMap.image.width !== this._width || this.colorMap.image.height !== this._height) {
-        Promise.all([this.loadWindowImage(), this.loadWindowShape()]);
+        this.loadWindowImageAndShape();
       }
     }
 
@@ -358,6 +378,11 @@ export class WebXWindow {
    * @param isFullWindow Whether to force an update of the textures.
    */
   public updateTexture(depth: number, colorMap: Texture, alphaMap: Texture, isFullWindow: boolean): void {
+    // Ignore null color maps (engine unable to get the window image
+    if (colorMap == null) {
+      return;
+    }
+
     this._depth = depth;
 
     // Dispose of previous texture
@@ -366,12 +391,10 @@ export class WebXWindow {
       this.colorMap = colorMap;
     }
 
-    if (colorMap) {
-      colorMap.minFilter = LinearFilter;
-      this.colorMap.repeat.set(this._width / this.colorMap.image.width, this._height / this.colorMap.image.height);
-      this.visible = (!this._shaped || this.stencilMap != null);
-      this._material.needsUpdate = true;
-    }
+    colorMap.minFilter = LinearFilter;
+    this.colorMap.repeat.set(this._width / this.colorMap.image.width, this._height / this.colorMap.image.height);
+    this.visible = (!this._shaped || this.stencilMap != null);
+    this._material.needsUpdate = true;
 
     // Only update alpha if it has been sent
     if (alphaMap) {
@@ -409,6 +432,7 @@ export class WebXWindow {
    */
   public updateStencilTexture(stencilMap: Texture): void {
     // Dispose of previous texture
+    const oldShaped = this._shaped;
     if (stencilMap != this.stencilMap) {
       this._disposeStencilMap();
       this.stencilMap = stencilMap;
@@ -422,6 +446,10 @@ export class WebXWindow {
 
     } else {
       this._shaped = false;
+      // Recompile the material if the shape has been removed
+      if (oldShaped) {
+        this._material.needsUpdate = true;
+      }
     }
   }
 
