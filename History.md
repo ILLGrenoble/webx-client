@@ -1,3 +1,9 @@
+1.9.6 02/07/2025
+================
+ * Handle adding and removing shapes from windows correctly.
+ * Ignore null colorMaps (show current one rather than a blank window)
+ * Updated README 
+
 1.9.5 13/06/2025
 ================
  * Ensure that material shader is recompiled when a stencil is added.
