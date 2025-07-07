@@ -9,7 +9,7 @@ import {
   WebXWindowsInstruction,
 } from './instruction';
 import {
-  WebXClipboardMessage,
+  WebXClipboardMessage, WebXConnectionMessage,
   WebXImageMessage,
   WebXMessage,
   WebXMessageType,
@@ -31,66 +31,9 @@ import {
 import {WebXBinarySerializer} from './transport';
 import {Blob} from "buffer";
 import {WebXEngine} from "./WebXEngine";
+import {WebXConnectionHandler} from "./WebXConnectionHandler";
 const {version} = require('../package.json');
-// const Guacamole = require('./input/GuacamoleKeyboard');
 
-class WebXConnectionHandler {
-  private _connected = false;
-  private _timeout: number;
-  private _timeoutMs: number;
-  private _connectionCallback: () => void = () => {};
-  private _connectionError: () => void = () => {};
-
-  public onConnected(timeoutMs?: number): Promise<void> {
-    this._timeoutMs = timeoutMs || 10000;
-
-    return new Promise<void>((resolve, reject) => {
-      if (this._connected) {
-        resolve();
-      } else {
-
-        this._connectionCallback = () => {
-          window.clearTimeout(this._timeout);
-          this._timeout = null;
-          resolve();
-        }
-
-        this._connectionError = () => {
-          this._timeout = null;
-          reject(new Error("Connection timed out"));
-        }
-
-        this._createTimer();
-      }
-
-    });
-  }
-
-  public setConnected(): void {
-    this._connected = true;
-    this._connectionCallback();
-  }
-
-  public resetTimer(): void {
-    if (this._timeout) {
-      window.clearTimeout(this._timeout);
-      this._timeout = null;
-      this._createTimer();
-    }
-  }
-
-  public dispose(): void {
-    if (this._timeout) {
-      window.clearTimeout(this._timeout);
-    }
-  }
-
-  private _createTimer(): void {
-    this._timeout = window.setTimeout(() => {
-      this._connectionError();
-    }, this._timeoutMs);
-  }
-}
 
 /**
  * Configuration options for the WebXClient.
@@ -99,6 +42,7 @@ export interface WebXClientConfig {
   useDefaultMouseAdapter?: boolean;
   useDefaultKeyboardAdapter?: boolean;
   waitForConnectionWithTimeout?: number;
+  connectionStatusCallback: (status: number) => void;
 }
 
 /**
@@ -215,12 +159,12 @@ export class WebXClient {
    */
   async initialise(containerElement: HTMLElement, config?: WebXClientConfig): Promise<WebXDisplay> {
     try {
-      config = {...{useDefaultMouseAdapter: true, useDefaultKeyboardAdapter: true, waitForConnectionWithTimeout: 10000 }, ...config};
-      const { useDefaultMouseAdapter, useDefaultKeyboardAdapter, waitForConnectionWithTimeout } = config;
+      config = {...{useDefaultMouseAdapter: true, useDefaultKeyboardAdapter: true, waitForConnectionWithTimeout: 10000, connectionStatusCallback: () => {} }, ...config};
+      const { useDefaultMouseAdapter, useDefaultKeyboardAdapter, waitForConnectionWithTimeout, connectionStatusCallback } = config;
 
       // Wait for connection (requires webx-relay >= 1.2.0)
       if (waitForConnectionWithTimeout > 0) {
-        await this._connectionHandler.onConnected(waitForConnectionWithTimeout);
+        await this._connectionHandler.onConnected(waitForConnectionWithTimeout, connectionStatusCallback);
       }
 
       // Request 1. : Get screen size
@@ -491,7 +435,9 @@ export class WebXClient {
    */
   private _handleMessage(message: WebXMessage): void {
     if (message.type === WebXMessageType.CONNECTION) {
-      this._connectionHandler.setConnected();
+      const connectionMessage = message as WebXConnectionMessage;
+
+      this._connectionHandler.setConnected(connectionMessage.isStarting);
       return;
 
     } else if (message.type === WebXMessageType.NOP) {

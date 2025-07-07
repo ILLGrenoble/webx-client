@@ -46,7 +46,7 @@ export class WebXMessageDecoder {
       return this._createNopMessage();
 
     } else if (messageTypeId === WebXMessageType.CONNECTION) {
-      return this._createConnectionMessage();
+      return this._createConnectionMessage(buffer);
 
     } else if (messageTypeId === WebXMessageType.SCREEN) {
       return this._createScreenMessage(buffer);
@@ -107,8 +107,10 @@ export class WebXMessageDecoder {
   /**
    * Creates a WebXConnectionMessage, which is used for connection-related messages.
    */
-  private async _createConnectionMessage(): Promise<WebXMessage> {
-    return new WebXConnectionMessage();
+  private async _createConnectionMessage(buffer: WebXMessageBuffer): Promise<WebXMessage> {
+    const isStarting: number = buffer.getUint32();
+
+    return new WebXConnectionMessage(isStarting > 0);
   }
 
   /**

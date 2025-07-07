@@ -5,3 +5,4 @@ export * from './message';
 export * from './tracer';
 export * from './tunnel';
 export * from './WebXClient';
+export * from './WebXConnectionHandler';

@@ -8,10 +8,13 @@ import { WebXMessageType } from './WebXMessageType';
  */
 export class WebXConnectionMessage extends WebXMessage {
 
+  public readonly isStarting: boolean;
+
   /**
    * Constructs a new WebXConnectionMessage.
    */
-  constructor() {
+  constructor(isStarting: boolean) {
     super(WebXMessageType.CONNECTION);
+    this.isStarting = isStarting;
   }
 }
