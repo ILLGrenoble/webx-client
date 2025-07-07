@@ -42,7 +42,7 @@ export interface WebXClientConfig {
   useDefaultMouseAdapter?: boolean;
   useDefaultKeyboardAdapter?: boolean;
   waitForConnectionWithTimeout?: number;
-  connectionStatusCallback: (status: number) => void;
+  connectionStatusCallback?: (status: number) => void;
 }
 
 /**
