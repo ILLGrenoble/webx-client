@@ -1,3 +1,10 @@
+1.10.0 07/07/2025
+================
+ * Forward connection status to clients through a callback
+ * Obtain a session status from the connection message
+ * Handle asynchronous session creations
+ * Separate ConnectionHandler into a separate file.
+
 1.9.6 02/07/2025
 ================
  * Handle adding and removing shapes from windows correctly.
