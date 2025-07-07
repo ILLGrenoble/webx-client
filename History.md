@@ -1,3 +1,7 @@
+1.10.2 07/07/2025
+================
+ * Fix build
+
 1.10.1 07/07/2025
 ================
  * make the connectionStatusCallback on the client config optional.
