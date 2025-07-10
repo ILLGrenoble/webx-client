@@ -1428,13 +1428,13 @@ Guacamole.Keyboard = function Keyboard(element) {
   this.listenTo = function listenTo(element) {
 
     // When key pressed
-    element.addEventListener("keydown", keyDownListener, true);
+    element.addEventListener("keydown", keyDownListener, {capture: true, passive: false});
 
     // When key pressed
-    element.addEventListener("keypress", keyPressListener, true);
+    element.addEventListener("keypress", keyPressListener, {capture: true, passive: false});
 
     // When key released
-    element.addEventListener("keyup", keyUpListener, true);
+    element.addEventListener("keyup", keyUpListener, {capture: true, passive: false});
 
 
     // Automatically type text entered into the wrapped field
