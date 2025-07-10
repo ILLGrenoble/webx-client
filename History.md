@@ -1,3 +1,7 @@
+1.10.3 10/07/2025
+================
+ * Stop focus being lost on remote desktops
+
 1.10.2 07/07/2025
 ================
  * Fix build
