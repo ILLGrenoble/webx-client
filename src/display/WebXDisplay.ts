@@ -292,8 +292,8 @@ export class WebXDisplay {
 
           webXWindow.loadWindowImageAndShape()
             .then(() => {
-              // When all windows are visible then callback. This is only really needed for the startup
-              if (this.checkVisibility(windows.map(window => window.id))) {
+              // When all windows have been loaded then callback. This is only really needed for the startup
+              if (this.checkAllLoaded(windows.map(window => window.id))) {
                 resolve();
               }
             })
@@ -312,19 +312,19 @@ export class WebXDisplay {
   }
 
   /**
-   * Checks if all specified windows are visible.
+   * Checks if all specified windows have been loaded.
    *
    * @param windowIds The list of window IDs to check.
-   * @returns True if all windows are visible, false otherwise.
+   * @returns True if all windows are loaded, false otherwise.
    */
-  checkVisibility(windowIds: number[]): boolean {
-    const allVisible = windowIds
+  checkAllLoaded(windowIds: number[]): boolean {
+    const allLoaded = windowIds
       .map(id => this.getWindow(id))
       .filter(window => window != null)
-      .map(window => window.visible)
-      .reduce((allVisible, visible) => allVisible && visible, true);
+      .map(window => window.loaded)
+      .reduce((allLoaded, loaded) => allLoaded && loaded, true);
 
-    return allVisible;
+    return allLoaded;
   }
 
   /**

@@ -28,6 +28,7 @@ export class WebXWindow {
   private _width: number = 1;
   private _height: number = 1;
   private _shaped: boolean = false;
+  private _loaded: boolean = false;
 
   private _windowRefreshTimeout: number = null;
 
@@ -76,6 +77,14 @@ export class WebXWindow {
     if (this._material.visible !== visible) {
       this._material.visible = visible;
     }
+  }
+
+
+  /**
+   * Gets whether the window has been loaded with its initial texture.
+   */
+  get loaded(): boolean {
+    return this._loaded;
   }
 
   /**
@@ -302,7 +311,7 @@ export class WebXWindow {
   /**
    * Loads the window image from the texture factory.
    */
-  public async loadWindowImage(): Promise<void> {
+  private async loadWindowImage(): Promise<void> {
     const response = await this._textureFactory.getWindowTexture(this._id);
     if (response) {
       this.updateTexture(response.depth, response.colorMap, response.alphaMap, true);
@@ -312,7 +321,7 @@ export class WebXWindow {
   /**
    * Loads the window shape (stencil map) from the texture factory.
    */
-  public async loadWindowShape(): Promise<void> {
+  private async loadWindowShape(): Promise<void> {
     const response = await this._textureFactory.getWindowStencilTexture(this._id);
     if (response) {
       this.updateStencilTexture(response.stencilMap);
@@ -332,8 +341,9 @@ export class WebXWindow {
       await Promise.all([imagePromise, shapePromise]);
 
     } else {
-      return this.loadWindowImage();
+      await this.loadWindowImage();
     }
+    this._loaded = true;
   }
 
   /**
