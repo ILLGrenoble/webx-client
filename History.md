@@ -1,3 +1,7 @@
+1.10.6 05/09/2025
+================
+ * Fix bug on desktop not being made visible if any of the windows fails to load a texture: check only that the texture request has returned before making the desktop visible.
+
 1.10.3 10/07/2025
 ================
  * Stop focus being lost on remote desktops
