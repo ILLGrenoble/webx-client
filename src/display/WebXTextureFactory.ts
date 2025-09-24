@@ -2,6 +2,7 @@ import {WebXTunnel} from '../tunnel';
 import {WebXImageInstruction, WebXShapeInstruction} from '../instruction';
 import {LinearFilter, Texture} from 'three';
 import {WebXImageMessage, WebXShapeMessage} from '../message';
+import {ColorSpace} from "three/src/constants";
 
 /**
  * Factory class for creating and managing textures for WebX windows.
@@ -91,7 +92,7 @@ export class WebXTextureFactory {
    * @param colorSpace The color space of the image data (e.g., "srgb").
    * @returns A promise that resolves to the created texture.
    */
-  public async createTextureFromArray(imageData: Uint8Array, mimetype: string, colorSpace: string): Promise<Texture> {
+  public async createTextureFromArray(imageData: Uint8Array, mimetype: string, colorSpace: ColorSpace): Promise<Texture> {
     if (imageData != null && imageData.byteLength > 0) {
       const blob = new Blob([imageData], { type: mimetype });
       const texture = await this.createTextureFromBlob(blob);

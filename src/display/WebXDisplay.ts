@@ -357,10 +357,10 @@ export class WebXDisplay {
       for(let i= 0; i< subImages.length; i++) {
         const subImage = subImages[i];
         if (colorMap && subImage.colorMap) {
-          this._renderer.copyTextureToTexture(subImage.colorMap, colorMap, null, new THREE.Vector2(subImage.x, subImage.y));
+          this._renderer.copyTextureToTexture(new THREE.Vector2(subImage.x, subImage.y), subImage.colorMap, colorMap);
         }
         if (alphaMap && subImage.alphaMap) {
-          this._renderer.copyTextureToTexture(subImage.alphaMap, alphaMap, null, new THREE.Vector2(subImage.x, subImage.y));
+          this._renderer.copyTextureToTexture(new THREE.Vector2(subImage.x, subImage.y), subImage.alphaMap, alphaMap);
         }
       }
       window.updateTexture(window.depth, colorMap, alphaMap, false);
