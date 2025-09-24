@@ -1,5 +1,5 @@
-import {Box2, Camera, Color, ColorRepresentation, Object3D, Texture, Vector2} from "three";
-import {WebXColorGenerator} from "../utils";
+import {Box2, Camera, Color, ColorRepresentation, Mesh, Object3D, Texture, Vector2} from "three";
+import {WebXWindowCanvas} from "./WebXWindowCanvas";
 
 export class WebXCanvasRenderer {
 
@@ -7,7 +7,7 @@ export class WebXCanvasRenderer {
   private _desktop: HTMLElement;
   private _clearColor: Color = new Color( 0, 0, 0);
 
-  private _windowElements: Map<number, HTMLElement> = new Map();
+  private _windowCanvases: Map<number, WebXWindowCanvas> = new Map();
 
   get domElement(): HTMLElement {
     return this._desktopContainer;
@@ -35,27 +35,30 @@ export class WebXCanvasRenderer {
       const activeWindowIds = new Set();
 
       // Update visible windows
-      for (const windowObject of screen.children) {
-        if (!this._windowElements.has(windowObject.id)) {
-          this.createWindowElement(windowObject);
-        }
-        const windowElement = this._windowElements.get(windowObject.id);
-        this.updateGeometry(windowElement, windowObject);
+      for (const object of screen.children) {
+        if (object instanceof Mesh && object.visible) {
+          if (!this._windowCanvases.has(object.id)) {
+            this.createWindowCanvas(object);
+          }
+          const windowCanvas = this._windowCanvases.get(object.id);
+          windowCanvas.updateGeometry();
+          windowCanvas.updateCanvas();
 
-        activeWindowIds.add(windowObject.id);
+          activeWindowIds.add(object.id);
+        }
       }
 
       // Remove defunct windows
-      for (const [windowId, element] of this._windowElements.entries()) {
+      for (const [windowId, windowCanvas] of this._windowCanvases.entries()) {
         if (!activeWindowIds.has(windowId)) {
-          this.removeWindowElement(windowId, element)
+          this.removeWindowCanvas(windowCanvas)
         }
       }
 
-    } else if (this._windowElements.size > 0) {
+    } else if (this._windowCanvases.size > 0) {
       // Remove all windows
-      for (const [windowId, element] of this._windowElements.entries()) {
-        this.removeWindowElement(windowId, element)
+      for (const [_, windowCanvas] of this._windowCanvases.entries()) {
+        this.removeWindowCanvas(windowCanvas)
       }
     }
   }
@@ -85,33 +88,15 @@ export class WebXCanvasRenderer {
     this._desktop = desktop;
   }
 
-  private createWindowElement(object: Object3D) {
-    const windowElement = this.createElementNS('div');
-    windowElement.id = `webx-window-${object.id}`;
-    windowElement.style.position = 'absolute';
-    windowElement.style.backgroundColor = WebXColorGenerator.indexedColour(object.id);
-    windowElement.style.pointerEvents = 'none';
-
-    this.updateGeometry(windowElement, object);
-
-    this._desktop.appendChild(windowElement);
-
-    this._windowElements.set(object.id, windowElement);
+  private createWindowCanvas(mesh: Mesh) {
+    const windowCanvas = new WebXWindowCanvas(mesh);
+    this._desktop.appendChild(windowCanvas.element);
+    this._windowCanvases.set(mesh.id, windowCanvas);
   }
 
-  private removeWindowElement(windowId: number, windowElement: HTMLElement) {
-    this._desktop.removeChild(windowElement);
-    this._windowElements.delete(windowId);
-  }
-
-  private updateGeometry(element: HTMLElement, object: Object3D) {
-    const x = object.position.x - 0.5 * object.scale.x;
-    const y = object.position.y - 0.5 * object.scale.y;
-    element.style.top = `${y}px`;
-    element.style.left = `${x}px`;
-    element.style.width = `${object.scale.x}px`;
-    element.style.height = `${object.scale.y}px`;
-    element.style.zIndex = `${object.position.z}`;
+  private removeWindowCanvas(windowCanvas: WebXWindowCanvas) {
+    this._desktop.removeChild(windowCanvas.element);
+    this._windowCanvases.delete(windowCanvas.id);
   }
 
   private createElementNS(name: string): HTMLElement {
