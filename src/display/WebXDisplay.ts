@@ -6,6 +6,7 @@ import { WebXSubImage } from './WebXSubImage';
 import { WebXCursor } from './WebXCursor';
 import { WebXTextureFactory } from './WebXTextureFactory';
 import { WebXCursorFactory } from './WebXCursorFactory';
+import {WebXCanvasRenderer} from "../renderer";
 
 /**
  * Manages the rendering of the WebX remote desktop using WebGL.
@@ -18,7 +19,7 @@ export class WebXDisplay {
 
   private readonly _scene: THREE.Scene;
   private readonly _camera: THREE.OrthographicCamera;
-  private readonly _renderer: THREE.WebGLRenderer;
+  private readonly _renderer: THREE.WebGLRenderer | WebXCanvasRenderer;
   private readonly _screen: THREE.Object3D;
 
   private readonly _screenWidth: number;
@@ -47,7 +48,7 @@ export class WebXDisplay {
    *
    * @returns The WebGLRenderer instance.
    */
-  public get renderer(): THREE.WebGLRenderer {
+  public get renderer(): THREE.WebGLRenderer | WebXCanvasRenderer {
     return this._renderer;
   }
 
@@ -149,7 +150,8 @@ export class WebXDisplay {
     this._camera.position.z = 1000;
     this._camera.lookAt(new Vector3(0, 0, 0));
 
-    this._renderer = new THREE.WebGLRenderer();
+    // this._renderer = new THREE.WebGLRenderer();
+    this._renderer = new WebXCanvasRenderer();
     this._renderer.setSize(screenWidth, screenHeight, false);
 
     const backgroundColor = window.getComputedStyle(this._containerElement).backgroundColor;

@@ -353,9 +353,11 @@ export class WebXClient {
     return new Promise<Blob>((resolve, reject) => {
       try {
         this.display.render();
-        this.display.renderer.domElement.toBlob((blob: Blob) => {
-          resolve(blob);
-        }, type, quality)
+        console.log('Creating Screenshot not implemented');
+        resolve(null);
+        // this.display.renderer.domElement.toBlob((blob: Blob) => {
+        //   resolve(blob);
+        // }, type, quality)
 
       } catch (error) {
         reject(error);
