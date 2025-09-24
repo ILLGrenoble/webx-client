@@ -1,5 +1,4 @@
-import {WebXColorGenerator} from "../utils";
-import {Mesh, MeshBasicMaterial, Texture} from "three";
+import {Box2, Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
 import {WebXMaterial} from "../display/WebXMaterial";
 
 export class WebXWindowCanvas {
@@ -10,6 +9,8 @@ export class WebXWindowCanvas {
 
   private _colorMap: Texture;
   private _colorMapVersion: number = 0;
+  private _alphaMap: Texture;
+  private _alphaMapVersion: number = 0;
 
   get id(): number {
     return this._mesh.id;
@@ -17,6 +18,14 @@ export class WebXWindowCanvas {
 
   get element(): HTMLElement {
     return this._element;
+  }
+
+  get colorMap(): Texture {
+    return this._colorMap;
+  }
+
+  get alphaMap(): Texture {
+    return this._alphaMap;
   }
 
   constructor(private readonly _mesh: Mesh) {
@@ -78,6 +87,19 @@ export class WebXWindowCanvas {
         }
       }
 
+    }
+  }
+
+  public updateCanvasRegion(src: Texture, dst: Texture, srcRegion?: Box2 | null, dstPosition?: Vector2 | null) {
+    if (this._colorMap === dst) {
+      const image = src.image;
+      const dstX = dstPosition ? dstPosition.x : 0;
+      const dstY = dstPosition ? dstPosition.y : 0;
+      const srcX = srcRegion ? srcRegion.min.x : 0;
+      const srcY = srcRegion ? srcRegion.min.y : 0;
+      const srcWidth = srcRegion ? srcRegion.max.x - srcRegion.min.x : image.width;
+      const srcHeight = srcRegion ? srcRegion.max.y - srcRegion.min.y : image.height;
+      this._context.drawImage(image, srcX, srcY, srcWidth, srcHeight, dstX, dstY, srcWidth, srcHeight)  ;
     }
   }
 
