@@ -1,13 +1,34 @@
-function alphaWorkerFunc() {
-  self.onmessage = (e) => {
-    const { id, colorBuffer, alphaBuffer, width, height } = e.data;
-    const colorData = new Uint8ClampedArray(colorBuffer);
-    const alphaData = new Uint8ClampedArray(alphaBuffer);
+function alphaAndStencilBlend(colorData, alphaData, stencilData) {
+  // Blend alpha (green channel -> alpha)
+  if (alphaData && stencilData) {
+    for (let i = 0; i < colorData.length; i += 4) {
+      if (stencilData[i] < 128) {
+        colorData[i + 3] = 0;
 
-    // Blend alpha (green channel -> alpha)
+      } else {
+        colorData[i + 3] = alphaData[i + 1];
+      }
+    }
+  } else if (alphaData) {
     for (let i = 0; i < colorData.length; i += 4) {
       colorData[i + 3] = alphaData[i + 1];
     }
+
+  } else if (stencilData) {
+    for (let i = 0; i < colorData.length; i += 4) {
+      colorData[i + 3] = stencilData[i] < 128 ? 0 : 255;
+    }
+  }
+}
+
+function alphaWorkerFunc() {
+  self.onmessage = (e) => {
+    const { id, colorBuffer, alphaBuffer, stencilBuffer, width, height } = e.data;
+    const colorData = new Uint8ClampedArray(colorBuffer);
+    const alphaData = alphaBuffer ? new Uint8ClampedArray(alphaBuffer) : null;
+    const stencilData = stencilBuffer ? new Uint8ClampedArray(stencilBuffer) : null;
+
+    alphaAndStencilBlend(colorData, alphaData, stencilData);
 
     // @ts-ignore
     self.postMessage({ id, colorBuffer: colorData.buffer, width, height }, [colorData.buffer]);
@@ -15,14 +36,13 @@ function alphaWorkerFunc() {
 }
 
 export class WebXAlphaBlender {
-  private _worker: Worker;
+  private readonly _worker: Worker;
   private _pending = new Map<number, (imageData: ImageData) => void>();
   private _nextId = 1;
 
   constructor() {
-    if (typeof Worker !== "undefined") {
-      // console.log("Web Workers are available");
-      const blob = new Blob(["(", alphaWorkerFunc.toString(), ")()"], { type: "application/javascript" });
+    if (typeof Worker !== 'undefined') {
+      const blob = new Blob([alphaAndStencilBlend.toString(), '(', alphaWorkerFunc.toString(), ')()'], { type: 'application/javascript' });
       const blobUrl = URL.createObjectURL(blob);
       this._worker = new Worker(blobUrl);
       URL.revokeObjectURL(blobUrl);
@@ -39,33 +59,40 @@ export class WebXAlphaBlender {
 
         callback(blendedImageData);
       };
-
-    } else {
-      // console.log("Web Workers are NOT available");
     }
   }
 
-  public async blendAlpha(colorImageData: ImageData, alphaImageData: ImageData): Promise<ImageData> {
+  public async blendAlphaAndStencil(colorImageData: ImageData, alphaImageData: ImageData, stencilImageData: ImageData): Promise<ImageData> {
     return new Promise((resolve) => {
       if (this._worker) {
         const id = this._nextId++;
         this._pending.set(id, resolve);
 
+        const width = colorImageData.width;
+        const height = colorImageData.height;
+
+        const colorBuffer = colorImageData.data.buffer;
+        let alphaBuffer = null;
+        let stencilBuffer = null;
+
+        const transfers = [colorBuffer];
+
+        if (alphaImageData) {
+          alphaBuffer = alphaImageData.data.buffer;
+          transfers.push(alphaBuffer)
+        }
+        if (stencilImageData) {
+          stencilBuffer = stencilImageData.data.buffer;
+          transfers.push(stencilBuffer)
+        }
+
         this._worker.postMessage(
-          {
-            id,
-            colorBuffer: colorImageData.data.buffer,
-            alphaBuffer: alphaImageData.data.buffer,
-            width: colorImageData.width,
-            height: colorImageData.height,
-          },
-          [colorImageData.data.buffer, alphaImageData.data.buffer]
+          { id, colorBuffer, alphaBuffer, stencilBuffer, width, height },
+          transfers
         );
 
       } else {
-        for (let i = 0; i < colorImageData.data.length; i += 4) {
-          colorImageData.data[i + 3] = alphaImageData.data[i + 1];
-        }
+        alphaAndStencilBlend(colorImageData.data, alphaImageData?.data, stencilImageData?.data);
         resolve(colorImageData);
       }
     });

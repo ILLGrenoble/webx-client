@@ -1,6 +1,6 @@
-import {Box2, Camera, Color, ColorRepresentation, Mesh, Object3D, Texture, Vector2} from "three";
-import {WebXWindowCanvas} from "./WebXWindowCanvas";
-import {WebXAlphaBlender} from "./WebXAlphaBlender";
+import {Camera, Color, ColorRepresentation, Mesh, Object3D, Texture, Vector2} from 'three';
+import {WebXWindowCanvas} from './WebXWindowCanvas';
+import {WebXAlphaBlender} from './WebXAlphaBlender';
 
 export class WebXCanvasRenderer {
 

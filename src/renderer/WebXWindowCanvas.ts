@@ -1,4 +1,4 @@
-import {Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
+import {Material, Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
 import {WebXMaterial} from "../display/WebXMaterial";
 import {WebXAlphaBlender} from "./WebXAlphaBlender";
 
@@ -18,6 +18,9 @@ export class WebXWindowCanvas {
   private readonly _canvas: HTMLCanvasElement;
   private _context: CanvasRenderingContext2D;
 
+  private _stencilCanvas: HTMLCanvasElement;
+  private _stencilContext: CanvasRenderingContext2D;
+
   private _x: number = 0;
   private _y: number = 0;
   private _zIndex: number = 0;
@@ -26,6 +29,7 @@ export class WebXWindowCanvas {
 
   private _colorMap: Texture;
   private _alphaMap: Texture;
+  private _stencilMap: Texture;
 
   private _regionUpdates: RegionUpdate[] = [];
 
@@ -35,14 +39,6 @@ export class WebXWindowCanvas {
 
   get element(): HTMLElement {
     return this._element;
-  }
-
-  get colorMap(): Texture {
-    return this._colorMap;
-  }
-
-  get alphaMap(): Texture {
-    return this._alphaMap;
   }
 
   constructor(private readonly _mesh: Mesh,
@@ -61,7 +57,7 @@ export class WebXWindowCanvas {
 
     this._element.appendChild(this._canvas);
 
-    this._context = this._canvas.getContext("2d");
+    this._context = this._canvas.getContext('2d');
 
     this.updateGeometry();
     this.updateCanvas();
@@ -99,6 +95,9 @@ export class WebXWindowCanvas {
     if (this._mesh.material instanceof WebXMaterial || this._mesh.material instanceof MeshBasicMaterial) {
       const material = this._mesh.material as WebXMaterial | MeshBasicMaterial;
 
+      // Handle the stencil map
+      this.updateStencilMap(material);
+
       if (material.map) {
 
         // Check for new color map and/or alpha map
@@ -120,10 +119,10 @@ export class WebXWindowCanvas {
           }
 
           const hasAlphaMap = this.isValidAlphaMap(material.alphaMap);
-          if (hasAlphaMap) {
-            const alphaImage = material.alphaMap.image;
+          if (hasAlphaMap || this._stencilContext) {
+            const alphaImage = material.alphaMap?.image;
 
-            const blendedImageData = await this.blendAlpha(colorImage, alphaImage);
+            const blendedImageData = await this.blendAlphaAndStencil(colorImage, alphaImage, 0, 0);
             this._context.putImageData(blendedImageData, 0, 0);
 
           } else {
@@ -165,8 +164,8 @@ export class WebXWindowCanvas {
 
         const colorImage = srcColorMap.image;
         const alphaImage = srcAlphaMap?.image;
-        if (alphaImage) {
-          const blendedImageData = await this.blendAlpha(colorImage, alphaImage);
+        if (alphaImage || this._stencilContext) {
+          const blendedImageData = await this.blendAlphaAndStencil(colorImage, alphaImage, dstPosition.x, dstPosition.y);
 
           this._context.putImageData(blendedImageData, dstPosition.x, dstPosition.y);
 
@@ -188,36 +187,67 @@ export class WebXWindowCanvas {
     return false;
   }
 
-  private async blendAlpha(colorImage: ImageBitmap, alphaImage: ImageBitmap): Promise<ImageData> {
-    if (!alphaImage) {
+  private updateStencilMap(material: WebXMaterial | MeshBasicMaterial) {
+    // Get stencil map if it exists, remove it if no longer needed
+    if (material instanceof WebXMaterial && material.stencilMap) {
+      if (material.stencilMap != this._stencilMap) {
+        this._stencilMap = material.stencilMap;
+
+        // Create canvas and context for stencil Image
+        const stencilImage = this._stencilMap.image;
+        this._stencilCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
+        this._stencilCanvas.width = stencilImage.width;
+        this._stencilCanvas.height = stencilImage.height;
+
+        this._stencilContext = this._stencilCanvas.getContext('2d', { willReadFrequently: true });
+        this._stencilContext.drawImage(stencilImage, 0, 0);
+      }
+
+    } else {
+      if (this._stencilMap) {
+        this._stencilMap = null;
+        this._stencilCanvas = null;
+        this._stencilContext = null;
+      }
+    }
+  }
+
+  private async blendAlphaAndStencil(colorImage: ImageBitmap, alphaImage: ImageBitmap, dstX: number, dstY: number): Promise<ImageData> {
+    if (!alphaImage && !this._stencilContext) {
       return;
     }
 
-    const width = alphaImage.width;
-    const height = alphaImage.height;
+    const width = colorImage.width;
+    const height = colorImage.height;
 
     // Create temporary canvas and context for color Image
     const colorCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
     colorCanvas.width = width;
     colorCanvas.height = height;
 
-    const colorContext = colorCanvas.getContext("2d");
+    const colorContext = colorCanvas.getContext('2d');
     colorContext.drawImage(colorImage, 0, 0);
+    const colorImageData = colorContext.getImageData(0, 0, width, height);
 
-    // Create temporary canvas and context for alpha Image
-    const alphaCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
-    alphaCanvas.width = width;
-    alphaCanvas.height = height;
+    let alphaImageData = null;
+    if (alphaImage) {
+      // Create temporary canvas and context for alpha Image
+      const alphaCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
+      alphaCanvas.width = width;
+      alphaCanvas.height = height;
 
-    const alphaContext = alphaCanvas.getContext("2d");
-    alphaContext.drawImage(alphaImage, 0, 0);
+      const alphaContext = alphaCanvas.getContext('2d');
+      alphaContext.drawImage(alphaImage, 0, 0);
+      alphaImageData = alphaContext.getImageData(0, 0, width, height);
+    }
 
     const startTime = performance.now();
 
-    const colorImageData = colorContext.getImageData(0, 0, width, height);
-    const alphaImageData = alphaContext.getImageData(0, 0, width, height);
-
-    const blendedImageData = await this._alphaBlender.blendAlpha(colorImageData, alphaImageData);
+    let stencilImageData = null;
+    if (this._stencilContext) {
+      stencilImageData = this._stencilContext.getImageData(dstX, dstY, width, height);
+    }
+    const blendedImageData = await this._alphaBlender.blendAlphaAndStencil(colorImageData, alphaImageData, stencilImageData);
 
     const endTime = performance.now();
     // console.log(`Time to blend alpha image = ${(endTime - startTime).toFixed((3))}ms for ${width * height} pixels`);

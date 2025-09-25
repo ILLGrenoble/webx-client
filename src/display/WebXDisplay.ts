@@ -6,7 +6,7 @@ import { WebXSubImage } from './WebXSubImage';
 import { WebXCursor } from './WebXCursor';
 import { WebXTextureFactory } from './WebXTextureFactory';
 import { WebXCursorFactory } from './WebXCursorFactory';
-import {WebXCanvasRenderer} from "../renderer";
+import {WebXCanvasRenderer} from '../renderer';
 
 /**
  * Manages the rendering of the WebX remote desktop using WebGL.
@@ -236,7 +236,7 @@ export class WebXDisplay {
    */
   addWindow(window: WebXWindow): void {
     if (this._windows.find(existingWindow => existingWindow.id === window.id) == null) {
-      // console.log("Adding window ", window.id)
+      // console.log('Adding window ', window.id)
       this._windows.push(window);
       this._screen.add(window.mesh);
       this._sceneDirty = true;
@@ -250,7 +250,7 @@ export class WebXDisplay {
    */
   removeWindow(window: WebXWindow): void {
     if (this._windows.find(existingWindow => existingWindow.id === window.id) != null) {
-      // console.log("Removing window ", window.id)
+      // console.log('Removing window ', window.id)
       this._windows = this._windows.filter(existingWindow => existingWindow.id !== window.id);
       window.dispose();
       this._screen.remove(window.mesh);
