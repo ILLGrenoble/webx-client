@@ -35,7 +35,7 @@ function alphaWorkerFunc() {
   };
 }
 
-export class WebXAlphaBlender {
+export class WebXAlphaStencilBlender {
   private readonly _worker: Worker;
   private _pending = new Map<number, (imageData: ImageData) => void>();
   private _nextId = 1;

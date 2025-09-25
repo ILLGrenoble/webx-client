@@ -1,6 +1,6 @@
 import {Material, Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
 import {WebXMaterial} from "../display/WebXMaterial";
-import {WebXAlphaBlender} from "./WebXAlphaBlender";
+import {WebXAlphaStencilBlender} from "./WebXAlphaStencilBlender";
 
 type RegionUpdate = {
   srcColorMap: Texture;
@@ -42,7 +42,7 @@ export class WebXWindowCanvas {
   }
 
   constructor(private readonly _mesh: Mesh,
-              private readonly _alphaBlender: WebXAlphaBlender) {
+              private readonly _alphaStencilBlender: WebXAlphaStencilBlender) {
     this._element = this.createElementNS('div');
     this._element.id = `webx-window-${this.id}`;
     this._element.style.position = 'absolute';
@@ -247,7 +247,7 @@ export class WebXWindowCanvas {
     if (this._stencilContext) {
       stencilImageData = this._stencilContext.getImageData(dstX, dstY, width, height);
     }
-    const blendedImageData = await this._alphaBlender.blendAlphaAndStencil(colorImageData, alphaImageData, stencilImageData);
+    const blendedImageData = await this._alphaStencilBlender.blendAlphaAndStencil(colorImageData, alphaImageData, stencilImageData);
 
     const endTime = performance.now();
     // console.log(`Time to blend alpha image = ${(endTime - startTime).toFixed((3))}ms for ${width * height} pixels`);
