@@ -1,4 +1,4 @@
-import {Box2, Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
+import {Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
 import {WebXMaterial} from "../display/WebXMaterial";
 
 export class WebXWindowCanvas {
@@ -6,6 +6,12 @@ export class WebXWindowCanvas {
   private readonly _element: HTMLElement;
   private readonly _canvas: HTMLCanvasElement;
   private _context: CanvasRenderingContext2D;
+
+  private _x: number = 0;
+  private _y: number = 0;
+  private _zIndex: number = 0;
+  private _width: number = 0;
+  private _height: number = 0;
 
   private _colorMap: Texture;
   private _alphaMap: Texture;
@@ -48,13 +54,31 @@ export class WebXWindowCanvas {
   }
 
   public updateGeometry() {
-    const x = this._mesh.position.x - 0.5 * this._mesh.scale.x;
-    const y = this._mesh.position.y - 0.5 * this._mesh.scale.y;
-    this._element.style.top = `${y}px`;
-    this._element.style.left = `${x}px`;
-    this._element.style.width = `${this._mesh.scale.x}px`;
-    this._element.style.height = `${this._mesh.scale.y}px`;
-    this._element.style.zIndex = `${this._mesh.position.z}`;
+    const width = this._mesh.scale.x;
+    const height = this._mesh.scale.y;
+    const x = this._mesh.position.x - 0.5 * width;
+    const y = this._mesh.position.y - 0.5 * height;
+    const zIndex = this._mesh.position.z;
+
+    if (x !== this._x || y !== this._y) {
+      this._element.style.top = `${y}px`;
+      this._element.style.left = `${x}px`;
+      this._x = x;
+      this._y = y;
+    }
+
+    if (width !== this._width || height !== this._height) {
+      this._element.style.width = `${width}px`;
+      this._element.style.height = `${height}px`;
+
+      this._width = width;
+      this._height = height;
+    }
+
+    if (zIndex !== this._zIndex) {
+      this._element.style.zIndex = `${this._mesh.position.z}`;
+      this._zIndex = zIndex;
+    }
   }
 
   public updateCanvas() {
@@ -76,6 +100,8 @@ export class WebXWindowCanvas {
           this._context.drawImage(colorImage, 0, 0, width, height);
 
           this._colorMap = material.map;
+          // Reset alpha map to force blending
+          this._alphaMap = null;
         }
 
         if (material.alphaMap != this._alphaMap && this.isValidAlphaMap(material.alphaMap)) {
@@ -96,21 +122,20 @@ export class WebXWindowCanvas {
     }
   }
 
-  public updateCanvasRegion(src: Texture, dst: Texture, dstPosition: Vector2) {
-    if (this._colorMap === dst) {
-      const image = src.image;
-      const width = image.width;
-      const height = image.height;
-      const offsetX = dstPosition.x;
-      const offsetY = dstPosition.y;
-      this._context.drawImage(image, 0, 0, width, height, offsetX, offsetY, width, height)  ;
+  public updateColorRegion(src: Texture, dstPosition: Vector2) {
+    const image = src.image;
+    const width = image.width;
+    const height = image.height;
+    const offsetX = dstPosition.x;
+    const offsetY = dstPosition.y;
+    this._context.drawImage(image, 0, 0, width, height, offsetX, offsetY, width, height)  ;
+  }
 
-    } else if (this._alphaMap === dst) {
-      const image = src.image;
-      const offsetX = dstPosition.x;
-      const offsetY = dstPosition.y;
-      this.blendAlpha(image, offsetX, offsetY);
-    }
+  public updateAlphaRegion(src: Texture, dstPosition: Vector2) {
+    const image = src.image;
+    const offsetX = dstPosition.x;
+    const offsetY = dstPosition.y;
+    this.blendAlpha(image, offsetX, offsetY);
   }
 
   private isValidAlphaMap(alphaMap: Texture): boolean {

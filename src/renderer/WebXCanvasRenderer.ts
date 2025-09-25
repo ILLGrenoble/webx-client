@@ -64,13 +64,19 @@ export class WebXCanvasRenderer {
   }
 
   public dispose() {
-
+    // Remove all windows
+    for (const [_, windowCanvas] of this._windowCanvases.entries()) {
+      this.removeWindowCanvas(windowCanvas)
+    }
   }
 
   public copyTextureToTexture(src: Texture, dst: Texture, srcRegion?: Box2 | null, dstPosition?: Vector2 | null) {
     Array.from(this._windowCanvases.values()).forEach(windowCanvas => {
-      if (windowCanvas.colorMap === dst || windowCanvas.alphaMap === dst) {
-        windowCanvas.updateCanvasRegion(src, dst, dstPosition);
+      if (windowCanvas.colorMap === dst) {
+        windowCanvas.updateColorRegion(src, dstPosition);
+
+      } else if (windowCanvas.alphaMap === dst) {
+        windowCanvas.updateAlphaRegion(src, dstPosition);
       }
     });
   }
