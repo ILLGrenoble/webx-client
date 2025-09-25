@@ -27,7 +27,7 @@ export class WebXWindowCanvas {
   private _colorMap: Texture;
   private _alphaMap: Texture;
 
-  private _regionUpdates: RegionUpdate[] = new Array<RegionUpdate>();
+  private _regionUpdates: RegionUpdate[] = [];
 
   get id(): number {
     return this._mesh.id;
@@ -61,7 +61,7 @@ export class WebXWindowCanvas {
 
     this._element.appendChild(this._canvas);
 
-    this._context = this._canvas.getContext("2d", { willReadFrequently: true });
+    this._context = this._canvas.getContext("2d");
 
     this.updateGeometry();
     this.updateCanvas();
@@ -100,9 +100,13 @@ export class WebXWindowCanvas {
       const material = this._mesh.material as WebXMaterial | MeshBasicMaterial;
 
       if (material.map) {
+
+        // Check for new color map and/or alpha map
         const updateCanvas = material.map != this._colorMap || material.alphaMap != this._alphaMap;
         if (updateCanvas) {
           this._colorMap = material.map;
+          this._alphaMap = material.alphaMap;
+
           const colorImage = material.map.image;
 
           const width = colorImage.width;
@@ -117,7 +121,6 @@ export class WebXWindowCanvas {
 
           const hasAlphaMap = this.isValidAlphaMap(material.alphaMap);
           if (hasAlphaMap) {
-            this._alphaMap = material.alphaMap;
             const alphaImage = material.alphaMap.image;
 
             const blendedImageData = await this.blendAlpha(colorImage, alphaImage);
@@ -129,16 +132,18 @@ export class WebXWindowCanvas {
           }
         }
 
+        // Apply any regional updates
+        await this.handleRegionUpdates();
+
       } else {
         if (this._colorMap) {
           this._colorMap = null;
           this._alphaMap = null;
+          this._regionUpdates = [];
           this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
         }
       }
     }
-
-    await this.handleRegionUpdates();
   }
 
   public addRegionUpdate(srcColorMap: Texture, dstColorMap: Texture, srcAlphaMap: Texture, dstAlphaMap: Texture, width: number, height: number, dstPosition: Vector2) {
@@ -196,7 +201,7 @@ export class WebXWindowCanvas {
     colorCanvas.width = width;
     colorCanvas.height = height;
 
-    const colorContext = colorCanvas.getContext("2d", {willReadFrequently: true});
+    const colorContext = colorCanvas.getContext("2d");
     colorContext.drawImage(colorImage, 0, 0);
 
     // Create temporary canvas and context for alpha Image
@@ -204,7 +209,7 @@ export class WebXWindowCanvas {
     alphaCanvas.width = width;
     alphaCanvas.height = height;
 
-    const alphaContext = alphaCanvas.getContext("2d", {willReadFrequently: true});
+    const alphaContext = alphaCanvas.getContext("2d");
     alphaContext.drawImage(alphaImage, 0, 0);
 
     const startTime = performance.now();
@@ -215,7 +220,7 @@ export class WebXWindowCanvas {
     const blendedImageData = await this._alphaBlender.blendAlpha(colorImageData, alphaImageData);
 
     const endTime = performance.now();
-    console.log(`Time to add alpha channel = ${(endTime - startTime).toFixed((3))}ms for ${width * height} pixels`);
+    // console.log(`Time to blend alpha image = ${(endTime - startTime).toFixed((3))}ms for ${width * height} pixels`);
 
     return blendedImageData;
   }

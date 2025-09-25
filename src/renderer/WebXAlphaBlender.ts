@@ -21,7 +21,7 @@ export class WebXAlphaBlender {
 
   constructor() {
     if (typeof Worker !== "undefined") {
-      console.log("Web Workers are available");
+      // console.log("Web Workers are available");
       const blob = new Blob(["(", alphaWorkerFunc.toString(), ")()"], { type: "application/javascript" });
       const blobUrl = URL.createObjectURL(blob);
       this._worker = new Worker(blobUrl);
@@ -41,7 +41,7 @@ export class WebXAlphaBlender {
       };
 
     } else {
-      console.log("Web Workers are NOT available");
+      // console.log("Web Workers are NOT available");
     }
   }
 
