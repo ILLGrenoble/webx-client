@@ -1,5 +1,16 @@
 import {Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
 import {WebXMaterial} from "../display/WebXMaterial";
+import {WebXAlphaBlender} from "./WebXAlphaBlender";
+
+type RegionUpdate = {
+  srcColorMap: Texture;
+  dstColorMap: Texture;
+  srcAlphaMap: Texture;
+  dstAlphaMap: Texture;
+  width: number;
+  height: number;
+  dstPosition: Vector2
+}
 
 export class WebXWindowCanvas {
 
@@ -15,6 +26,8 @@ export class WebXWindowCanvas {
 
   private _colorMap: Texture;
   private _alphaMap: Texture;
+
+  private _regionUpdates: RegionUpdate[] = new Array<RegionUpdate>();
 
   get id(): number {
     return this._mesh.id;
@@ -32,7 +45,8 @@ export class WebXWindowCanvas {
     return this._alphaMap;
   }
 
-  constructor(private readonly _mesh: Mesh) {
+  constructor(private readonly _mesh: Mesh,
+              private readonly _alphaBlender: WebXAlphaBlender) {
     this._element = this.createElementNS('div');
     this._element.id = `webx-window-${this.id}`;
     this._element.style.position = 'absolute';
@@ -81,35 +95,38 @@ export class WebXWindowCanvas {
     }
   }
 
-  public updateCanvas() {
+  public async updateCanvas() {
     if (this._mesh.material instanceof WebXMaterial || this._mesh.material instanceof MeshBasicMaterial) {
       const material = this._mesh.material as WebXMaterial | MeshBasicMaterial;
 
       if (material.map) {
-        const colorImage = material.map.image;
-
-        if (material.map != this._colorMap) {
+        const updateCanvas = material.map != this._colorMap || material.alphaMap != this._alphaMap;
+        if (updateCanvas) {
+          this._colorMap = material.map;
+          const colorImage = material.map.image;
 
           const width = colorImage.width;
           const height = colorImage.height;
 
-          this._canvas.width = width;
-          this._canvas.height = height;
-          this._canvas.style.width = `${width}px`;
-          this._canvas.style.height = `${height}px`;
-          this._context.drawImage(colorImage, 0, 0, width, height);
+          if (this._canvas.width !== width || this._canvas.height !== height) {
+            this._canvas.width = width;
+            this._canvas.height = height;
+            this._canvas.style.width = `${width}px`;
+            this._canvas.style.height = `${height}px`;
+          }
 
-          this._colorMap = material.map;
-          // Reset alpha map to force blending
-          this._alphaMap = null;
-        }
+          const hasAlphaMap = this.isValidAlphaMap(material.alphaMap);
+          if (hasAlphaMap) {
+            this._alphaMap = material.alphaMap;
+            const alphaImage = material.alphaMap.image;
 
-        if (material.alphaMap != this._alphaMap && this.isValidAlphaMap(material.alphaMap)) {
-          const alphaImage = material.alphaMap.image;
+            const blendedImageData = await this.blendAlpha(colorImage, alphaImage);
+            this._context.putImageData(blendedImageData, 0, 0);
 
-          this.blendAlpha(alphaImage, 0, 0);
-
-          this._alphaMap = material.alphaMap;
+          } else {
+            this._context.clearRect(0, 0, width, height);
+            this._context.drawImage(colorImage, 0, 0, width, height);
+          }
         }
 
       } else {
@@ -120,22 +137,41 @@ export class WebXWindowCanvas {
         }
       }
     }
+
+    await this.handleRegionUpdates();
   }
 
-  public updateColorRegion(src: Texture, dstPosition: Vector2) {
-    const image = src.image;
-    const width = image.width;
-    const height = image.height;
-    const offsetX = dstPosition.x;
-    const offsetY = dstPosition.y;
-    this._context.drawImage(image, 0, 0, width, height, offsetX, offsetY, width, height)  ;
+  public addRegionUpdate(srcColorMap: Texture, dstColorMap: Texture, srcAlphaMap: Texture, dstAlphaMap: Texture, width: number, height: number, dstPosition: Vector2) {
+    this._regionUpdates.push({
+      srcColorMap,
+      dstColorMap,
+      srcAlphaMap,
+      dstAlphaMap,
+      width,
+      height,
+      dstPosition,
+    });
   }
 
-  public updateAlphaRegion(src: Texture, dstPosition: Vector2) {
-    const image = src.image;
-    const offsetX = dstPosition.x;
-    const offsetY = dstPosition.y;
-    this.blendAlpha(image, offsetX, offsetY);
+  private async handleRegionUpdates(): Promise<void> {
+    for (const region of this._regionUpdates) {
+      if (region.dstColorMap === this._colorMap && region.dstAlphaMap === this._alphaMap) {
+        const { srcColorMap, srcAlphaMap, width, height, dstPosition } = region;
+
+        const colorImage = srcColorMap.image;
+        const alphaImage = srcAlphaMap?.image;
+        if (alphaImage) {
+          const blendedImageData = await this.blendAlpha(colorImage, alphaImage);
+
+          this._context.putImageData(blendedImageData, dstPosition.x, dstPosition.y);
+
+        } else {
+          this._context.drawImage(colorImage, 0, 0, width, height, dstPosition.x, dstPosition.y, width, height)  ;
+        }
+      }
+    }
+
+    this._regionUpdates = [];
   }
 
   private isValidAlphaMap(alphaMap: Texture): boolean {
@@ -147,7 +183,7 @@ export class WebXWindowCanvas {
     return false;
   }
 
-  private blendAlpha(alphaImage: ImageBitmap, offsetX: number, offsetY: number) {
+  private async blendAlpha(colorImage: ImageBitmap, alphaImage: ImageBitmap): Promise<ImageData> {
     if (!alphaImage) {
       return;
     }
@@ -155,6 +191,15 @@ export class WebXWindowCanvas {
     const width = alphaImage.width;
     const height = alphaImage.height;
 
+    // Create temporary canvas and context for color Image
+    const colorCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
+    colorCanvas.width = width;
+    colorCanvas.height = height;
+
+    const colorContext = colorCanvas.getContext("2d", {willReadFrequently: true});
+    colorContext.drawImage(colorImage, 0, 0);
+
+    // Create temporary canvas and context for alpha Image
     const alphaCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
     alphaCanvas.width = width;
     alphaCanvas.height = height;
@@ -164,26 +209,15 @@ export class WebXWindowCanvas {
 
     const startTime = performance.now();
 
-    const colorImageData = this._context.getImageData(offsetX, offsetY, width, height);
+    const colorImageData = colorContext.getImageData(0, 0, width, height);
     const alphaImageData = alphaContext.getImageData(0, 0, width, height);
 
-    // Works but may be slow
-    for (let i = 0; i < colorImageData.data.length; i += 4) {
-      colorImageData.data[i + 3] = alphaImageData.data[i + 1];
-    }
-
-    // Blending (Works but may not be super quick either)
-    // const colorArray = new Uint32Array(colorImageData.data.buffer);
-    // const alphaArray = new Uint32Array(alphaImageData.data.buffer);
-    // for (let i = 0; i < colorArray.length; i++) {
-    //   // Blend color RGB with bit-shifted G of alpha
-    //   colorArray[i] = (colorArray[i] & 0x00FFFFFF) | ((alphaArray[i] & 0x0000FF00) << 16);
-    // }
-
-    this._context.putImageData(colorImageData, offsetX, offsetY);
+    const blendedImageData = await this._alphaBlender.blendAlpha(colorImageData, alphaImageData);
 
     const endTime = performance.now();
     console.log(`Time to add alpha channel = ${(endTime - startTime).toFixed((3))}ms for ${width * height} pixels`);
+
+    return blendedImageData;
   }
 
   private createElementNS(name: string): HTMLElement {

@@ -358,12 +358,18 @@ export class WebXDisplay {
       const alphaMap = window.alphaMap;
       for(let i= 0; i< subImages.length; i++) {
         const subImage = subImages[i];
-        if (colorMap && subImage.colorMap) {
-          this._renderer.copyTextureToTexture(subImage.colorMap, colorMap, null, new THREE.Vector2(subImage.x, subImage.y));
+        if (this._renderer instanceof WebXCanvasRenderer) {
+          this._renderer.updateWindowRegion(window.mesh.id, subImage.colorMap, colorMap, subImage.alphaMap, alphaMap, subImage.width, subImage.height, new THREE.Vector2(subImage.x, subImage.y));
+
+        } else {
+          if (colorMap && subImage.colorMap) {
+            this._renderer.copyTextureToTexture(subImage.colorMap, colorMap, null, new THREE.Vector2(subImage.x, subImage.y));
+          }
+          if (alphaMap && subImage.alphaMap) {
+            this._renderer.copyTextureToTexture(subImage.alphaMap, alphaMap, null, new THREE.Vector2(subImage.x, subImage.y));
+          }
         }
-        if (alphaMap && subImage.alphaMap) {
-          this._renderer.copyTextureToTexture(subImage.alphaMap, alphaMap, null, new THREE.Vector2(subImage.x, subImage.y));
-        }
+
       }
       window.updateTexture(window.depth, colorMap, alphaMap, false);
       this._sceneDirty = true;

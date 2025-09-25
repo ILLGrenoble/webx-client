@@ -1,11 +1,13 @@
 import {Box2, Camera, Color, ColorRepresentation, Mesh, Object3D, Texture, Vector2} from "three";
 import {WebXWindowCanvas} from "./WebXWindowCanvas";
+import {WebXAlphaBlender} from "./WebXAlphaBlender";
 
 export class WebXCanvasRenderer {
 
   private _desktopContainer: HTMLElement;
   private _desktop: HTMLElement;
   private _clearColor: Color = new Color( 0, 0, 0);
+  private readonly _alphaBlender: WebXAlphaBlender;
 
   private _windowCanvases: Map<number, WebXWindowCanvas> = new Map();
 
@@ -15,6 +17,7 @@ export class WebXCanvasRenderer {
 
   constructor() {
     this.createMainElement();
+    this._alphaBlender = new WebXAlphaBlender();
   }
 
   public setSize(width: number, height: number, unused?: boolean) {
@@ -68,17 +71,15 @@ export class WebXCanvasRenderer {
     for (const [_, windowCanvas] of this._windowCanvases.entries()) {
       this.removeWindowCanvas(windowCanvas)
     }
+
+    this._alphaBlender.terminate();
   }
 
-  public copyTextureToTexture(src: Texture, dst: Texture, srcRegion?: Box2 | null, dstPosition?: Vector2 | null) {
-    Array.from(this._windowCanvases.values()).forEach(windowCanvas => {
-      if (windowCanvas.colorMap === dst) {
-        windowCanvas.updateColorRegion(src, dstPosition);
-
-      } else if (windowCanvas.alphaMap === dst) {
-        windowCanvas.updateAlphaRegion(src, dstPosition);
-      }
-    });
+  public updateWindowRegion(meshId: number, srcColorMap: Texture, dstColorMap: Texture, srcAlphaMap: Texture, dstAlphaMap: Texture, width: number, height: number, dstPosition: Vector2) {
+    const windowCanvas = this._windowCanvases.get(meshId);
+    if (windowCanvas) {
+      windowCanvas.addRegionUpdate(srcColorMap, dstColorMap, srcAlphaMap, dstAlphaMap, width, height, dstPosition);
+    }
   }
 
   private createMainElement() {
@@ -99,7 +100,7 @@ export class WebXCanvasRenderer {
   }
 
   private createWindowCanvas(mesh: Mesh) {
-    const windowCanvas = new WebXWindowCanvas(mesh);
+    const windowCanvas = new WebXWindowCanvas(mesh, this._alphaBlender);
     this._desktop.appendChild(windowCanvas.element);
     this._windowCanvases.set(mesh.id, windowCanvas);
   }
