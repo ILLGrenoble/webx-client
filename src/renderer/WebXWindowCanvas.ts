@@ -62,13 +62,9 @@ export class WebXWindowCanvas {
       const material = this._mesh.material as WebXMaterial | MeshBasicMaterial;
 
       if (material.map) {
-        if (material.map != this._colorMap || material.alphaMap != this._alphaMap) {
-          const colorImage = material.map.image;
-          const alphaImage = material.alphaMap
-            ? material.alphaMap.image.width == colorImage.width && material.alphaMap.image.height == colorImage.height
-              ? material.alphaMap.image
-              : null
-            : null;
+        const colorImage = material.map.image;
+
+        if (material.map != this._colorMap) {
 
           const width = colorImage.width;
           const height = colorImage.height;
@@ -79,9 +75,14 @@ export class WebXWindowCanvas {
           this._canvas.style.height = `${height}px`;
           this._context.drawImage(colorImage, 0, 0, width, height);
 
+          this._colorMap = material.map;
+        }
+
+        if (material.alphaMap != this._alphaMap && this.isValidAlphaMap(material.alphaMap)) {
+          const alphaImage = material.alphaMap.image;
+
           this.blendAlpha(alphaImage, 0, 0);
 
-          this._colorMap = material.map;
           this._alphaMap = material.alphaMap;
         }
 
@@ -112,7 +113,16 @@ export class WebXWindowCanvas {
     }
   }
 
-  private blendAlpha(alphaImage: any, offsetX: number, offsetY: number) {
+  private isValidAlphaMap(alphaMap: Texture): boolean {
+    if (alphaMap) {
+      const width = alphaMap.image.width;
+      const height = alphaMap.image.height;
+      return width === this._canvas.width && height === this._canvas.height;
+    }
+    return false;
+  }
+
+  private blendAlpha(alphaImage: ImageBitmap, offsetX: number, offsetY: number) {
     if (!alphaImage) {
       return;
     }
