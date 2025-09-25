@@ -70,7 +70,7 @@ export class WebXCanvasRenderer {
   public copyTextureToTexture(src: Texture, dst: Texture, srcRegion?: Box2 | null, dstPosition?: Vector2 | null) {
     Array.from(this._windowCanvases.values()).forEach(windowCanvas => {
       if (windowCanvas.colorMap === dst || windowCanvas.alphaMap === dst) {
-        windowCanvas.updateCanvasRegion(src, dst, srcRegion, dstPosition);
+        windowCanvas.updateCanvasRegion(src, dst, dstPosition);
       }
     });
   }
