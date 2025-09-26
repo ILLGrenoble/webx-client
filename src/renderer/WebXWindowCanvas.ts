@@ -250,7 +250,7 @@ export class WebXWindowCanvas {
     const blendedImageData = await this._alphaStencilBlender.blendAlphaAndStencil(colorImageData, alphaImageData, stencilImageData);
 
     const endTime = performance.now();
-    // console.log(`Time to blend alpha image = ${(endTime - startTime).toFixed((3))}ms for ${width * height} pixels`);
+    console.log(`Time to blend alpha image = ${(endTime - startTime).toFixed((3))}ms for ${width * height} pixels`);
 
     return blendedImageData;
   }
