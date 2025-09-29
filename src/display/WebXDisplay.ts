@@ -156,8 +156,8 @@ export class WebXDisplay {
     this._camera.position.z = 1000;
     this._camera.lookAt(new Vector3(0, 0, 0));
 
-    const webglInfo = this._detectWebGL();
-    console.log(`WebGL Info: available = ${webglInfo.available}, isSoftware = ${webglInfo.isSoftware}, vendor = ${webglInfo.vendor}, renderer = ${webglInfo.renderer}`);
+    const webglInfo = this._detectWebGL2();
+    console.log(`WebGL2 Info: available = ${webglInfo.available}, isSoftware = ${webglInfo.isSoftware}, vendor = ${webglInfo.vendor}, renderer = ${webglInfo.renderer}`);
 
     const url = new URL(window.location.href);
     const params = url.searchParams;
@@ -167,7 +167,12 @@ export class WebXDisplay {
       this._renderer = new THREE.WebGLRenderer();
 
     } else {
-      console.log(`Falling back to Canvas Renderer`);
+      if (forceCanvas) {
+        console.log(`Canvas Renderer enabled through request param`);
+
+      } else {
+        console.log(`Falling back to Canvas Renderer`);
+      }
       this._renderer = new WebXCanvasRenderer();
     }
 
@@ -527,7 +532,7 @@ export class WebXDisplay {
   /**
    * Returns details about the availability and type of WebGL2 rendering
    */
-  private _detectWebGL(): WebGLInfo {
+  private _detectWebGL2(): WebGLInfo {
     const canvas = document.createElement("canvas");
     const gl = canvas.getContext("webgl2");
     if (!gl) {
@@ -546,9 +551,8 @@ export class WebXDisplay {
     }
 
     const rendererStr = (unmaskedRenderer || renderer || "").toLowerCase();
-
     const isSoftware = /swiftshader|llvmpipe|basic render|software/i.test(rendererStr);
 
-    return { available: true, vendor: unmaskedRenderer || vendor, renderer: unmaskedVendor || renderer, isSoftware };
+    return { available: true, vendor: unmaskedVendor || vendor, renderer: unmaskedRenderer || renderer, isSoftware };
   }
 }
