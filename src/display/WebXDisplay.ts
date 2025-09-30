@@ -158,7 +158,6 @@ export class WebXDisplay {
     this._camera.lookAt(new Vector3(0, 0, 0));
 
     const webglInfo = this._detectWebGL2();
-    console.log(`WebGL2 Info: available = ${webglInfo.available}, isSoftware = ${webglInfo.isSoftware}, vendor = ${webglInfo.vendor}, renderer = ${webglInfo.renderer}`);
 
     const url = new URL(window.location.href);
     const params = url.searchParams;
@@ -168,6 +167,7 @@ export class WebXDisplay {
       this._renderer = new THREE.WebGLRenderer();
 
     } else {
+      console.log(`WebGL2 Info: available = ${webglInfo.available}, isSoftware = ${webglInfo.isSoftware}, vendor = ${webglInfo.vendor}, renderer = ${webglInfo.renderer}`);
       if (forceCanvas) {
         console.log(`Canvas Renderer enabled through request param`);
 
