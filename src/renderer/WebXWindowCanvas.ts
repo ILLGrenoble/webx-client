@@ -12,6 +12,11 @@ type RegionUpdate = {
   dstPosition: Vector2
 }
 
+/**
+ * The `WebXWindowCanvas` class holds the graphical elements necessary for rendering
+ * a specific window in the desktop environment. HTML Canvases are used for rendeding image data. Window image data
+ * is received in the form of color, alpha and stencil buffers. These are blended to produce the final window image.
+ */
 export class WebXWindowCanvas {
 
   private readonly _element: HTMLElement;
@@ -33,14 +38,26 @@ export class WebXWindowCanvas {
 
   private _regionUpdates: RegionUpdate[] = [];
 
+  /**
+   * Gets the unique ID of the associated mesh.
+   */
   get id(): number {
     return this._mesh.id;
   }
 
+  /**
+   * Gets the root HTML element of the window canvas.
+   */
   get element(): HTMLElement {
     return this._element;
   }
 
+  /**
+   * Initializes a new `WebXWindowCanvas` for the given window Mesh and Material. The Mesh and Material contains all graphical information
+   * necessary to render a window (namely window position, size and z-order), the Mesh Material contains the graphical information (color, alpha and stencil data).
+   * @param _mesh - The `Mesh` object representing the window.
+   * @param _alphaStencilBlender - The alpha stencil blender instance.
+   */
   constructor(private readonly _mesh: Mesh,
               private readonly _alphaStencilBlender: WebXAlphaStencilBlender) {
     this._element = this.createElementNS('div');
@@ -63,6 +80,9 @@ export class WebXWindowCanvas {
     this.updateCanvas();
   }
 
+  /**
+   * Updates the geometry of the window canvas based on the mesh's properties if any changes are needed.
+   */
   public updateGeometry() {
     const width = this._mesh.scale.x;
     const height = this._mesh.scale.y;
@@ -91,6 +111,10 @@ export class WebXWindowCanvas {
     }
   }
 
+  /**
+   * Updates the canvas content using the material textures (color, alpha and stencil buffers)
+   * if any changes have occurred.
+   */
   public async updateCanvas() {
     if (this._mesh.material instanceof WebXMaterial || this._mesh.material instanceof MeshBasicMaterial) {
       const material = this._mesh.material as WebXMaterial | MeshBasicMaterial;
@@ -145,6 +169,18 @@ export class WebXWindowCanvas {
     }
   }
 
+  /**
+   * Adds a region update to the canvas taking into account the color, alpha and stencil buffers. Here we store a simple
+   * array of all the updates necessary for this frame. The updates are taken into account in the next rendering request of the window
+   * (and are only applied if the destination buffers have not been replaced).
+   * @param srcColorMap - The source color texture.
+   * @param dstColorMap - The destination color texture.
+   * @param srcAlphaMap - The source alpha texture.
+   * @param dstAlphaMap - The destination alpha texture.
+   * @param width - The width of the region to update.
+   * @param height - The height of the region to update.
+   * @param dstPosition - The destination position of the region.
+   */
   public addRegionUpdate(srcColorMap: Texture, dstColorMap: Texture, srcAlphaMap: Texture, dstAlphaMap: Texture, width: number, height: number, dstPosition: Vector2) {
     this._regionUpdates.push({
       srcColorMap,
@@ -157,6 +193,11 @@ export class WebXWindowCanvas {
     });
   }
 
+  /**
+   * Handles all pending region updates for the canvas.  The different buffers (color, alpha and stencil) are blended (in a web
+   * worker if available) and then re-rendered into the main canvas of the window. If the window has only a color buffer then this
+   * is rendered immediately into the main canvas.
+   */
   private async handleRegionUpdates(): Promise<void> {
     for (const region of this._regionUpdates) {
       if (region.dstColorMap === this._colorMap && region.dstAlphaMap === this._alphaMap) {
@@ -178,6 +219,11 @@ export class WebXWindowCanvas {
     this._regionUpdates = [];
   }
 
+  /**
+   * Checks if the provided alpha map is valid for the canvas (dimensions are equal).
+   * @param alphaMap - The alpha texture to validate.
+   * @returns `true` if the alpha map is valid, otherwise `false`.
+   */
   private isValidAlphaMap(alphaMap: Texture): boolean {
     if (alphaMap) {
       const width = alphaMap.image.width;
@@ -187,6 +233,10 @@ export class WebXWindowCanvas {
     return false;
   }
 
+  /**
+   * Updates the stencil map for the window if it exists in the material and has changed.
+   * @param material - The material of the associated mesh.
+   */
   private updateStencilMap(material: WebXMaterial | MeshBasicMaterial) {
     // Get stencil map if it exists, remove it if no longer needed
     if (material instanceof WebXMaterial && material.stencilMap) {
@@ -212,6 +262,15 @@ export class WebXWindowCanvas {
     }
   }
 
+  /**
+   * Prepares temporary canvases to renderer the image data (jpeg format) into raw pixmaps. The pixmap data for the different
+   * images is sent to the blender for processing.
+   * @param colorImage - The color image.
+   * @param alphaImage - The alpha image.
+   * @param dstX - The destination X position.
+   * @param dstY - The destination Y position.
+   * @returns A promise that resolves to the blended `ImageData`.
+   */
   private async blendAlphaAndStencil(colorImage: ImageBitmap, alphaImage: ImageBitmap, dstX: number, dstY: number): Promise<ImageData> {
     if (!alphaImage && !this._stencilContext) {
       return;
@@ -255,6 +314,11 @@ export class WebXWindowCanvas {
     return blendedImageData;
   }
 
+  /**
+   * Creates an HTML element with the specified namespace.
+   * @param name - The name of the element to create.
+   * @returns The created `HTMLElement`.
+   */
   private createElementNS(name: string): HTMLElement {
     return document.createElementNS('http://www.w3.org/1999/xhtml', name);
   }
