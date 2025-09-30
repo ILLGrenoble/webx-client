@@ -1,3 +1,11 @@
+1.11.0 30/09/2025
+================
+ * Add WebXCanvasRenderer: 
+   - use HTML canvases to render individual windows. 
+   - WebWorker used to blend image data from color, alpha and stencil maps. 
+   - WebXDisplay detects WebGL capabilities during initialisation and falls back to Canvas Renderer when WebGL is not available (or uses software rendering)
+   - webx-canvas=true query param detected to force use of canvas renderer if needed
+
 1.10.6 05/09/2025
 ================
  * Fix bug on desktop not being made visible if any of the windows fails to load a texture: check only that the texture request has returned before making the desktop visible.
