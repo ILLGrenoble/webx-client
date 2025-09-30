@@ -1,6 +1,7 @@
 import {Camera, Color, ColorRepresentation, Mesh, Object3D, Texture, Vector2} from 'three';
 import {WebXWindowCanvas} from './WebXWindowCanvas';
 import {WebXAlphaStencilBlender} from './WebXAlphaStencilBlender';
+import {Blob} from "buffer";
 
 /**
  * The `WebXCanvasRenderer` class is responsible for rendering a desktop-like environment
@@ -9,6 +10,8 @@ import {WebXAlphaStencilBlender} from './WebXAlphaStencilBlender';
  */
 export class WebXCanvasRenderer {
 
+  private _width: number;
+  private _height: number;
   private _desktopContainer: HTMLElement;
   private _desktop: HTMLElement;
   private _clearColor: Color = new Color(0, 0, 0);
@@ -40,6 +43,8 @@ export class WebXCanvasRenderer {
    * @param unused - An optional unused parameter.
    */
   public setSize(width: number, height: number, unused?: boolean) {
+    this._width = width;
+    this._height = height;
     this._desktop.style.width = `${width}px`;
     this._desktop.style.height = `${height}px`;
   }
@@ -91,6 +96,40 @@ export class WebXCanvasRenderer {
         this.removeWindowCanvas(windowCanvas);
       }
     }
+  }
+
+  /**
+   * Generates a screenshot of the current windows. Each window canvas is rendered onto a global
+   * desktop canvas. The main canvas is then converted into a blob with the specified image type and quality
+   * @param type The type of the screenshot (e.g., 'image/png').
+   * @param quality The quality of the screenshot (0 to 1).
+   */
+  public createScreenshot(type: string, quality: number): Promise<Blob> {
+    return new Promise<Blob>((resolve, reject) => {
+      try {
+        const screenshotCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
+        screenshotCanvas.width = this._width;
+        screenshotCanvas.height = this._height;
+        const context = screenshotCanvas.getContext('2d');
+
+        // Ensure that the background is set correctly
+        context.fillStyle = `#${this._clearColor.getHexString()}`;
+        context.fillRect(0, 0, this._width, this._height);
+
+        // Painters algorithm: Order the windows from back to front and draw the window canvas into the screenshot
+        Array.from(this._windowCanvases.values()).sort((a, b) => a.zIndex - b.zIndex).forEach(window => {
+          context.drawImage(window.canvas, window.x, window.y);
+        })
+
+        // Convert to specified image type and return the blob
+        screenshotCanvas.toBlob((blob: Blob) => {
+          resolve(blob);
+        }, type, quality)
+
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   /**
@@ -152,7 +191,7 @@ export class WebXCanvasRenderer {
    */
   private createWindowCanvas(mesh: Mesh) {
     const windowCanvas = new WebXWindowCanvas(mesh, this._alphaStencilBlender);
-    this._desktop.appendChild(windowCanvas.element);
+    this._desktop.appendChild(windowCanvas.canvas);
     this._windowCanvases.set(mesh.id, windowCanvas);
   }
 
@@ -161,7 +200,7 @@ export class WebXCanvasRenderer {
    * @param windowCanvas - The `WebXWindowCanvas` to remove.
    */
   private removeWindowCanvas(windowCanvas: WebXWindowCanvas) {
-    this._desktop.removeChild(windowCanvas.element);
+    this._desktop.removeChild(windowCanvas.canvas);
     this._windowCanvases.delete(windowCanvas.id);
   }
 

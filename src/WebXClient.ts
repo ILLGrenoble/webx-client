@@ -350,19 +350,7 @@ export class WebXClient {
    * @returns A promise that resolves to image data in Blob form.
    */
   async createScreenshot(type: string, quality: number): Promise<Blob> {
-    return new Promise<Blob>((resolve, reject) => {
-      try {
-        this.display.render();
-        console.log('Creating Screenshot not implemented');
-        resolve(null);
-        // this.display.renderer.domElement.toBlob((blob: Blob) => {
-        //   resolve(blob);
-        // }, type, quality)
-
-      } catch (error) {
-        reject(error);
-      }
-    })
+    return this.display.createScreenshot(type, quality);
   }
 
   /**

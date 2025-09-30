@@ -1,4 +1,4 @@
-import {Material, Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
+import {Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
 import {WebXMaterial} from "../display/WebXMaterial";
 import {WebXAlphaStencilBlender} from "./WebXAlphaStencilBlender";
 
@@ -14,12 +14,11 @@ type RegionUpdate = {
 
 /**
  * The `WebXWindowCanvas` class holds the graphical elements necessary for rendering
- * a specific window in the desktop environment. HTML Canvases are used for rendeding image data. Window image data
+ * a specific window in the desktop environment. HTML Canvases are used for rendering image data. Window image data
  * is received in the form of color, alpha and stencil buffers. These are blended to produce the final window image.
  */
 export class WebXWindowCanvas {
 
-  private readonly _element: HTMLElement;
   private readonly _canvas: HTMLCanvasElement;
   private _context: CanvasRenderingContext2D;
 
@@ -46,10 +45,45 @@ export class WebXWindowCanvas {
   }
 
   /**
-   * Gets the root HTML element of the window canvas.
+   * Returns the window canvas
    */
-  get element(): HTMLElement {
-    return this._element;
+  get canvas(): HTMLCanvasElement {
+    return this._canvas;
+  }
+
+  /**
+   * Returns the left-hand x coordinate of the window
+   */
+  get x(): number {
+    return this._x;
+  }
+
+  /**
+   * Returns the top y coordinate of the window
+   */
+  get y(): number {
+    return this._y;
+  }
+
+  /**
+   * Returns the zIndex of the window
+   */
+  get zIndex(): number {
+    return this._zIndex;
+  }
+
+  /**
+   * Returns the width of the window
+   */
+  get width(): number {
+    return this._width;
+  }
+
+  /**
+   * Returns the height of the window
+   */
+  get height(): number {
+    return this._height;
   }
 
   /**
@@ -60,19 +94,13 @@ export class WebXWindowCanvas {
    */
   constructor(private readonly _mesh: Mesh,
               private readonly _alphaStencilBlender: WebXAlphaStencilBlender) {
-    this._element = this.createElementNS('div');
-    this._element.id = `webx-window-${this.id}`;
-    this._element.style.position = 'absolute';
-    this._element.style.pointerEvents = 'none';
-    this._element.style.overflow = 'hidden';
-
     this._canvas = this.createElementNS('canvas') as HTMLCanvasElement;
+    this._canvas.id = `webx-window-${this.id}`;
     this._canvas.style.position = 'absolute';
     this._canvas.style.pointerEvents = 'none';
     this._canvas.style.top = '0';
     this._canvas.style.left = '0';
-
-    this._element.appendChild(this._canvas);
+    this._canvas.style.overflow = 'hidden';
 
     this._context = this._canvas.getContext('2d');
 
@@ -91,22 +119,22 @@ export class WebXWindowCanvas {
     const zIndex = this._mesh.position.z;
 
     if (x !== this._x || y !== this._y) {
-      this._element.style.top = `${y}px`;
-      this._element.style.left = `${x}px`;
+      this._canvas.style.top = `${y}px`;
+      this._canvas.style.left = `${x}px`;
       this._x = x;
       this._y = y;
     }
 
     if (width !== this._width || height !== this._height) {
-      this._element.style.width = `${width}px`;
-      this._element.style.height = `${height}px`;
+      this._canvas.style.width = `${width}px`;
+      this._canvas.style.height = `${height}px`;
 
       this._width = width;
       this._height = height;
     }
 
     if (zIndex !== this._zIndex) {
-      this._element.style.zIndex = `${this._mesh.position.z}`;
+      this._canvas.style.zIndex = `${this._mesh.position.z}`;
       this._zIndex = zIndex;
     }
   }

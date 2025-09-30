@@ -7,6 +7,7 @@ import { WebXCursor } from './WebXCursor';
 import { WebXTextureFactory } from './WebXTextureFactory';
 import { WebXCursorFactory } from './WebXCursorFactory';
 import {WebXCanvasRenderer} from '../renderer';
+import {Blob} from "buffer";
 
 type WebGLInfo = {
   available: boolean;
@@ -251,6 +252,31 @@ export class WebXDisplay {
    */
   render(): void {
     this._renderer.render(this._scene, this._camera);
+  }
+
+  /**
+   * Creates a screenshot of the current desktop with the specified image type and quality
+   * @param type The type of the screenshot (e.g., 'image/png').
+   * @param quality The quality of the screenshot (0 to 1).
+   */
+  async createScreenshot(type: string, quality: number): Promise<Blob> {
+    if (this._renderer instanceof WebXCanvasRenderer) {
+      return this._renderer.createScreenshot(type, quality);
+
+    } else {
+      const renderer = this._renderer as THREE.WebGLRenderer;
+      return new Promise<Blob>((resolve, reject) => {
+        try {
+          this.render();
+          renderer.domElement.toBlob((blob: Blob) => {
+            resolve(blob);
+          }, type, quality)
+
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
   }
 
   /**
