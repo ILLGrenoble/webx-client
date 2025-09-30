@@ -6,6 +6,15 @@ import { WebXSubImage } from './WebXSubImage';
 import { WebXCursor } from './WebXCursor';
 import { WebXTextureFactory } from './WebXTextureFactory';
 import { WebXCursorFactory } from './WebXCursorFactory';
+import {WebXCanvasRenderer} from '../renderer';
+import {Blob} from "buffer";
+
+type WebGLInfo = {
+  available: boolean;
+  vendor?: string;
+  renderer?: string;
+  isSoftware?: boolean;
+};
 
 /**
  * Manages the rendering of the WebX remote desktop using WebGL.
@@ -18,7 +27,7 @@ export class WebXDisplay {
 
   private readonly _scene: THREE.Scene;
   private readonly _camera: THREE.OrthographicCamera;
-  private readonly _renderer: THREE.WebGLRenderer;
+  private readonly _renderer: THREE.WebGLRenderer | WebXCanvasRenderer;
   private readonly _screen: THREE.Object3D;
 
   private readonly _screenWidth: number;
@@ -47,7 +56,7 @@ export class WebXDisplay {
    *
    * @returns The WebGLRenderer instance.
    */
-  public get renderer(): THREE.WebGLRenderer {
+  public get renderer(): THREE.WebGLRenderer | WebXCanvasRenderer {
     return this._renderer;
   }
 
@@ -144,12 +153,30 @@ export class WebXDisplay {
 
     this._screen.add(this._cursor.mesh);
 
-    // this._camera = new THREE.OrthographicCamera(0, screenWidth, 0, screenHeight, 0.1, 100);
     this._camera = new THREE.OrthographicCamera(0, screenWidth, 0, screenHeight, 0.1, 10000);
     this._camera.position.z = 1000;
     this._camera.lookAt(new Vector3(0, 0, 0));
 
-    this._renderer = new THREE.WebGLRenderer();
+    const webglInfo = this._detectWebGL2();
+
+    const url = new URL(window.location.href);
+    const params = url.searchParams;
+    const forceCanvas = params.get("webx-canvas") === 'true';
+
+    if (webglInfo.available && !webglInfo.isSoftware && !forceCanvas) {
+      this._renderer = new THREE.WebGLRenderer();
+
+    } else {
+      console.log(`WebGL2 Info: available = ${webglInfo.available}, isSoftware = ${webglInfo.isSoftware}, vendor = ${webglInfo.vendor}, renderer = ${webglInfo.renderer}`);
+      if (forceCanvas) {
+        console.log(`Canvas Renderer enabled through request param`);
+
+      } else {
+        console.log(`Falling back to Canvas Renderer`);
+      }
+      this._renderer = new WebXCanvasRenderer();
+    }
+
     this._renderer.setSize(screenWidth, screenHeight, false);
 
     const backgroundColor = window.getComputedStyle(this._containerElement).backgroundColor;
@@ -228,13 +255,37 @@ export class WebXDisplay {
   }
 
   /**
+   * Creates a screenshot of the current desktop with the specified image type and quality
+   * @param type The type of the screenshot (e.g., 'image/png').
+   * @param quality The quality of the screenshot (0 to 1).
+   */
+  async createScreenshot(type: string, quality: number): Promise<Blob> {
+    if (this._renderer instanceof WebXCanvasRenderer) {
+      return this._renderer.createScreenshot(type, quality);
+
+    } else {
+      const renderer = this._renderer as THREE.WebGLRenderer;
+      return new Promise<Blob>((resolve, reject) => {
+        try {
+          this.render();
+          renderer.domElement.toBlob((blob: Blob) => {
+            resolve(blob);
+          }, type, quality)
+
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+  }
+
+  /**
    * Adds a new window to the display.
    *
    * @param window The WebXWindow instance to add.
    */
   addWindow(window: WebXWindow): void {
     if (this._windows.find(existingWindow => existingWindow.id === window.id) == null) {
-      // console.log("Adding window ", window.id)
       this._windows.push(window);
       this._screen.add(window.mesh);
       this._sceneDirty = true;
@@ -248,7 +299,6 @@ export class WebXDisplay {
    */
   removeWindow(window: WebXWindow): void {
     if (this._windows.find(existingWindow => existingWindow.id === window.id) != null) {
-      // console.log("Removing window ", window.id)
       this._windows = this._windows.filter(existingWindow => existingWindow.id !== window.id);
       window.dispose();
       this._screen.remove(window.mesh);
@@ -356,12 +406,18 @@ export class WebXDisplay {
       const alphaMap = window.alphaMap;
       for(let i= 0; i< subImages.length; i++) {
         const subImage = subImages[i];
-        if (colorMap && subImage.colorMap) {
-          this._renderer.copyTextureToTexture(subImage.colorMap, colorMap, null, new THREE.Vector2(subImage.x, subImage.y));
+        if (this._renderer instanceof WebXCanvasRenderer) {
+          this._renderer.updateWindowRegion(window.mesh.id, subImage.colorMap, colorMap, subImage.alphaMap, alphaMap, subImage.width, subImage.height, new THREE.Vector2(subImage.x, subImage.y));
+
+        } else {
+          if (colorMap && subImage.colorMap) {
+            this._renderer.copyTextureToTexture(subImage.colorMap, colorMap, null, new THREE.Vector2(subImage.x, subImage.y));
+          }
+          if (alphaMap && subImage.alphaMap) {
+            this._renderer.copyTextureToTexture(subImage.alphaMap, alphaMap, null, new THREE.Vector2(subImage.x, subImage.y));
+          }
         }
-        if (alphaMap && subImage.alphaMap) {
-          this._renderer.copyTextureToTexture(subImage.alphaMap, alphaMap, null, new THREE.Vector2(subImage.x, subImage.y));
-        }
+
       }
       window.updateTexture(window.depth, colorMap, alphaMap, false);
       this._sceneDirty = true;
@@ -497,5 +553,32 @@ export class WebXDisplay {
    */
   private _bindListeners(): void {
     this.resize = this.resize.bind(this);
+  }
+
+  /**
+   * Returns details about the availability and type of WebGL2 rendering
+   */
+  private _detectWebGL2(): WebGLInfo {
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl2");
+    if (!gl) {
+      return { available: false };
+    }
+
+    const renderer = gl.getParameter(gl.RENDERER);
+    const vendor = gl.getParameter(gl.VENDOR);
+    let unmaskedRenderer: string  = null;
+    let unmaskedVendor: string = null;
+
+    const ext = gl.getExtension("WEBGL_debug_renderer_info");
+    if (ext) {
+      unmaskedRenderer = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);
+      unmaskedVendor = gl.getParameter(ext.UNMASKED_VENDOR_WEBGL);
+    }
+
+    const rendererStr = (unmaskedRenderer || renderer || "").toLowerCase();
+    const isSoftware = /swiftshader|llvmpipe|basic render|software/i.test(rendererStr);
+
+    return { available: true, vendor: unmaskedVendor || vendor, renderer: unmaskedRenderer || renderer, isSoftware };
   }
 }
