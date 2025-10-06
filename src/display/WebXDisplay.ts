@@ -8,6 +8,7 @@ import { WebXTextureFactory } from './WebXTextureFactory';
 import { WebXCursorFactory } from './WebXCursorFactory';
 import {WebXCanvasRenderer} from '../renderer';
 import {Blob} from "buffer";
+import {WebXDisplayOverlay} from "./WebXDisplayOverlay";
 
 type WebGLInfo = {
   available: boolean;
@@ -46,6 +47,8 @@ export class WebXDisplay {
   private _displayElement: HTMLElement;
 
   private _boundsElement: HTMLElement;
+
+  private _displayOverlay: WebXDisplayOverlay;
 
   private _disposed = false;
 
@@ -145,13 +148,17 @@ export class WebXDisplay {
     this._screenHeight = screenHeight;
     this._textureFactory = textureFactory;
     this._cursor = new WebXCursor(cursorFactory);
+    this._displayOverlay = new WebXDisplayOverlay(this._cursor);
 
     this._scene = new THREE.Scene();
-
     this._screen = new THREE.Object3D();
-    // this._scene.add(this._screen);
 
-    this._screen.add(this._cursor.mesh);
+    // Add dummy mesh to the scene otherwise the texture updates don't appear to have the correct state and aren't applied correctly
+    const dummy = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.0, 1.0, 2, 2),
+      new THREE.MeshBasicMaterial({ map: new THREE.DataTexture(new Uint8Array(4), 1, 1), side: THREE.BackSide, transparent: true }));
+    dummy.position.set(0, 0, 999);
+    this._screen.add(dummy);
 
     this._camera = new THREE.OrthographicCamera(0, screenWidth, 0, screenHeight, 0.1, 10000);
     this._camera.position.z = 1000;
@@ -196,6 +203,7 @@ export class WebXDisplay {
    */
   showScreen(): void {
     this._scene.add(this._screen);
+    this._displayOverlay.visible = true;
     this._sceneDirty = true;
   }
 
@@ -204,6 +212,7 @@ export class WebXDisplay {
    */
   hideScreen(): void {
     this._scene.remove(this._screen);
+    this._displayOverlay.visible = false;
     this._sceneDirty = true;
   }
 
@@ -239,6 +248,8 @@ export class WebXDisplay {
       requestAnimationFrame(() => {
         this.animate();
       });
+
+      this._displayOverlay.update();
 
       if (this._sceneDirty) {
         this._sceneDirty = false;
@@ -445,7 +456,6 @@ export class WebXDisplay {
    */
   setMouseCursor(cursorId: number): void {
     this._cursor.setCursorId(cursorId);
-    this._sceneDirty = true;
   }
 
   /**
@@ -456,7 +466,6 @@ export class WebXDisplay {
    */
   setMousePosition(x: number, y: number): void {
     this._cursor.setPosition(x, y);
-    this._sceneDirty = true;
   }
 
   /**
@@ -523,6 +532,9 @@ export class WebXDisplay {
     const element = document.createElement('div');
     element.style.width = `${this._screenWidth}px`;
     element.style.height = `${this._screenHeight}px`;
+
+    element.appendChild(this._displayOverlay.overlayElement);
+
     element.appendChild(this._renderer.domElement);
     return element;
   }

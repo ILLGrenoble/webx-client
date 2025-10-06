@@ -9,12 +9,12 @@ import { WebXCursorFactory } from './WebXCursorFactory';
  * the cursor ID and coordinates provided by the WebX Engine.
  */
 export class WebXCursor {
-  private static _PLANE_GEOMETRY: THREE.PlaneGeometry = new THREE.PlaneGeometry(1.0, 1.0, 2, 2);
-
   private _cursorId: number;
   private _texture: THREE.Texture;
-  private readonly _material: THREE.MeshBasicMaterial;
-  private readonly _mesh: THREE.Mesh;
+
+  private readonly _canvas: HTMLCanvasElement;
+  private readonly _context: CanvasRenderingContext2D;
+  private _needsUpdate = true;
 
   private _x: number = -1;
   private _y: number = -1;
@@ -24,12 +24,12 @@ export class WebXCursor {
   private _height: number = 1;
 
   /**
-   * Gets the THREE.js mesh representing the cursor.
+   * Gets the HTML Canvas containing the the cursor image.
    *
-   * @returns The cursor mesh.
+   * @returns The cursor canvas.
    */
-  public get mesh(): THREE.Mesh {
-    return this._mesh;
+  get canvas(): HTMLCanvasElement {
+    return this._canvas;
   }
 
   /**
@@ -39,15 +39,6 @@ export class WebXCursor {
    */
   public get cursorId(): number {
     return this._cursorId;
-  }
-
-  /**
-   * Gets the texture of the cursor.
-   *
-   * @returns The cursor texture.
-   */
-  public get texture(): Texture {
-    return this._texture;
   }
 
   /**
@@ -76,12 +67,11 @@ export class WebXCursor {
    * @param _cursorFactory The factory used to create cursor textures.
    */
   constructor(private _cursorFactory: WebXCursorFactory) {
-    this._material = new THREE.MeshBasicMaterial({ transparent: true });
-    this._material.side = THREE.BackSide;
-    this._material.transparent = true;
-    this._material.visible = false;
-
-    this._mesh = new THREE.Mesh(WebXCursor._PLANE_GEOMETRY, this._material);
+    this._canvas = document.createElement('canvas');
+    this._canvas.id = 'webx-cursor';
+    this._canvas.style.position = 'absolute';
+    this._canvas.style.pointerEvents = 'none';
+    this._context = this._canvas.getContext('2d');
 
     this.setPosition(-1, -1);
     this.setCursorId(0);
@@ -103,8 +93,6 @@ export class WebXCursor {
   /**
    * Updates the cursor's position and appearance based on the given cursor ID and coordinates.
    *
-   * @param x The x-coordinate of the cursor.
-   * @param y The y-coordinate of the cursor.
    * @param cursorId The ID of the cursor to display.
    */
   public setCursorId(cursorId: number): void {
@@ -124,13 +112,13 @@ export class WebXCursor {
     });
   }
 
+  /**
+   * Disposes the texture
+   */
   public dispose(): void {
     if (this._texture) {
       this._texture.dispose();
     }
-    this._material.dispose();
-    this._mesh.geometry.dispose();
-    this._mesh.parent?.remove(this._mesh);
   }
 
   /**
@@ -151,16 +139,15 @@ export class WebXCursor {
       this._height = texture.image.height;
       // console.log(`WebXCursor ${cursorId}: ${xHot}, ${yHot}, ${this._width}, ${this._height}`);
 
+      this._canvas.style.width = `${this._width}px`;
+      this._canvas.style.height = `${this._height}px`;
+      this._canvas.width = this._width;
+      this._canvas.height = this._height;
+
+      // Draw the texture onto the canvas
       this._texture = texture;
-
-      this._texture.minFilter = LinearFilter;
-      // this._texture.repeat.set(this._width / this._texture.image.width, this._height / this._texture.image.height);
-
-      this._material.map = texture;
-      this._material.visible = true;
-      this._material.needsUpdate = true;
-
-      this._mesh.scale.set(this._width, this._height, 1);
+      this._context.clearRect(0, 0, this._width, this._height);
+      this._context.drawImage(this._texture.image, 0, 0, this._width, this._height);
     }
   }
 
@@ -168,6 +155,7 @@ export class WebXCursor {
    * Updates the position of the cursor mesh based on its coordinates and hotspot.
    */
   private _updatePosition(): void {
-    this._mesh.position.set(this._x - this._xHot + 0.5 * this._width, this._y - this._yHot + 0.5 * this._height, 999);
+    this._canvas.style.left = `${this._x - this._xHot}px`;
+    this._canvas.style.top = `${this._y - this._yHot}px`;
   }
 }
