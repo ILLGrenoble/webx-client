@@ -393,6 +393,9 @@ export class WebXWindow {
       return;
     }
 
+    const hasColorMapStart = this.colorMap != null;
+    const hasAlphaMapStart = this.alphaMap != null;
+
     this._depth = depth;
 
     // Dispose of previous texture
@@ -401,10 +404,8 @@ export class WebXWindow {
       this.colorMap = colorMap;
     }
 
-    colorMap.minFilter = LinearFilter;
     this.colorMap.repeat.set(this._width / this.colorMap.image.width, this._height / this.colorMap.image.height);
     this.visible = (!this._shaped || this.stencilMap != null);
-    this._material.needsUpdate = true;
 
     // Only update alpha if it has been sent
     if (alphaMap) {
@@ -412,15 +413,21 @@ export class WebXWindow {
         this._disposeAlphaMap();
         this.alphaMap = alphaMap;
       }
-      this.alphaMap.minFilter = LinearFilter;
       this.alphaMap.repeat.set(this._width / this.alphaMap.image.width, this._height / this.alphaMap.image.height);
-      this._material.needsUpdate = true;
 
     } else if (depth == 24) {
       this._disposeAlphaMap();
     }
 
     this._material.transparent = (this.alphaMap != null || depth === 32);
+
+    const hasColorMapEnd = this.colorMap != null;
+    const hasAlphaMapEnd = this.alphaMap != null;
+
+    // Recompile the material if map usage changes
+    if (hasColorMapStart != hasColorMapEnd || hasAlphaMapStart != hasAlphaMapEnd) {
+      this._material.needsUpdate = true;
+    }
 
     // Request a window update if it's not a full window
     if (!isFullWindow) {
@@ -451,15 +458,15 @@ export class WebXWindow {
     if (stencilMap) {
       stencilMap.minFilter = LinearFilter;
       this.visible = this.colorMap != null;
-      this._material.needsUpdate = true;
       this._shaped = true;
 
     } else {
       this._shaped = false;
-      // Recompile the material if the shape has been removed
-      if (oldShaped) {
-        this._material.needsUpdate = true;
-      }
+    }
+
+    // Recompile the material if needed
+    if (oldShaped !== this._shaped) {
+      this._material.needsUpdate = true;
     }
   }
 
