@@ -1,4 +1,4 @@
-import {Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
+import {DataTexture, Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
 import {WebXMaterial} from "../display/WebXMaterial";
 import {WebXAlphaStencilBlender} from "./WebXAlphaStencilBlender";
 
@@ -150,7 +150,7 @@ export class WebXWindowCanvas {
       // Handle the stencil map
       this.updateStencilMap(material);
 
-      if (material.map) {
+      if (material.map?.image) {
 
         // Check for new color map and/or alpha map
         const updateCanvas = material.map != this._colorMap || material.alphaMap != this._alphaMap;
@@ -179,7 +179,13 @@ export class WebXWindowCanvas {
 
           } else {
             this._context.clearRect(0, 0, width, height);
-            this._context.drawImage(colorImage, 0, 0, width, height);
+            if (material.map instanceof DataTexture) {
+              const imageData = new ImageData(new Uint8ClampedArray(colorImage.data.buffer), colorImage.width, colorImage.height);
+              this._context.putImageData(imageData, 0, 0);
+
+            } else {
+              this._context.drawImage(colorImage, 0, 0, width, height);
+            }
           }
         }
 
