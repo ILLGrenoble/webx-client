@@ -14,7 +14,7 @@ import {
   WebXClipboardInstruction,
   WebXShapeInstruction,
 } from '../instruction';
-import { WebXInstructionBuffer } from '.';
+import {WebXInstructionBuffer} from "./WebXInstructionBuffer";
 
 /**
  * Encodes WebX instructions into a format suitable for transmission.

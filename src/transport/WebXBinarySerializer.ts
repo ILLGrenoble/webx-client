@@ -1,7 +1,9 @@
 import { WebXInstruction } from '../instruction';
 import { WebXMessage } from '../message';
-import { WebXInstructionEncoder, WebXMessageBuffer, WebXMessageDecoder } from '.';
 import { WebXTextureFactory } from '../display';
+import {WebXInstructionEncoder} from "./WebXInstructionEncoder";
+import {WebXMessageDecoder} from "./WebXMessageDecoder";
+import {WebXMessageBuffer} from "./WebXMessageBuffer";
 
 /**
  * Serializes and deserializes WebX instructions and messages.
@@ -13,7 +15,7 @@ export class WebXBinarySerializer {
 
   /**
    * Creates a new instance of WebXBinarySerializer.
-   * 
+   *
    * @param textureFactory The texture factory used for decoding image data.
    */
   constructor(textureFactory: WebXTextureFactory) {
@@ -23,7 +25,7 @@ export class WebXBinarySerializer {
 
   /**
    * Serializes a WebXInstruction into a binary ArrayBuffer.
-   * 
+   *
    * @param instruction The instruction to serialize.
    * @returns The serialized ArrayBuffer.
    */
@@ -38,7 +40,7 @@ export class WebXBinarySerializer {
 
   /**
    * Deserializes a binary message buffer into a WebXMessage object.
-   * 
+   *
    * @param buffer The binary message buffer to deserialize.
    * @returns A promise that resolves to the deserialized WebXMessage.
    */

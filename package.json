@@ -5,16 +5,17 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "copy": "cp src/input/GuacamoleKeyboard.js dist/input/GuacamoleKeyboard.js",
-    "build": "tsc && npm run copy",
-    "build:watch": "nodemon --watch src --ext ts,js --exec 'npm run build'"
+    "build": "rollup -c",
+    "build:watch": "rollup -c --watch",
+    "clean": "rm -rf dist"
   },
   "keywords": [
     "webx"
   ],
-  "main": "dist/index.js",
+  "main": "dist/webx-client.cjs.js",
+  "module": "dist/webx-client.esm.js",
+  "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
-  "module": "",
   "repository": {
     "type": "git",
     "url": "https://github.com/ILLGrenoble/webx-client.git"
@@ -30,11 +31,12 @@
     "@types/three": "^0.174.0",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
-    "buffer": "^6.0.3",
     "eslint": "^7.32.0",
-    "nodemon": "^3.1.10",
     "prettier": "^2.4.1",
-    "ts-loader": "^9.5.2",
+    "rollup": "^4.52.4",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "rollup-plugin-web-worker-loader": "^1.7.0",
     "typescript": "^5.8.2"
   },
   "dependencies": {
