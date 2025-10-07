@@ -20,7 +20,9 @@ export default {
   plugins: [
     webWorkerLoader({
       inline: true,
-      targetPlatform: "browser"
+      targetPlatform: "browser",
+      extensions: [".ts", ".js"],
+      sourcemap: true,
     }),
     typescript({
       useTsconfigDeclarationDir: true,

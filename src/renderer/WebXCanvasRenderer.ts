@@ -1,6 +1,6 @@
 import {Camera, Color, ColorRepresentation, Mesh, Object3D, Texture, Vector2} from 'three';
 import {WebXWindowCanvas} from './WebXWindowCanvas';
-import {WebXAlphaStencilBlender} from './WebXAlphaStencilBlender';
+import {WebXImageBlender} from './WebXImageBlender';
 import {Blob} from "buffer";
 
 /**
@@ -15,7 +15,7 @@ export class WebXCanvasRenderer {
   private _desktopContainer: HTMLElement;
   private _desktop: HTMLElement;
   private _clearColor: Color = new Color(0, 0, 0);
-  private readonly _alphaStencilBlender: WebXAlphaStencilBlender;
+  private readonly _imageBlender: WebXImageBlender;
 
   private _windowCanvases: Map<number, WebXWindowCanvas> = new Map();
 
@@ -33,7 +33,7 @@ export class WebXCanvasRenderer {
    */
   constructor() {
     this.createMainElement();
-    this._alphaStencilBlender = new WebXAlphaStencilBlender();
+    this._imageBlender = new WebXImageBlender();
   }
 
   /**
@@ -143,7 +143,7 @@ export class WebXCanvasRenderer {
     }
 
     // Terminate the blended web worker if present
-    this._alphaStencilBlender.terminate();
+    this._imageBlender.terminate();
   }
 
   /**
@@ -190,7 +190,7 @@ export class WebXCanvasRenderer {
    * @param mesh - The `Mesh` object representing the window.
    */
   private createWindowCanvas(mesh: Mesh) {
-    const windowCanvas = new WebXWindowCanvas(mesh, this._alphaStencilBlender);
+    const windowCanvas = new WebXWindowCanvas(mesh, this._imageBlender);
     this._desktop.appendChild(windowCanvas.canvas);
     this._windowCanvases.set(mesh.id, windowCanvas);
   }

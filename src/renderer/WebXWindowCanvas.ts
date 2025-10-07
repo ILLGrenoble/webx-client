@@ -1,6 +1,6 @@
 import {DataTexture, Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
 import {WebXMaterial} from "../display/WebXMaterial";
-import {WebXAlphaStencilBlender} from "./WebXAlphaStencilBlender";
+import {WebXImageBlender} from "./WebXImageBlender";
 
 type RegionUpdate = {
   srcColorMap: Texture;
@@ -90,10 +90,10 @@ export class WebXWindowCanvas {
    * Initializes a new `WebXWindowCanvas` for the given window Mesh and Material. The Mesh and Material contains all graphical information
    * necessary to render a window (namely window position, size and z-order), the Mesh Material contains the graphical information (color, alpha and stencil data).
    * @param _mesh - The `Mesh` object representing the window.
-   * @param _alphaStencilBlender - The alpha stencil blender instance.
+   * @param _imageBlender - The image blender instance.
    */
   constructor(private readonly _mesh: Mesh,
-              private readonly _alphaStencilBlender: WebXAlphaStencilBlender) {
+              private readonly _imageBlender: WebXImageBlender) {
     this._canvas = this.createElementNS('canvas') as HTMLCanvasElement;
     this._canvas.id = `webx-window-${this.id}`;
     this._canvas.style.position = 'absolute';
@@ -340,7 +340,7 @@ export class WebXWindowCanvas {
     if (this._stencilContext) {
       stencilImageData = this._stencilContext.getImageData(dstX, dstY, width, height);
     }
-    const blendedImageData = await this._alphaStencilBlender.blendAlphaAndStencil(colorImageData, alphaImageData, stencilImageData);
+    const blendedImageData = await this._imageBlender.blendAlphaAndStencil(colorImageData, alphaImageData, stencilImageData);
 
     const endTime = performance.now();
     // console.log(`Time to blend alpha image = ${(endTime - startTime).toFixed((3))}ms for ${width * height} pixels`);

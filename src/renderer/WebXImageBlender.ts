@@ -1,56 +1,11 @@
-/**
- * The Alpha and stencil buffer blending function. The alpha buffer contains alpha data in the
- * green channel. The stencil buffer is a black and white image: only pixels with a stencil value > 127 are to be rendered
- * @param colorData the color data array
- * @param alphaData the alpha data array
- * @param stencilData the stencil data array
- */
-function alphaAndStencilBlend(colorData, alphaData, stencilData) {
-  if (alphaData && stencilData) {
-    for (let i = 0; i < colorData.length; i += 4) {
-      if (stencilData[i] < 128) {
-        colorData[i + 3] = 0;
-
-      } else {
-        colorData[i + 3] = alphaData[i + 1];
-      }
-    }
-
-  } else if (alphaData) {
-    for (let i = 0; i < colorData.length; i += 4) {
-      colorData[i + 3] = alphaData[i + 1];
-    }
-
-  } else if (stencilData) {
-    for (let i = 0; i < colorData.length; i += 4) {
-      colorData[i + 3] = stencilData[i] < 128 ? 0 : 255;
-    }
-  }
-}
-
-/**
- * The entry point for the web worker. Receives messages with data for color, alpha and stencil data and calls the blending
- * function.
- */
-function alphaWorkerFunc() {
-  self.onmessage = (e) => {
-    const { id, colorBuffer, alphaBuffer, stencilBuffer, width, height } = e.data;
-    const colorData = new Uint8ClampedArray(colorBuffer);
-    const alphaData = alphaBuffer ? new Uint8ClampedArray(alphaBuffer) : null;
-    const stencilData = stencilBuffer ? new Uint8ClampedArray(stencilBuffer) : null;
-
-    alphaAndStencilBlend(colorData, alphaData, stencilData);
-
-    // @ts-ignore
-    self.postMessage({ id, colorBuffer: colorData.buffer, width, height }, [colorData.buffer]);
-  };
-}
+import {alphaAndStencilBlend} from "./WebXImageBlenderFunc";
+import WebXImageBlenderWorker from "web-worker:./WebXImageBlenderWorker";
 
 /**
  * The `WebXAlphaStencilBlender` class handles blending of alpha and stencil data
  * for rendering purposes. It uses a Web Worker for asynchronous processing.
  */
-export class WebXAlphaStencilBlender {
+export class WebXImageBlender {
   private readonly _worker: Worker;
   private _pending = new Map<number, (imageData: ImageData) => void>();
   private _nextId = 1;
@@ -63,10 +18,7 @@ export class WebXAlphaStencilBlender {
    */
   constructor() {
     if (typeof Worker !== 'undefined') {
-      const blob = new Blob([alphaAndStencilBlend.toString(), '(', alphaWorkerFunc.toString(), ')()'], { type: 'application/javascript' });
-      const blobUrl = URL.createObjectURL(blob);
-      this._worker = new Worker(blobUrl);
-      URL.revokeObjectURL(blobUrl);
+      this._worker = new WebXImageBlenderWorker();
 
       this._worker.onmessage = (e) => {
         const { id, colorBuffer, width, height } = e.data;
