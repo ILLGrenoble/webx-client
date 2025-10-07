@@ -1,87 +1,11 @@
-import {WebXTunnel} from '../tunnel';
-import {WebXImageInstruction, WebXShapeInstruction} from '../instruction';
 import {LinearFilter, Texture} from 'three';
-import {WebXImageMessage, WebXShapeMessage} from '../message';
 
 /**
- * Factory class for creating and managing textures for WebX windows.
- *
- * This class retrieves textures from the WebX Engine and caches them for reuse.
+ * Factory class for creating textures for WebX windows from image data.
  */
 export class WebXTextureFactory {
 
-  constructor(private _tunnel: WebXTunnel) {}
-
-  /**
-   * Retrieves the textures (colorMap and alphaMap) for a specific window ID from the WebX Engine.
-   *
-   * @param windowId The ID of the window to retrieve the texture for.
-   * @returns A promise that resolves to the textures and associated data.
-   */
-  public async getWindowTexture(windowId: number): Promise<{ depth: number; colorMap: Texture; alphaMap: Texture }> {
-    try {
-      const response = await this._tunnel.sendRequest(new WebXImageInstruction(windowId)) as WebXImageMessage;
-      return {
-        depth: response.depth,
-        colorMap: response.colorMap,
-        alphaMap: response.alphaMap,
-      };
-
-    } catch (err) {
-      console.warn('Failed to get texture: ' + err);
-    }
-  }
-
-  /**
-   * Retrieves the stencil textures for a specific window ID from the WebX Engine.
-   *
-   * @param windowId The ID of the window to retrieve the texture for.
-   * @returns A promise that resolves to the stencil texture
-   */
-  public async getWindowStencilTexture(windowId: number): Promise<{ stencilMap: Texture }> {
-    try {
-      const response = await this._tunnel.sendRequest(new WebXShapeInstruction(windowId)) as WebXShapeMessage;
-      return {
-        stencilMap: response.stencilMap,
-      };
-
-    } catch (err) {
-      console.warn('Failed to get stencil texture: ' + err);
-      return null;
-    }
-  }
-
-  /**
-   * Creates a texture from a base64-encoded image data.
-   *
-   * @param imageData The base64-encoded image data.
-   * @returns A promise that resolves to the created texture.
-   */
-  public createTextureFromBase64Array(imageData: string): Promise<Texture> {
-    return new Promise<Texture>((resolve, reject) => {
-      if (imageData != null && imageData !== '') {
-        const image: HTMLImageElement = new Image();
-        const texture: Texture = new Texture(image);
-        image.onload = () => {
-          texture.needsUpdate = true;
-          texture.flipY = false;
-          texture.minFilter = LinearFilter;
-
-          resolve(texture);
-        };
-
-        image.onerror = (error) => {
-          console.warn(`Failed to create texture from base64: ${error}`);
-          reject(error);
-        }
-
-        image.src = imageData;
-
-      } else {
-        resolve(null);
-      }
-    });
-  }
+  constructor() {}
 
   /**
    * Creates a texture from raw image data.

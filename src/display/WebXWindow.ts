@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { WebXTextureFactory } from './WebXTextureFactory';
 import { WebXMaterial } from './WebXMaterial';
 import { Texture, LinearFilter } from 'three';
 import {WebXEngine} from "../WebXEngine";
+import {WebXWindowImageFactory} from "./WebXWindowImageFactory";
 
 /**
  * Represents a window in the WebX display.
@@ -15,7 +15,7 @@ export class WebXWindow {
   private static _PLANE_GEOMETRY: THREE.PlaneGeometry = new THREE.PlaneGeometry(1.0, 1.0, 2, 2);
   private static _COLOR_INDEX = 0;
 
-  private readonly _textureFactory: WebXTextureFactory;
+  private readonly _windowImageFactory: WebXWindowImageFactory;
   private readonly _colorIndex: number;
   private readonly _id: number;
   private readonly _material: WebXMaterial;
@@ -280,10 +280,10 @@ export class WebXWindow {
    * Creates a new instance of WebXWindow.
    *
    * @param configuration The properties of the window, such as position and size.
-   * @param textureFactory The factory used to create textures for the window.
+   * @param windowImageFactory The factory used to create textures for the window.
    */
-  constructor(configuration: { id: number; x: number; y: number; z: number; width: number; height: number; shaped: boolean }, textureFactory: WebXTextureFactory) {
-    this._textureFactory = textureFactory;
+  constructor(configuration: { id: number; x: number; y: number; z: number; width: number; height: number; shaped: boolean }, windowImageFactory: WebXWindowImageFactory) {
+    this._windowImageFactory = windowImageFactory;
     this._colorIndex = WebXWindow._COLOR_INDEX++;
 
     // this._material = new THREE.MeshBasicMaterial({ transparent: true });
@@ -312,7 +312,7 @@ export class WebXWindow {
    * Loads the window image from the texture factory.
    */
   private async loadWindowImage(): Promise<void> {
-    const response = await this._textureFactory.getWindowTexture(this._id);
+    const response = await this._windowImageFactory.getWindowTexture(this._id);
     if (response) {
       this.updateTexture(response.depth, response.colorMap, response.alphaMap, true);
     }
@@ -322,7 +322,7 @@ export class WebXWindow {
    * Loads the window shape (stencil map) from the texture factory.
    */
   private async loadWindowShape(): Promise<void> {
-    const response = await this._textureFactory.getWindowStencilTexture(this._id);
+    const response = await this._windowImageFactory.getWindowStencilTexture(this._id);
     if (response) {
       this.updateStencilTexture(response.stencilMap);
     } else {

@@ -19,7 +19,7 @@ import {
   WebXSubImagesMessage,
   WebXWindowsMessage,
 } from './message';
-import {WebXCursorFactory, WebXDisplay, WebXTextureFactory} from './display';
+import {WebXCursorFactory, WebXDisplay, WebXTextureFactory, WebXWindowImageFactory} from './display';
 import {WebXKeyboard, WebXMouse, WebXMouseState} from './input';
 import {
   WebXDebugImageMessageHandler,
@@ -54,6 +54,7 @@ export interface WebXClientConfig {
 export class WebXClient {
 
   private readonly _textureFactory: WebXTextureFactory;
+  private readonly _windowImageFactory: WebXWindowImageFactory;
   private readonly _cursorFactory: WebXCursorFactory;
 
   private _tracers: Map<string, WebXHandler> = new Map();
@@ -123,7 +124,8 @@ export class WebXClient {
    * @param _tunnel The WebXTunnel instance used for communication with the WebX Engine.
    */
   constructor(private _tunnel: WebXTunnel) {
-    this._textureFactory = new WebXTextureFactory(this._tunnel);
+    this._textureFactory = new WebXTextureFactory();
+    this._windowImageFactory = new WebXWindowImageFactory(this._tunnel);
     this._cursorFactory = new WebXCursorFactory(this._tunnel);
   }
 
@@ -140,7 +142,7 @@ export class WebXClient {
     this._tunnel.handleSentBytes = this._handleSentBytes.bind(this);
     this._tunnel.onClosed = this._onTunnelClosed.bind(this);
 
-    await this._tunnel.connect({...data, 'client-version': version}, new WebXBinarySerializer(this._textureFactory));
+    await this._tunnel.connect({...data, 'client-version': version});
   }
 
   /**
@@ -214,7 +216,7 @@ export class WebXClient {
    * @returns The created WebXDisplay instance.
    */
   createDisplay(containerElement: HTMLElement, screenWidth: number, screenHeight: number): WebXDisplay {
-    return new WebXDisplay(containerElement, screenWidth, screenHeight, this._textureFactory, this._cursorFactory);
+    return new WebXDisplay(containerElement, screenWidth, screenHeight, this._windowImageFactory, this._cursorFactory);
   }
 
   /**

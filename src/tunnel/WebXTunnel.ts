@@ -4,29 +4,27 @@ import { WebXBinarySerializer, WebXMessageBuffer } from '../transport';
 
 /**
  * Represents a communication tunnel between the WebX client and the WebX Engine.
- * 
+ *
  * This class handles sending and receiving data, managing the connection state,
  * and processing responses from the WebX Engine.
  */
 export abstract class WebXTunnel {
   private static readonly MIN_BUFFER_LENGTH_FOR_ACK = 32768;
 
-  protected _serializer: WebXBinarySerializer;
+  protected _serializer: WebXBinarySerializer = new WebXBinarySerializer();
 
   private _instructionResponses: Map<number, WebXInstructionResponse<any>> = new Map<number, WebXInstructionResponse<any>>();
 
   protected constructor() {
-    this._serializer = null;
   }
 
   /**
    * Establishes a connection to the WebX Engine.
-   * 
+   *
    * @param data The data required to establish the connection.
-   * @param serializer The serializer to use for encoding/decoding messages.
    * @returns A promise that resolves when the connection is successfully established.
    */
-  abstract connect(data: any, serializer: WebXBinarySerializer): Promise<Event>;
+  abstract connect(data: any): Promise<Event>;
 
   /**
    * Closes the connection to the WebX Engine.
@@ -35,21 +33,21 @@ export abstract class WebXTunnel {
 
   /**
    * Sends data to the WebX Engine.
-   * 
+   *
    * @param data The data to send.
    */
   abstract send(data: ArrayBuffer): void;
 
   /**
    * Checks if the tunnel is currently connected.
-   * 
+   *
    * @returns True if the tunnel is connected, false otherwise.
    */
   abstract isConnected(): boolean;
 
   /**
    * Sends an instruction to the WebX Engine.
-   * 
+   *
    * @param command The instruction to send.
    */
   sendInstruction(command: WebXInstruction): void {
@@ -60,7 +58,7 @@ export abstract class WebXTunnel {
 
   /**
    * Sends a request to the WebX Engine and waits for a response.
-   * 
+   *
    * @param command The request to send.
    * @param timeout The timeout in milliseconds to wait for a response.
    * @returns A promise that resolves with the response from the WebX Engine.
@@ -85,7 +83,7 @@ export abstract class WebXTunnel {
 
   /**
    * Handles incoming messages from the WebX Engine.
-   * 
+   *
    * @param data The received data.
    */
   protected async onMessage(data: ArrayBuffer): Promise<void> {
@@ -121,7 +119,7 @@ export abstract class WebXTunnel {
 
   /**
    * Handles a received message from the WebX Engine.
-   * 
+   *
    * @param message The received message.
    */
   handleMessage(message: WebXMessage): void {
@@ -130,7 +128,7 @@ export abstract class WebXTunnel {
 
   /**
    * Handles received bytes from the WebX Engine.
-   * 
+   *
    * @param data The received data.
    */
   handleReceivedBytes(data: ArrayBuffer): void {
@@ -139,7 +137,7 @@ export abstract class WebXTunnel {
 
   /**
    * Handles sent bytes to the WebX Engine.
-   * 
+   *
    * @param data The sent data.
    */
   handleSentBytes(data: ArrayBuffer): void {
@@ -148,7 +146,7 @@ export abstract class WebXTunnel {
 
   /**
    * Handles the close event of the connection.
-   * 
+   *
    * @param event The close event.
    */
   handleClose(event: CloseEvent): void {
@@ -168,7 +166,7 @@ export abstract class WebXTunnel {
 
   /**
    * Handles critical messages such as PING and data acknowledgments.
-   * 
+   *
    * @param buffer The message buffer.
    */
   private _handleCriticalMessages(buffer: WebXMessageBuffer): void {

@@ -10,7 +10,7 @@ import { WebXBinarySerializer } from '../transport';
 export class WebXWebSocketTunnel extends WebXTunnel {
   private readonly _url: string;
   private _socket: WebSocket;
-  private _connectionOptions: any;
+  private readonly _connectionOptions: any;
   private _socketOpen = false;
 
   constructor(url: string, options: any = {}) {
@@ -58,12 +58,11 @@ export class WebXWebSocketTunnel extends WebXTunnel {
    * @param serializer The serializer to use for encoding/decoding messages.
    * @returns A promise that resolves when the connection is successfully established.
    */
-  connect(data: any, serializer: WebXBinarySerializer): Promise<Event> {
+  connect(data: any): Promise<Event> {
     const options = {...this._connectionOptions, ...data};
     const parameters = new URLSearchParams(options);
     const url = `${this._url}?${parameters}`;
 
-    this._serializer = serializer;
     return new Promise((resolve, reject) => {
       this._socket = new WebSocket(url);
       this._socket.binaryType = 'arraybuffer';

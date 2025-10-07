@@ -1,6 +1,5 @@
 import { WebXInstruction } from '../instruction';
 import { WebXMessage } from '../message';
-import { WebXTextureFactory } from '../display';
 import {WebXInstructionEncoder} from "./WebXInstructionEncoder";
 import {WebXMessageDecoder} from "./WebXMessageDecoder";
 import {WebXMessageBuffer} from "./WebXMessageBuffer";
@@ -15,12 +14,10 @@ export class WebXBinarySerializer {
 
   /**
    * Creates a new instance of WebXBinarySerializer.
-   *
-   * @param textureFactory The texture factory used for decoding image data.
    */
-  constructor(textureFactory: WebXTextureFactory) {
+  constructor() {
     this._instructionEncoder = new WebXInstructionEncoder();
-    this._messageDecoder = new WebXMessageDecoder(textureFactory);
+    this._messageDecoder = new WebXMessageDecoder();
   }
 
   /**

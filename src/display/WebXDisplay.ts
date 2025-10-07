@@ -4,11 +4,11 @@ import { WebXWindow } from './WebXWindow';
 import { WebXWindowProperties } from './WebXWindowProperties';
 import { WebXSubImage } from './WebXSubImage';
 import { WebXCursor } from './WebXCursor';
-import { WebXTextureFactory } from './WebXTextureFactory';
 import { WebXCursorFactory } from './WebXCursorFactory';
 import {WebXCanvasRenderer} from '../renderer';
 import {Blob} from "buffer";
 import {WebXDisplayOverlay} from "./WebXDisplayOverlay";
+import {WebXWindowImageFactory} from "./WebXWindowImageFactory";
 
 type WebGLInfo = {
   available: boolean;
@@ -34,7 +34,7 @@ export class WebXDisplay {
   private readonly _screenWidth: number;
   private readonly _screenHeight: number;
 
-  private readonly _textureFactory: WebXTextureFactory;
+  private readonly _windowImageFactory: WebXWindowImageFactory;
 
   private readonly _containerElement: HTMLElement;
 
@@ -139,14 +139,14 @@ export class WebXDisplay {
    * @param containerElement The HTML element to render the display.
    * @param screenWidth The width of the screen.
    * @param screenHeight The height of the screen.
-   * @param textureFactory The texture factory used for creating textures.
+   * @param windowImageFactory The factory used for obtaining window images.
    * @param cursorFactory The cursor factory used for managing cursors.
    */
-  constructor(containerElement: HTMLElement, screenWidth: number, screenHeight: number, textureFactory: WebXTextureFactory, cursorFactory: WebXCursorFactory) {
+  constructor(containerElement: HTMLElement, screenWidth: number, screenHeight: number, windowImageFactory: WebXWindowImageFactory, cursorFactory: WebXCursorFactory) {
     this._containerElement = containerElement;
     this._screenWidth = screenWidth;
     this._screenHeight = screenHeight;
-    this._textureFactory = textureFactory;
+    this._windowImageFactory = windowImageFactory;
     this._cursor = new WebXCursor(cursorFactory);
     this._displayOverlay = new WebXDisplayOverlay(this._cursor);
 
@@ -347,7 +347,7 @@ export class WebXDisplay {
             width: window.width,
             height: window.height,
             shaped: window.shaped,
-          }, this._textureFactory);
+          }, this._windowImageFactory);
 
           this.addWindow(webXWindow);
 

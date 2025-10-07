@@ -26,12 +26,13 @@ import {WebXEngine} from "../WebXEngine";
  * WebXMessage implementations.
  */
 export class WebXMessageDecoder {
+
+  private readonly _textureFactory: WebXTextureFactory = new WebXTextureFactory();
+
   /**
    * Creates a new instance of WebXMessageDecoder.
-   *
-   * @param _textureFactory The texture factory used to create textures from image data.
    */
-  constructor(private _textureFactory: WebXTextureFactory) {}
+  constructor() {}
 
   /**
    * Decodes a binary message buffer into a WebXMessage object.
