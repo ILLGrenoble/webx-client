@@ -1,4 +1,4 @@
-import {alphaAndStencilBlend} from "./WebXImageBlenderFunc";
+import {alphaAndStencilBlend} from "../common";
 
 /**
  * The entry point for the web worker. Receives messages with data for color, alpha and stencil data and calls the blending

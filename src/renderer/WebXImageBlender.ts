@@ -1,4 +1,4 @@
-import {alphaAndStencilBlend} from "./WebXImageBlenderFunc";
+import {alphaAndStencilBlend} from "../common";
 import WebXImageBlenderWorker from "web-worker:./WebXImageBlenderWorker";
 
 /**

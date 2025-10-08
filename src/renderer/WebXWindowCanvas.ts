@@ -23,7 +23,7 @@ export class WebXWindowCanvas {
   private _context: CanvasRenderingContext2D;
 
   private _stencilCanvas: HTMLCanvasElement;
-  private _stencilContext: CanvasRenderingContext2D;
+  private _stencilData: ImageData;
 
   private _x: number = 0;
   private _y: number = 0;
@@ -171,22 +171,24 @@ export class WebXWindowCanvas {
           }
 
           const hasAlphaMap = this.isValidAlphaMap(material.alphaMap);
-          if (hasAlphaMap || this._stencilContext) {
-            const alphaImage = material.alphaMap?.image;
-
-            const blendedImageData = await this.blendAlphaAndStencil(colorImage, alphaImage, 0, 0);
-            this._context.putImageData(blendedImageData, 0, 0);
-
-          } else {
-            this._context.clearRect(0, 0, width, height);
+          // if (hasAlphaMap || this._stencilContext) {
+          //   const alphaImage = material.alphaMap?.image;
+          //
+          //   const blendedImageData = await this.blendAlphaAndStencil(colorImage, alphaImage, 0, 0);
+          //   this._context.putImageData(blendedImageData, 0, 0);
+          //
+          // } else {
+          //   this._context.clearRect(0, 0, width, height);
             if (material.map instanceof DataTexture) {
-              const imageData = new ImageData(new Uint8ClampedArray(colorImage.data.buffer), colorImage.width, colorImage.height);
+              const data = colorImage.data instanceof Uint8ClampedArray ? colorImage.data : new Uint8ClampedArray(colorImage.data.buffer);
+              const imageData = new ImageData(data, colorImage.width, colorImage.height);
               this._context.putImageData(imageData, 0, 0);
 
             } else {
+              console.log('draw image');
               this._context.drawImage(colorImage, 0, 0, width, height);
             }
-          }
+          // }
         }
 
         // Apply any regional updates
@@ -239,14 +241,23 @@ export class WebXWindowCanvas {
 
         const colorImage = srcColorMap.image;
         const alphaImage = srcAlphaMap?.image;
-        if (alphaImage || this._stencilContext) {
-          const blendedImageData = await this.blendAlphaAndStencil(colorImage, alphaImage, dstPosition.x, dstPosition.y);
+        // if (alphaImage || this._stencilContext) {
+        //   const blendedImageData = await this.blendAlphaAndStencil(colorImage, alphaImage, dstPosition.x, dstPosition.y);
+        //
+        //   this._context.putImageData(blendedImageData, dstPosition.x, dstPosition.y);
+        //
+        // } else {
 
-          this._context.putImageData(blendedImageData, dstPosition.x, dstPosition.y);
+          if (srcColorMap instanceof DataTexture) {
+            const data = colorImage.data instanceof Uint8ClampedArray ? colorImage.data : new Uint8ClampedArray(colorImage.data.buffer);
+            const imageData = new ImageData(data, colorImage.width, colorImage.height);
+            this._context.putImageData(imageData, dstPosition.x, dstPosition.y);
 
-        } else {
-          this._context.drawImage(colorImage, 0, 0, width, height, dstPosition.x, dstPosition.y, width, height)  ;
-        }
+          } else {
+            console.log('draw sub image');
+            this._context.drawImage(colorImage, 0, 0, width, height, dstPosition.x, dstPosition.y, width, height)  ;
+          }
+        // }
       }
     }
 
@@ -276,22 +287,31 @@ export class WebXWindowCanvas {
     if (material instanceof WebXMaterial && material.stencilMap) {
       if (material.stencilMap != this._stencilMap) {
         this._stencilMap = material.stencilMap;
-
-        // Create canvas and context for stencil Image
         const stencilImage = this._stencilMap.image;
-        this._stencilCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
-        this._stencilCanvas.width = stencilImage.width;
-        this._stencilCanvas.height = stencilImage.height;
+        const {width, height} = stencilImage;
 
-        this._stencilContext = this._stencilCanvas.getContext('2d', { willReadFrequently: true });
-        this._stencilContext.drawImage(stencilImage, 0, 0);
+        // Check for already converted image data
+        if (this._stencilMap instanceof DataTexture) {
+          const data = stencilImage.data instanceof Uint8ClampedArray ? stencilImage.data : new Uint8ClampedArray(stencilImage.data.buffer);
+          this._stencilData = new ImageData(data, width, height);
+
+        } else {
+          // Create canvas and context for stencil Image
+          this._stencilCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
+          this._stencilCanvas.width = width;
+          this._stencilCanvas.height = height;
+
+          const stencilContext = this._stencilCanvas.getContext('2d', { willReadFrequently: true });
+          stencilContext.drawImage(stencilImage, 0, 0);
+          this._stencilData = stencilContext.getImageData(0, 0, width, height);
+        }
       }
 
     } else {
       if (this._stencilMap) {
         this._stencilMap = null;
         this._stencilCanvas = null;
-        this._stencilContext = null;
+        this._stencilData = null;
       }
     }
   }
@@ -306,7 +326,7 @@ export class WebXWindowCanvas {
    * @returns A promise that resolves to the blended `ImageData`.
    */
   private async blendAlphaAndStencil(colorImage: ImageBitmap, alphaImage: ImageBitmap, dstX: number, dstY: number): Promise<ImageData> {
-    if (!alphaImage && !this._stencilContext) {
+    if (!alphaImage && !this._stencilData) {
       return;
     }
 
@@ -336,11 +356,7 @@ export class WebXWindowCanvas {
 
     const startTime = performance.now();
 
-    let stencilImageData = null;
-    if (this._stencilContext) {
-      stencilImageData = this._stencilContext.getImageData(dstX, dstY, width, height);
-    }
-    const blendedImageData = await this._imageBlender.blendAlphaAndStencil(colorImageData, alphaImageData, stencilImageData);
+    const blendedImageData = await this._imageBlender.blendAlphaAndStencil(colorImageData, alphaImageData, this._stencilData);
 
     const endTime = performance.now();
     // console.log(`Time to blend alpha image = ${(endTime - startTime).toFixed((3))}ms for ${width * height} pixels`);

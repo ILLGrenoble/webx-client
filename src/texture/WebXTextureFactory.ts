@@ -44,7 +44,7 @@ export class WebXTextureFactory {
       return new Promise<WebXTexture>((resolve, reject) => {
         createImageBitmap(blob)
           .then(bitmap => {
-            const texture = new WebXTexture(bitmap);
+            const texture = new WebXTexture({image: bitmap});
 
             resolve(texture);
           })
@@ -62,7 +62,7 @@ export class WebXTextureFactory {
         image.onload = () => {
           URL.revokeObjectURL(url);
 
-          const texture = new WebXTexture(image);
+          const texture = new WebXTexture({image});
 
           resolve(texture);
         };

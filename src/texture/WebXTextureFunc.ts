@@ -4,9 +4,8 @@ import {LinearFilter} from "three";
 
 export const toThreeTexture = (texture: WebXTexture): THREE.Texture => {
   if (texture) {
-    const threeTexture = new THREE.Texture();
+    const threeTexture = texture.data ? new THREE.DataTexture(texture.data, texture.width, texture.height) : new THREE.Texture(texture.image);
     threeTexture.needsUpdate = true;
-    threeTexture.image = texture.image;
     threeTexture.flipY = texture.flipY;
     threeTexture.colorSpace = texture.colorSpace;
     threeTexture.minFilter = LinearFilter;

@@ -156,7 +156,7 @@ export class WebXDisplay {
     // Add dummy mesh to the scene otherwise the texture updates don't appear to have the correct state and aren't applied correctly
     const dummy = new THREE.Mesh(
       new THREE.PlaneGeometry(1.0, 1.0, 2, 2),
-      new THREE.MeshBasicMaterial({ map: new THREE.DataTexture(new Uint8Array(4), 1, 1), side: THREE.BackSide, transparent: true }));
+      new THREE.MeshBasicMaterial({ map: new THREE.DataTexture(new Uint8ClampedArray(4), 1, 1), side: THREE.BackSide, transparent: true }));
     dummy.position.set(0, 0, 999);
     this._screen.add(dummy);
 

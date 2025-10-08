@@ -74,27 +74,27 @@ export const getMessageTransfers = (message: WebXMessage): Transferable[] => {
     if (messageType == WebXMessageType.IMAGE) {
       const imageMessage = message as WebXImageMessage;
       if (imageMessage.colorMap && imageMessage.colorMap.isTransferable()) {
-        transfers.push(imageMessage.colorMap.image);
+        transfers.push(imageMessage.colorMap.transferable);
       }
       if (imageMessage.alphaMap && imageMessage.alphaMap.isTransferable()) {
-        transfers.push(imageMessage.alphaMap.image);
+        transfers.push(imageMessage.alphaMap.transferable);
       }
 
     } else if (messageType == WebXMessageType.SUBIMAGES) {
       const subImageMessage = message as WebXSubImagesMessage;
       for (const subImage of subImageMessage.subImages) {
         if (subImage.colorMap && subImage.colorMap.isTransferable()) {
-          transfers.push(subImage.colorMap.image);
+          transfers.push(subImage.colorMap.transferable);
         }
         if (subImage.alphaMap && subImage.alphaMap.isTransferable()) {
-          transfers.push(subImage.alphaMap.image);
+          transfers.push(subImage.alphaMap.transferable);
         }
       }
 
     } else if (messageType == WebXMessageType.SHAPE) {
       const shapeMessage = message as WebXShapeMessage;
       if (shapeMessage.stencilMap && shapeMessage.stencilMap.isTransferable()) {
-        transfers.push(shapeMessage.stencilMap.image);
+        transfers.push(shapeMessage.stencilMap.transferable);
       }
     }
   }
