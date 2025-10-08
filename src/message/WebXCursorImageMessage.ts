@@ -1,10 +1,10 @@
 import { WebXMessage } from './WebXMessage';
 import { WebXMessageType } from './WebXMessageType';
-import { Texture } from 'three';
+import {WebXTexture} from "../texture";
 
 /**
  * Represents a message containing cursor image data.
- * 
+ *
  * This message is received from the WebX Engine and contains details about
  * the cursor's appearance, including its texture and hotspot coordinates.
  */
@@ -27,7 +27,7 @@ export class WebXCursorImageMessage extends WebXMessage {
   /**
    * The texture of the cursor.
    */
-  public readonly texture: Texture;
+  public readonly texture: WebXTexture;
 
   /**
    * The x-coordinate of the cursor's position.
@@ -41,7 +41,7 @@ export class WebXCursorImageMessage extends WebXMessage {
 
   /**
    * Constructs a new WebXCursorImageMessage.
-   * 
+   *
    * @param cursorId The ID of the cursor.
    * @param xHot The x-coordinate of the cursor's hotspot.
    * @param yHot The y-coordinate of the cursor's hotspot.
@@ -50,7 +50,7 @@ export class WebXCursorImageMessage extends WebXMessage {
    * @param y The y-coordinate of the cursor's position.
    * @param commandId The ID of the command associated with this message.
    */
-  constructor(x: number, y: number, xHot: number, yHot: number, cursorId: number, texture: Texture, commandId: number) {
+  constructor(x: number, y: number, xHot: number, yHot: number, cursorId: number, texture: WebXTexture, commandId: number) {
     super(WebXMessageType.CURSOR_IMAGE, commandId);
     this.x = x;
     this.y = y;

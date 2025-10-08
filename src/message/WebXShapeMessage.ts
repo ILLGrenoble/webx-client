@@ -1,6 +1,6 @@
 import { WebXMessage } from './WebXMessage';
 import { WebXMessageType } from './WebXMessageType';
-import { Texture } from 'three';
+import {WebXTexture} from "../texture";
 
 /**
  * Represents a message containing image data for a window.
@@ -17,7 +17,7 @@ export class WebXShapeMessage extends WebXMessage {
   /**
    * The stencil texture of the window.
    */
-  public readonly stencilMap: Texture;
+  public readonly stencilMap: WebXTexture;
 
   /**
    * The size of the image.
@@ -32,7 +32,7 @@ export class WebXShapeMessage extends WebXMessage {
    * @param commandId The ID of the command associated with this message.
    * @param size The size of the image.
    */
-  constructor(windowId: number, stencilMap: Texture, commandId: number, size: number) {
+  constructor(windowId: number, stencilMap: WebXTexture, commandId: number, size: number) {
     super(WebXMessageType.SHAPE, commandId);
     this.windowId = windowId;
     this.stencilMap = stencilMap;

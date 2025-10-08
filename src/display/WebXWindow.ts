@@ -3,6 +3,7 @@ import { WebXMaterial } from './WebXMaterial';
 import { Texture, LinearFilter } from 'three';
 import {WebXEngine} from "../WebXEngine";
 import {WebXWindowImageFactory} from "./WebXWindowImageFactory";
+import {toThreeTexture} from "../texture";
 
 /**
  * Represents a window in the WebX display.
@@ -314,7 +315,7 @@ export class WebXWindow {
   private async loadWindowImage(): Promise<void> {
     const response = await this._windowImageFactory.getWindowTexture(this._id);
     if (response) {
-      this.updateTexture(response.depth, response.colorMap, response.alphaMap, true);
+      this.updateTexture(response.depth, toThreeTexture(response.colorMap), toThreeTexture(response.alphaMap), true);
     }
   }
 
@@ -324,7 +325,7 @@ export class WebXWindow {
   private async loadWindowShape(): Promise<void> {
     const response = await this._windowImageFactory.getWindowStencilTexture(this._id);
     if (response) {
-      this.updateStencilTexture(response.stencilMap);
+      this.updateStencilTexture(toThreeTexture(response.stencilMap));
     } else {
       this._shaped = false;
       this.visible = this.colorMap != null;

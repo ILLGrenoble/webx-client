@@ -1,10 +1,10 @@
 import { WebXMessage } from './WebXMessage';
 import { WebXMessageType } from './WebXMessageType';
-import { Texture } from 'three';
+import {WebXTexture} from "../texture";
 
 /**
  * Represents a message containing image data for a window.
- * 
+ *
  * This message is received from the WebX Engine and contains the color and
  * alpha textures for a specific window.
  */
@@ -22,12 +22,12 @@ export class WebXImageMessage extends WebXMessage {
   /**
    * The color texture of the image.
    */
-  public readonly colorMap: Texture;
+  public readonly colorMap: WebXTexture;
 
   /**
    * The alpha texture of the image.
    */
-  public readonly alphaMap: Texture;
+  public readonly alphaMap: WebXTexture;
 
   /**
    * The size of the image.
@@ -36,7 +36,7 @@ export class WebXImageMessage extends WebXMessage {
 
   /**
    * Constructs a new WebXImageMessage.
-   * 
+   *
    * @param windowId The ID of the window.
    * @param depth The depth of the image.
    * @param colorMap The color texture.
@@ -44,7 +44,7 @@ export class WebXImageMessage extends WebXMessage {
    * @param commandId The ID of the command associated with this message.
    * @param size The size of the image.
    */
-  constructor(windowId: number, depth: number, colorMap: Texture, alphaMap: Texture, commandId: number, size: number) {
+  constructor(windowId: number, depth: number, colorMap: WebXTexture, alphaMap: WebXTexture, commandId: number, size: number) {
     super(WebXMessageType.IMAGE, commandId);
     this.windowId = windowId;
     this.depth = depth;

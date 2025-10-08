@@ -1,10 +1,10 @@
 import { WebXMessage } from './WebXMessage';
 import { WebXMessageType } from './WebXMessageType';
-import { WebXSubImage } from '../display';
+import { WebXSubImage } from '../common';
 
 /**
  * Represents a message containing sub-image data for a window.
- * 
+ *
  * This message is received from the WebX Engine and contains a list of
  * sub-images that should be updated.
  */
@@ -26,7 +26,7 @@ export class WebXSubImagesMessage extends WebXMessage {
 
   /**
    * Constructs a new WebXSubImagesMessage.
-   * 
+   *
    * @param windowId The ID of the window.
    * @param subImages The list of sub-images.
    * @param commandId The ID of the command associated with this message.

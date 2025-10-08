@@ -1,7 +1,7 @@
 import { WebXTunnel } from '../tunnel';
-import {WebXCursorImageMessage, WebXImageMessage} from '../message';
-import {WebXCursorImageInstruction, WebXImageInstruction} from '../instruction';
-import { Texture } from 'three';
+import {WebXCursorImageMessage} from '../message';
+import {WebXCursorImageInstruction} from '../instruction';
+import {WebXTexture} from "../texture";
 
 /**
  * Interface representing cursor data.
@@ -10,7 +10,7 @@ export interface WebXCursorData {
   xHot: number;
   yHot: number;
   cursorId: number;
-  texture: Texture;
+  texture: WebXTexture;
 }
 
 /**

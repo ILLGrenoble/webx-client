@@ -1,14 +1,14 @@
 import * as THREE from 'three';
-import {OrthographicCamera, Texture, Vector3} from 'three';
+import {OrthographicCamera, Vector3} from 'three';
 import { WebXWindow } from './WebXWindow';
-import { WebXWindowProperties } from './WebXWindowProperties';
-import { WebXSubImage } from './WebXSubImage';
+import { WebXSubImage, WebXWindowProperties } from '../common';
 import { WebXCursor } from './WebXCursor';
 import { WebXCursorFactory } from './WebXCursorFactory';
 import {WebXCanvasRenderer} from '../renderer';
 import {Blob} from "buffer";
 import {WebXDisplayOverlay} from "./WebXDisplayOverlay";
 import {WebXWindowImageFactory} from "./WebXWindowImageFactory";
+import {toThreeTexture, WebXTexture} from "../texture";
 
 type WebGLInfo = {
   available: boolean;
@@ -396,10 +396,10 @@ export class WebXDisplay {
    * @param colorMap The color texture.
    * @param alphaMap The alpha texture.
    */
-  updateImage(windowId: number, depth: number, colorMap: Texture, alphaMap: Texture): void {
+  updateImage(windowId: number, depth: number, colorMap: WebXTexture, alphaMap: WebXTexture): void {
     const window: WebXWindow = this.getWindow(windowId);
     if (window != null && !(colorMap == null && alphaMap == null)) {
-      window.updateTexture(depth, colorMap, alphaMap, true);
+      window.updateTexture(depth, toThreeTexture(colorMap), toThreeTexture(alphaMap), true);
       this._sceneDirty = true;
     }
   }
@@ -418,14 +418,14 @@ export class WebXDisplay {
       for(let i= 0; i< subImages.length; i++) {
         const subImage = subImages[i];
         if (this._renderer instanceof WebXCanvasRenderer) {
-          this._renderer.updateWindowRegion(window.mesh.id, subImage.colorMap, colorMap, subImage.alphaMap, alphaMap, subImage.width, subImage.height, new THREE.Vector2(subImage.x, subImage.y));
+          this._renderer.updateWindowRegion(window.mesh.id, toThreeTexture(subImage.colorMap), colorMap, toThreeTexture(subImage.alphaMap), alphaMap, subImage.width, subImage.height, new THREE.Vector2(subImage.x, subImage.y));
 
         } else {
           if (colorMap && subImage.colorMap) {
-            this._renderer.copyTextureToTexture(subImage.colorMap, colorMap, null, new THREE.Vector2(subImage.x, subImage.y));
+            this._renderer.copyTextureToTexture(toThreeTexture(subImage.colorMap), colorMap, null, new THREE.Vector2(subImage.x, subImage.y));
           }
           if (alphaMap && subImage.alphaMap) {
-            this._renderer.copyTextureToTexture(subImage.alphaMap, alphaMap, null, new THREE.Vector2(subImage.x, subImage.y));
+            this._renderer.copyTextureToTexture(toThreeTexture(subImage.alphaMap), alphaMap, null, new THREE.Vector2(subImage.x, subImage.y));
           }
         }
 
@@ -441,10 +441,10 @@ export class WebXDisplay {
    * @param windowId The ID of the window to update.
    * @param stencilMap The stencil texture.
    */
-  updateShape(windowId: number, stencilMap: Texture): void {
+  updateShape(windowId: number, stencilMap: WebXTexture): void {
     const window: WebXWindow = this.getWindow(windowId);
     if (window != null && stencilMap != null) {
-      window.updateStencilTexture(stencilMap);
+      window.updateStencilTexture(toThreeTexture(stencilMap));
       this._sceneDirty = true;
     }
   }

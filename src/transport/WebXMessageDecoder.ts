@@ -14,9 +14,9 @@ import {
   WebXNopMessage,
   WebXShapeMessage,
 } from '../message';
-import { WebXSubImage, WebXTextureFactory, WebXWindowProperties } from '../display';
+import { WebXSubImage, WebXWindowProperties } from '../common';
+import {LinearSRGBColorSpace, SRGBColorSpace, WebXTextureFactory} from '../texture';
 import { WebXMessageBuffer } from './WebXMessageBuffer';
-import {LinearSRGBColorSpace, SRGBColorSpace} from "three";
 import {WebXVersion} from "../utils";
 import {WebXEngine} from "../WebXEngine";
 
@@ -282,6 +282,8 @@ export class WebXMessageDecoder {
       minorVersion = buffer.getUint32();
       patchVersion = buffer.getUint32();
     }
+    WebXEngine.version = new WebXVersion(majorVersion, minorVersion, patchVersion);
+
     return new WebXScreenMessage({ width: screenWidth, height: screenHeight }, maxQualityIndex, new WebXVersion(majorVersion, minorVersion, patchVersion), commandId);
   }
 

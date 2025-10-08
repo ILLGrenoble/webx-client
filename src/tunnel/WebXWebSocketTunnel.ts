@@ -1,5 +1,4 @@
 import { WebXTunnel } from './WebXTunnel';
-import { WebXBinarySerializer } from '../transport';
 
 /**
  * Represents a WebSocket-based implementation of the WebX communication tunnel.
@@ -55,7 +54,6 @@ export class WebXWebSocketTunnel extends WebXTunnel {
    * Establishes a WebSocket connection to the WebX Engine.
    *
    * @param data The connection options.
-   * @param serializer The serializer to use for encoding/decoding messages.
    * @returns A promise that resolves when the connection is successfully established.
    */
   connect(data: any): Promise<Event> {

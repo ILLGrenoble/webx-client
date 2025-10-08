@@ -1,7 +1,7 @@
 import {WebXTunnel} from '../tunnel';
 import {WebXImageInstruction, WebXShapeInstruction} from '../instruction';
-import {Texture} from 'three';
 import {WebXImageMessage, WebXShapeMessage} from '../message';
+import {WebXTexture} from "../texture";
 
 /**
  * Factory class for request textures for WebX windows.
@@ -18,7 +18,7 @@ export class WebXWindowImageFactory {
    * @param windowId The ID of the window to retrieve the texture for.
    * @returns A promise that resolves to the textures and associated data.
    */
-  public async getWindowTexture(windowId: number): Promise<{ depth: number; colorMap: Texture; alphaMap: Texture }> {
+  public async getWindowTexture(windowId: number): Promise<{ depth: number; colorMap: WebXTexture; alphaMap: WebXTexture }> {
     try {
       const response = await this._tunnel.sendRequest(new WebXImageInstruction(windowId)) as WebXImageMessage;
       return {
@@ -38,7 +38,7 @@ export class WebXWindowImageFactory {
    * @param windowId The ID of the window to retrieve the texture for.
    * @returns A promise that resolves to the stencil texture
    */
-  public async getWindowStencilTexture(windowId: number): Promise<{ stencilMap: Texture }> {
+  public async getWindowStencilTexture(windowId: number): Promise<{ stencilMap: WebXTexture }> {
     try {
       const response = await this._tunnel.sendRequest(new WebXShapeInstruction(windowId)) as WebXShapeMessage;
       return {

@@ -19,7 +19,10 @@ import {
   WebXSubImagesMessage,
   WebXWindowsMessage,
 } from './message';
-import {WebXCursorFactory, WebXDisplay, WebXTextureFactory, WebXWindowImageFactory} from './display';
+import {WebXCursorFactory} from './display/WebXCursorFactory';
+import {WebXDisplay} from './display';
+import {WebXTextureFactory} from './texture';
+import {WebXWindowImageFactory} from './display/WebXWindowImageFactory';
 import {WebXKeyboard, WebXMouse, WebXMouseState} from './input';
 import {
   WebXDebugImageMessageHandler,
@@ -150,6 +153,7 @@ export class WebXClient {
    */
   disconnect(): void {
     this._tunnel.disconnect();
+    this._tunnel.terminate();
   }
 
   /**

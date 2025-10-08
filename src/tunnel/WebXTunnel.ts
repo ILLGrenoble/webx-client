@@ -32,6 +32,13 @@ export abstract class WebXTunnel {
   abstract disconnect(): void;
 
   /**
+   * Terminates the Web Worker and clears pending tasks.
+   */
+  public terminate() {
+    this._serializer.terminate();
+  }
+
+  /**
    * Sends data to the WebX Engine.
    *
    * @param data The data to send.

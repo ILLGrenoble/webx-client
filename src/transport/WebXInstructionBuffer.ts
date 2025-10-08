@@ -2,18 +2,18 @@ import { WebXInstruction } from '../instruction';
 
 /**
  * Represents a buffer for encoding and decoding WebX instructions.
- * 
+ *
  * This class provides methods to write and read data in a structured format
  * for communication with the WebX Engine.
  */
 export class WebXInstructionBuffer {
 
   private readonly _buffer: ArrayBuffer;
-  private _offset;
+  private _offset: number;
 
   /**
    * Creates a new instance of WebXInstructionBuffer.
-   * 
+   *
    * @param instruction The WebX instruction.
    * @param length The length of the buffer in bytes.
    */

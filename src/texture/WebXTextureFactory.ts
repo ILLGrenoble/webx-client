@@ -1,4 +1,4 @@
-import {LinearFilter, Texture} from 'three';
+import {WebXTexture} from "./WebXTexture";
 
 /**
  * Factory class for creating textures for WebX windows from image data.
@@ -15,15 +15,13 @@ export class WebXTextureFactory {
    * @param colorSpace The color space of the image data (e.g., "srgb").
    * @returns A promise that resolves to the created texture.
    */
-  public async createTextureFromArray(imageData: Uint8Array, mimetype: string, colorSpace: string): Promise<Texture> {
+  public async createTextureFromArray(imageData: Uint8Array, mimetype: string, colorSpace: string): Promise<WebXTexture> {
     if (imageData != null && imageData.byteLength > 0) {
       const blob = new Blob([imageData], { type: mimetype });
       const texture = await this.createTextureFromBlob(blob);
 
 
-      texture.needsUpdate = true;
       texture.flipY = false;
-      texture.minFilter = LinearFilter;
       texture.colorSpace = colorSpace;
 
       return texture;
@@ -39,15 +37,14 @@ export class WebXTextureFactory {
    * @param blob The Blob object containing the image data.
    * @returns A promise that resolves to the created texture.
    */
-  public createTextureFromBlob(blob: Blob): Promise<Texture> {
+  public createTextureFromBlob(blob: Blob): Promise<WebXTexture> {
     // not supported by all of the browsers at the moment
     // https://caniuse.com/createimagebitmap
     if (typeof createImageBitmap === 'function') {
-      return new Promise<Texture>((resolve, reject) => {
+      return new Promise<WebXTexture>((resolve, reject) => {
         createImageBitmap(blob)
           .then(bitmap => {
-            const texture: Texture = new Texture();
-            texture.image = bitmap;
+            const texture = new WebXTexture(bitmap);
 
             resolve(texture);
           })
@@ -58,13 +55,14 @@ export class WebXTextureFactory {
       });
 
     } else {
-      return new Promise<Texture>((resolve, reject) => {
+      return new Promise<WebXTexture>((resolve, reject) => {
         // fall back to the standard way of creating an image
         const url = URL.createObjectURL(blob);
         const image: HTMLImageElement = new Image();
         image.onload = () => {
           URL.revokeObjectURL(url);
-          const texture: Texture = new Texture(image);
+
+          const texture = new WebXTexture(image);
 
           resolve(texture);
         };

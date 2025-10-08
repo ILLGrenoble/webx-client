@@ -1,4 +1,4 @@
-import {BackSide, Color, Matrix3, OrthographicCamera, ShaderMaterial, Texture, Vector3} from 'three';
+import {BackSide, Color, Matrix3, ShaderMaterial, Texture} from 'three';
 
 
 

@@ -37,6 +37,13 @@ export class WebXMessageBuffer {
     return this._readOffset;
   }
 
+  /**
+   * Returns the raw ArrayBuffer object
+   */
+  get buffer(): ArrayBuffer {
+    return this._buffer;
+  }
+
   private _readOffset: number = 24;
   private _encoder: TextDecoder = new TextDecoder('utf-8');
 

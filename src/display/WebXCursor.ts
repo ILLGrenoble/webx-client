@@ -1,6 +1,5 @@
-import * as THREE from 'three';
-import { Texture, LinearFilter } from 'three';
 import { WebXCursorFactory } from './WebXCursorFactory';
+import {WebXTexture} from "../texture";
 
 /**
  * Represents the cursor in the WebX display.
@@ -10,11 +9,10 @@ import { WebXCursorFactory } from './WebXCursorFactory';
  */
 export class WebXCursor {
   private _cursorId: number;
-  private _texture: THREE.Texture;
+  private _texture: WebXTexture;
 
   private readonly _canvas: HTMLCanvasElement;
   private readonly _context: CanvasRenderingContext2D;
-  private _needsUpdate = true;
 
   private _x: number = -1;
   private _y: number = -1;
@@ -24,7 +22,7 @@ export class WebXCursor {
   private _height: number = 1;
 
   /**
-   * Gets the HTML Canvas containing the the cursor image.
+   * Gets the HTML Canvas containing the cursor image.
    *
    * @returns The cursor canvas.
    */
@@ -116,9 +114,6 @@ export class WebXCursor {
    * Disposes the texture
    */
   public dispose(): void {
-    if (this._texture) {
-      this._texture.dispose();
-    }
   }
 
   /**
@@ -129,7 +124,7 @@ export class WebXCursor {
    * @param cursorId The ID of the cursor to display.
    * @param texture The texture of the cursor.
    */
-  private _updateCursor(xHot: number, yHot: number, cursorId: number, texture: Texture): void {
+  private _updateCursor(xHot: number, yHot: number, cursorId: number, texture: WebXTexture): void {
     this._xHot = xHot;
     this._yHot = yHot;
     this._cursorId = cursorId;

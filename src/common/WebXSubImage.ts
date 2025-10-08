@@ -1,8 +1,8 @@
-import * as THREE from 'three';
+import {WebXTexture} from "../texture";
 
 /**
  * Represents a sub-image within a WebX window.
- * 
+ *
  * A sub-image is a portion of a window's texture that can be updated independently.
  */
 export class WebXSubImage {
@@ -34,16 +34,16 @@ export class WebXSubImage {
   /**
    * The color map texture of the sub-image.
    */
-  public readonly colorMap: THREE.Texture;
+  public readonly colorMap: WebXTexture;
 
   /**
    * The alpha map texture of the sub-image.
    */
-  public readonly alphaMap: THREE.Texture;
+  public readonly alphaMap: WebXTexture;
 
   /**
    * Creates a new instance of WebXSubImage.
-   * 
+   *
    * @param properties The properties of the sub-image, including position, size, and textures.
    */
   constructor(properties: {
@@ -52,8 +52,8 @@ export class WebXSubImage {
     width: number;
     height: number;
     depth: number;
-    colorMap: THREE.Texture;
-    alphaMap: THREE.Texture;
+    colorMap: WebXTexture;
+    alphaMap: WebXTexture;
   }) {
     this.x = properties.x;
     this.y = properties.y;
