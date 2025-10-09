@@ -24,7 +24,7 @@ export const alphaAndStencilBlend = (colorData: Uint8ClampedArray, alphaData: Ui
 
   } else if (stencilData) {
     for (let i = 0; i < colorData.length; i += 4) {
-      colorData[i + 3] = stencilData[i] < 128 ? 0 : 255;
+      colorData[i + 3] = stencilData[i] < 128 ? 0 : colorData[i + 3];
     }
   }
 }
