@@ -1,3 +1,13 @@
+1.12.0 09/10/2025
+================
+ * Use web-worker to decode image-related WebXMessages (running the texture factor functions, eg createImageBitmap in parallel to main thread)
+ * When canvas renderer is in use the web-worker extracts the raw image data and automatically blends alpha and color data
+ * Stencil data applied to color/alpha blend in another worker and in all cases data is put directly into the window canvas (rather than drawing an imagine in the main thread) 
+ * Add request param that can disable rendering using the stencil map (webx-stencil=false)
+ * Refactoring to remove dependency of threejs when creating the messages so that it can be performed in a worker
+ * Use rollup for tha library bundling (improves ease of bundling web-workers) 
+ * Move cursor to a separate layer in both WebGL and Canvas renderers (use simple canvas in div over the desktop) to avoid re-rendering the full scene when the cursor moves
+
 1.11.0 30/09/2025
 ================
  * Add WebXCanvasRenderer: 
