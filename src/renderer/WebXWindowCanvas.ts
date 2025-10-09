@@ -1,4 +1,4 @@
-import {DataTexture, Mesh, MeshBasicMaterial, Texture, Vector2} from "three";
+import {DataTexture, Mesh, MeshBasicMaterial, Texture, TextureImageData, Vector2} from "three";
 import {WebXMaterial} from "../display/WebXMaterial";
 import {WebXImageBlender} from "./WebXImageBlender";
 
@@ -22,7 +22,6 @@ export class WebXWindowCanvas {
   private readonly _canvas: HTMLCanvasElement;
   private _context: CanvasRenderingContext2D;
 
-  private _stencilCanvas: HTMLCanvasElement;
   private _stencilData: ImageData;
 
   private _x: number = 0;
@@ -126,8 +125,8 @@ export class WebXWindowCanvas {
     }
 
     if (width !== this._width || height !== this._height) {
-      this._canvas.style.width = `${width}px`;
-      this._canvas.style.height = `${height}px`;
+      // this._canvas.style.width = `${width}px`;
+      // this._canvas.style.height = `${height}px`;
 
       this._width = width;
       this._height = height;
@@ -163,32 +162,22 @@ export class WebXWindowCanvas {
           const width = colorImage.width;
           const height = colorImage.height;
 
-          if (this._canvas.width !== width || this._canvas.height !== height) {
-            this._canvas.width = width;
-            this._canvas.height = height;
-            this._canvas.style.width = `${width}px`;
-            this._canvas.style.height = `${height}px`;
-          }
+          if (this.isValidAlphaMap(material.alphaMap) || this._stencilMap != null) {
+            const blendedImageData = await this.blendAlphaAndStencil(material.map, material.alphaMap, 0, 0);
+            this.resizeCanvas(width, height);
+            this._context.putImageData(blendedImageData, 0, 0);
 
-          const hasAlphaMap = this.isValidAlphaMap(material.alphaMap);
-          // if (hasAlphaMap || this._stencilContext) {
-          //   const alphaImage = material.alphaMap?.image;
-          //
-          //   const blendedImageData = await this.blendAlphaAndStencil(colorImage, alphaImage, 0, 0);
-          //   this._context.putImageData(blendedImageData, 0, 0);
-          //
-          // } else {
-          //   this._context.clearRect(0, 0, width, height);
+          } else {
+            this.resizeCanvas(width, height);
             if (material.map instanceof DataTexture) {
-              const data = colorImage.data instanceof Uint8ClampedArray ? colorImage.data : new Uint8ClampedArray(colorImage.data.buffer);
-              const imageData = new ImageData(data, colorImage.width, colorImage.height);
+              const imageData = this.dataTextureToImageData(colorImage);
               this._context.putImageData(imageData, 0, 0);
 
             } else {
-              console.log('draw image');
+              this._context.clearRect(0, 0, width, height);
               this._context.drawImage(colorImage, 0, 0, width, height);
             }
-          // }
+          }
         }
 
         // Apply any regional updates
@@ -229,6 +218,15 @@ export class WebXWindowCanvas {
     });
   }
 
+  private resizeCanvas(width: number, height: number): void {
+    if (this._canvas.width !== width || this._canvas.height !== height) {
+      this._canvas.width = width;
+      this._canvas.height = height;
+      this._canvas.style.width = `${width}px`;
+      this._canvas.style.height = `${height}px`;
+    }
+  }
+
   /**
    * Handles all pending region updates for the canvas.  The different buffers (color, alpha and stencil) are blended (in a web
    * worker if available) and then re-rendered into the main canvas of the window. If the window has only a color buffer then this
@@ -240,24 +238,21 @@ export class WebXWindowCanvas {
         const { srcColorMap, srcAlphaMap, width, height, dstPosition } = region;
 
         const colorImage = srcColorMap.image;
-        const alphaImage = srcAlphaMap?.image;
-        // if (alphaImage || this._stencilContext) {
-        //   const blendedImageData = await this.blendAlphaAndStencil(colorImage, alphaImage, dstPosition.x, dstPosition.y);
-        //
-        //   this._context.putImageData(blendedImageData, dstPosition.x, dstPosition.y);
-        //
-        // } else {
+        if (srcAlphaMap || this._stencilData) {
+          const blendedImageData = await this.blendAlphaAndStencil(srcColorMap, srcAlphaMap, dstPosition.x, dstPosition.y);
+          if (blendedImageData) {
+            this._context.putImageData(blendedImageData, dstPosition.x, dstPosition.y);
+          }
 
+        } else {
           if (srcColorMap instanceof DataTexture) {
-            const data = colorImage.data instanceof Uint8ClampedArray ? colorImage.data : new Uint8ClampedArray(colorImage.data.buffer);
-            const imageData = new ImageData(data, colorImage.width, colorImage.height);
+            const imageData = this.dataTextureToImageData(colorImage);
             this._context.putImageData(imageData, dstPosition.x, dstPosition.y);
 
           } else {
-            console.log('draw sub image');
             this._context.drawImage(colorImage, 0, 0, width, height, dstPosition.x, dstPosition.y, width, height)  ;
           }
-        // }
+        }
       }
     }
 
@@ -292,16 +287,15 @@ export class WebXWindowCanvas {
 
         // Check for already converted image data
         if (this._stencilMap instanceof DataTexture) {
-          const data = stencilImage.data instanceof Uint8ClampedArray ? stencilImage.data : new Uint8ClampedArray(stencilImage.data.buffer);
-          this._stencilData = new ImageData(data, width, height);
+          this._stencilData = this.dataTextureToImageData(stencilImage);
 
         } else {
           // Create canvas and context for stencil Image
-          this._stencilCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
-          this._stencilCanvas.width = width;
-          this._stencilCanvas.height = height;
+          const stencilCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
+          stencilCanvas.width = width;
+          stencilCanvas.height = height;
 
-          const stencilContext = this._stencilCanvas.getContext('2d', { willReadFrequently: true });
+          const stencilContext = stencilCanvas.getContext('2d', { willReadFrequently: true });
           stencilContext.drawImage(stencilImage, 0, 0);
           this._stencilData = stencilContext.getImageData(0, 0, width, height);
         }
@@ -310,7 +304,6 @@ export class WebXWindowCanvas {
     } else {
       if (this._stencilMap) {
         this._stencilMap = null;
-        this._stencilCanvas = null;
         this._stencilData = null;
       }
     }
@@ -319,47 +312,18 @@ export class WebXWindowCanvas {
   /**
    * Prepares temporary canvases to renderer the image data (jpeg format) into raw pixmaps. The pixmap data for the different
    * images is sent to the blender for processing.
-   * @param colorImage - The color image.
-   * @param alphaImage - The alpha image.
+   * @param colorMap - The color texture.
+   * @param alphaMap - The alpha texture.
    * @param dstX - The destination X position.
    * @param dstY - The destination Y position.
    * @returns A promise that resolves to the blended `ImageData`.
    */
-  private async blendAlphaAndStencil(colorImage: ImageBitmap, alphaImage: ImageBitmap, dstX: number, dstY: number): Promise<ImageData> {
-    if (!alphaImage && !this._stencilData) {
-      return;
-    }
+  private async blendAlphaAndStencil(colorMap: Texture, alphaMap: Texture, dstX: number, dstY: number): Promise<ImageData> {
+    const colorImageData = (colorMap instanceof DataTexture) ? this.dataTextureToImageData(colorMap.image) : this.getImageData(colorMap.image);
+    const alphaImageData = alphaMap == null ? null : (alphaMap instanceof  DataTexture) ? this.dataTextureToImageData(alphaMap.image) : this.getImageData(alphaMap.image);
+    const stencilImageData = this._stencilData == null ? null : this.getStencilDataRegion(dstX, dstY, colorImageData.width, colorImageData.height);
 
-    const width = colorImage.width;
-    const height = colorImage.height;
-
-    // Create temporary canvas and context for color Image
-    const colorCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
-    colorCanvas.width = width;
-    colorCanvas.height = height;
-
-    const colorContext = colorCanvas.getContext('2d');
-    colorContext.drawImage(colorImage, 0, 0);
-    const colorImageData = colorContext.getImageData(0, 0, width, height);
-
-    let alphaImageData = null;
-    if (alphaImage) {
-      // Create temporary canvas and context for alpha Image
-      const alphaCanvas = this.createElementNS('canvas') as HTMLCanvasElement;
-      alphaCanvas.width = width;
-      alphaCanvas.height = height;
-
-      const alphaContext = alphaCanvas.getContext('2d');
-      alphaContext.drawImage(alphaImage, 0, 0);
-      alphaImageData = alphaContext.getImageData(0, 0, width, height);
-    }
-
-    const startTime = performance.now();
-
-    const blendedImageData = await this._imageBlender.blendAlphaAndStencil(colorImageData, alphaImageData, this._stencilData);
-
-    const endTime = performance.now();
-    // console.log(`Time to blend alpha image = ${(endTime - startTime).toFixed((3))}ms for ${width * height} pixels`);
+    const blendedImageData = (alphaImageData || stencilImageData) ? await this._imageBlender.blendAlphaAndStencil(colorImageData, alphaImageData, stencilImageData) : colorImageData;
 
     return blendedImageData;
   }
@@ -371,5 +335,38 @@ export class WebXWindowCanvas {
    */
   private createElementNS(name: string): HTMLElement {
     return document.createElementNS('http://www.w3.org/1999/xhtml', name);
+  }
+
+  private getImageData(image: ImageBitmap | HTMLImageElement): ImageData {
+    // Create temporary canvas and context for Image
+    const canvas = this.createElementNS('canvas') as HTMLCanvasElement;
+    canvas.width = image.width;
+    canvas.height = image.height;
+
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 0);
+    return context.getImageData(0, 0, image.width, image.height);
+  }
+
+  private dataTextureToImageData(textureData: TextureImageData): ImageData {
+    // Ensure that the texture data is of a valid size
+    if (textureData.data.byteLength > 0) {
+      const data = textureData.data instanceof Uint8ClampedArray ? textureData.data : new Uint8ClampedArray(textureData.data.buffer);
+      return new ImageData(data, textureData.width, textureData.height);
+    }
+    return new ImageData(new Uint8ClampedArray(4), 1, 1);
+  }
+
+  private getStencilDataRegion(dstX: number, dstY: number, width: number, height: number): ImageData {
+    const src = this._stencilData.data;
+    const srcWidth = this._stencilData.width;
+    const dst = new Uint8ClampedArray(width * height * 4);
+
+    for (let row = 0; row < height; row++) {
+      const srcStart = ((dstY + row) * srcWidth + dstX) * 4;
+      const dstStart = row * width * 4;
+      dst.set(src.subarray(srcStart, srcStart + width * 4), dstStart);
+    }
+    return new ImageData(dst, width, height);
   }
 }
