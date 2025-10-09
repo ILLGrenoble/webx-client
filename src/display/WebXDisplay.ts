@@ -54,6 +54,8 @@ export class WebXDisplay {
 
   private _sceneDirty = false;
 
+  private _disableStencil = false;
+
   /**
    * Gets the WebGL renderer used for rendering the display.
    *
@@ -169,6 +171,7 @@ export class WebXDisplay {
     const url = new URL(window.location.href);
     const params = url.searchParams;
     const forceCanvas = params.get("webx-canvas") === 'true';
+    this._disableStencil = params.get("webx-stencil") === 'false';
 
     if (webglInfo.available && !webglInfo.isSoftware && !forceCanvas) {
       this._renderer = new THREE.WebGLRenderer();
@@ -346,7 +349,7 @@ export class WebXDisplay {
             z: index,
             width: window.width,
             height: window.height,
-            shaped: window.shaped,
+            shaped: window.shaped && !this._disableStencil,
           }, this._windowImageFactory);
 
           this.addWindow(webXWindow);
@@ -361,7 +364,7 @@ export class WebXDisplay {
 
         } else {
           // Update window
-          webXWindow.shaped = window.shaped;
+          webXWindow.shaped = window.shaped && !this._disableStencil;
           webXWindow.setRectangle(window.x, window.y, index, window.width, window.height);
         }
       });
@@ -442,6 +445,9 @@ export class WebXDisplay {
    * @param stencilMap The stencil texture.
    */
   updateShape(windowId: number, stencilMap: WebXTexture): void {
+    if (this._disableStencil) {
+      return;
+    }
     const window: WebXWindow = this.getWindow(windowId);
     if (window != null && stencilMap != null) {
       window.updateStencilTexture(toThreeTexture(stencilMap));
