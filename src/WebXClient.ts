@@ -21,7 +21,6 @@ import {
 } from './message';
 import {WebXCursorFactory} from './display/WebXCursorFactory';
 import {WebXDisplay} from './display';
-import {WebXTextureFactory} from './texture';
 import {WebXWindowImageFactory} from './display/WebXWindowImageFactory';
 import {WebXKeyboard, WebXMouse, WebXMouseState} from './input';
 import {
@@ -31,7 +30,6 @@ import {
   WebXMessageHandler,
   WebXStatsHandler
 } from './tracer';
-import {WebXBinarySerializer} from './transport';
 import {Blob} from "buffer";
 import {WebXEngine} from "./WebXEngine";
 import {WebXConnectionHandler} from "./WebXConnectionHandler";
@@ -56,7 +54,6 @@ export interface WebXClientConfig {
  */
 export class WebXClient {
 
-  private readonly _textureFactory: WebXTextureFactory;
   private readonly _windowImageFactory: WebXWindowImageFactory;
   private readonly _cursorFactory: WebXCursorFactory;
 
@@ -127,7 +124,6 @@ export class WebXClient {
    * @param _tunnel The WebXTunnel instance used for communication with the WebX Engine.
    */
   constructor(private _tunnel: WebXTunnel) {
-    this._textureFactory = new WebXTextureFactory();
     this._windowImageFactory = new WebXWindowImageFactory(this._tunnel);
     this._cursorFactory = new WebXCursorFactory(this._tunnel);
   }

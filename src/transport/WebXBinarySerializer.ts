@@ -82,7 +82,7 @@ export class WebXBinarySerializer {
         const transfers = [messageBuffer.buffer];
 
         this._worker.postMessage(
-          { id, buffer: messageBuffer.buffer },
+          { id, buffer: messageBuffer.buffer, convertToImageData: WebXMessage.convertToImageDataInWorker },
           transfers
         );
 

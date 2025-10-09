@@ -9,6 +9,7 @@ import {Blob} from "buffer";
 import {WebXDisplayOverlay} from "./WebXDisplayOverlay";
 import {WebXWindowImageFactory} from "./WebXWindowImageFactory";
 import {toThreeTexture, WebXTexture} from "../texture";
+import {WebXMessage} from "../message";
 
 type WebGLInfo = {
   available: boolean;
@@ -185,6 +186,7 @@ export class WebXDisplay {
         console.log(`Falling back to Canvas Renderer`);
       }
       this._renderer = new WebXCanvasRenderer();
+      WebXMessage.convertToImageDataInWorker = true;
     }
 
     this._renderer.setSize(screenWidth, screenHeight, false);

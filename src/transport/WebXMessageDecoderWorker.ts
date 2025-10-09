@@ -13,7 +13,7 @@ const messageDecoder = new WebXMessageDecoder();
  * function to pre-blend the color and alpha data. The raw image data is in all cases extracted from the images.
  */
 self.onmessage = async (e) => {
-  const { id, buffer } = e.data;
+  const { id, buffer, convertToImageData } = e.data;
 
   try {
     // Decode the message
@@ -22,7 +22,7 @@ self.onmessage = async (e) => {
     if (message == null) {
       console.error(`Failed to decode message data`);
 
-    } else {
+    } else if (convertToImageData) {
       // Perform any blending of alpha data in the worker and convert
       // any image objects into raw image data
       message = convertMessageImageToImageData(message);
