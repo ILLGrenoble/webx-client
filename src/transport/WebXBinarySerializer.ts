@@ -67,7 +67,8 @@ export class WebXBinarySerializer {
   }
 
   /**
-   * Deserializes a binary message buffer into a WebXMessage object.
+   * Deserializes a binary message buffer into a WebXMessage object. A web worker is used if available
+   * and the message should be decoded in a separate thread.
    *
    * @param messageBuffer The binary message buffer to deserialize.
    * @returns A promise that resolves to the deserialized WebXMessage.

@@ -111,12 +111,6 @@ export class WebXCursor {
   }
 
   /**
-   * Disposes the texture
-   */
-  public dispose(): void {
-  }
-
-  /**
    * Updates the mouse cursor, appearance, and texture.
    *
    * @param xHot The x-coordinate of the cursor's hotspot.

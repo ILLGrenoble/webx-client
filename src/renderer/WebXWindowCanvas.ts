@@ -337,8 +337,12 @@ export class WebXWindowCanvas {
     return document.createElementNS('http://www.w3.org/1999/xhtml', name);
   }
 
+  /**
+   * Generates ImageData from an image (ImageBitmap | HTMLImageElement) by creating a temporary canvas
+   * and drawing the image onto it. The raw image data is then read from the canvas.
+   * @param image the image to convert to ImageData
+   */
   private getImageData(image: ImageBitmap | HTMLImageElement): ImageData {
-    // Create temporary canvas and context for Image
     const canvas = this.createElementNS('canvas') as HTMLCanvasElement;
     canvas.width = image.width;
     canvas.height = image.height;
@@ -348,6 +352,10 @@ export class WebXWindowCanvas {
     return context.getImageData(0, 0, image.width, image.height);
   }
 
+  /**
+   * Converts raw image data from TextureImageData into an ImageData object. Ensures that the raw data is a Uin8ClampedArray
+   * @param textureData the raw image data from a TextureData
+   */
   private dataTextureToImageData(textureData: TextureImageData): ImageData {
     // Ensure that the texture data is of a valid size
     if (textureData.data.byteLength > 0) {
@@ -357,13 +365,20 @@ export class WebXWindowCanvas {
     return new ImageData(new Uint8ClampedArray(4), 1, 1);
   }
 
-  private getStencilDataRegion(dstX: number, dstY: number, width: number, height: number): ImageData {
+  /**
+   * Returns a region of the stencil data as a new ImageData object
+   * @param x the x position of the region
+   * @param y the y position of the region
+   * @param width the width of the region
+   * @param height the height of the region
+   */
+  private getStencilDataRegion(x: number, y: number, width: number, height: number): ImageData {
     const src = this._stencilData.data;
     const srcWidth = this._stencilData.width;
     const dst = new Uint8ClampedArray(width * height * 4);
 
     for (let row = 0; row < height; row++) {
-      const srcStart = ((dstY + row) * srcWidth + dstX) * 4;
+      const srcStart = ((y + row) * srcWidth + x) * 4;
       const dstStart = row * width * 4;
       dst.set(src.subarray(srcStart, srcStart + width * 4), dstStart);
     }

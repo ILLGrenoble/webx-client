@@ -16,6 +16,11 @@ import {
 } from '../message';
 import {WebXMessageBuffer} from "./WebXMessageBuffer";
 
+/**
+ * Recasts an object (received from a web workder) into a concrete WebXMessage class
+ * @param object the message data
+ * @returns a concrete WebXMessage instance
+ */
 export const recastWebXMessage = (object: any): WebXMessage => {
   let message: WebXMessage;
   if (object) {
@@ -53,8 +58,14 @@ export const recastWebXMessage = (object: any): WebXMessage => {
   return message;
 }
 
-export const isWorkerMessage = (message: WebXMessageBuffer): boolean => {
-  const messageType = message.messageTypeId;
+/**
+ * Returns all image types that should be processed in the web worker: essentially all with
+ * image data
+ * @param messageBuffer the raw message buffer
+ * @return true if the message should be decoded by a web worker
+ */
+export const isWorkerMessage = (messageBuffer: WebXMessageBuffer): boolean => {
+  const messageType = messageBuffer.messageTypeId;
   switch (messageType) {
     case WebXMessageType.IMAGE:
     case WebXMessageType.SUBIMAGES:
@@ -65,7 +76,12 @@ export const isWorkerMessage = (message: WebXMessageBuffer): boolean => {
   }
 }
 
-
+/**
+ * Returns all elements of the message that can be transferred from the web worker (releasing ownership and
+ * avoiding copying).
+ * @param message the webx message
+ * @return an array of transferable objects
+ */
 export const getMessageTransfers = (message: WebXMessage): Transferable[] => {
   const transfers: Transferable[] = [];
 

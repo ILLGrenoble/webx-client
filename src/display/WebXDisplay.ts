@@ -232,8 +232,6 @@ export class WebXDisplay {
       window.dispose();
     }
 
-    this._cursor.dispose();
-
     this._clearElements();
 
     this._renderer.dispose();

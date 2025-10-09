@@ -8,25 +8,27 @@ import {WebXTexture} from "../texture";
 const messageDecoder = new WebXMessageDecoder();
 
 /**
- * The entry point for the web worker. Receives messages with data for color, alpha and stencil data and calls the blending
- * function.
+ * The entry point for the web worker that decodes message buffers. Handles primarily messages with data for color, alpha and stencil data (ie
+ * WebXImageMessage, WebXSubImagesMessage, WebXShapeMessage) and calls the blending
+ * function to pre-blend the color and alpha data. The raw image data is in all cases extracted from the images.
  */
 self.onmessage = async (e) => {
   const { id, buffer } = e.data;
 
   try {
+    // Decode the message
     const messageBuffer = new WebXMessageBuffer(buffer);
-
-    // console.log(`Decoding message of type ${messageBuffer.messageTypeId}`);
     let message = await messageDecoder.decode(messageBuffer);
     if (message == null) {
       console.error(`Failed to decode message data`);
 
     } else {
-      // Perform any blending of alpha data in the worker
+      // Perform any blending of alpha data in the worker and convert
+      // any image objects into raw image data
       message = convertMessageImageToImageData(message);
     }
 
+    // Get any elements that can be transferred
     const transfers = getMessageTransfers(message);
 
     // @ts-ignore
@@ -37,6 +39,11 @@ self.onmessage = async (e) => {
   }
 };
 
+/**
+ * Converts any image elements of the decoded message into ImageData (drawing images to canvases). If
+ * both color and alpha data are available then the pixels are blended here.
+ * @param message the message with images to be converted
+ */
 const convertMessageImageToImageData = (message: WebXMessage): WebXMessage => {
   if (message instanceof WebXImageMessage) {
     const {windowId, depth, commandId, size} = message;
@@ -62,6 +69,12 @@ const convertMessageImageToImageData = (message: WebXMessage): WebXMessage => {
 }
 
 
+/**
+ * Takes color and alpha map textures and converts them into a raw image data texture. If both are present,
+ * the alpha and color are blended here.
+ * @param colorMap the color map with image object data
+ * @param alphaMap the alpha map with image object data
+ */
 const createDataTexture = (colorMap: WebXTexture, alphaMap?: WebXTexture): WebXTexture => {
   if (colorMap && alphaMap) {
     const width = colorMap.width;
