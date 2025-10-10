@@ -1,6 +1,8 @@
 import typescript from "rollup-plugin-typescript2";
 import webWorkerLoader from "rollup-plugin-web-worker-loader";
-import copy from 'rollup-plugin-copy';
+import terser from "@rollup/plugin-terser";
+
+const isProd = process.env.NODE_ENV === 'production';
 
 export default {
   input: "src/index.ts",
@@ -8,12 +10,12 @@ export default {
     {
       file: "dist/webx-client.esm.js",
       format: "esm",
-      sourcemap: true,
+      sourcemap: !isProd,
     },
     {
       file: "dist/webx-client.cjs",
       format: "cjs",
-      sourcemap: true
+      sourcemap: !isProd
     }
   ],
   external: ['three', '@tweenjs/tween.js'],
@@ -22,17 +24,13 @@ export default {
       inline: true,
       targetPlatform: "browser",
       extensions: [".ts", ".js"],
-      sourcemap: true,
+      sourcemap: !isProd,
     }),
     typescript({
       useTsconfigDeclarationDir: true,
-      sourceMap: true,
-      inlineSource: true,
+      sourceMap: !isProd,
+      inlineSource: !isProd,
     }),
-    copy({
-      targets: [
-        { src: "src/input/GuacamoleKeyboard.js", dest: "dist" }
-      ]
-    })
+    ...(isProd ? [terser()] : [])
   ]
 };

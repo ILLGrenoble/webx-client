@@ -5,8 +5,8 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "build": "rollup -c",
-    "build:watch": "rollup -c --watch",
+    "build": "npm run clean && NODE_ENV=production rollup -c",
+    "build:watch": "npm run clean && NODE_ENV=development rollup -c --watch",
     "clean": "rm -rf dist"
   },
   "keywords": [
@@ -28,6 +28,7 @@
     "README.md"
   ],
   "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
     "@types/three": "^0.174.0",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",

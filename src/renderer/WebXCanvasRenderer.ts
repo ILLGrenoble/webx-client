@@ -1,7 +1,6 @@
 import {Camera, Color, ColorRepresentation, Mesh, Object3D, Texture, Vector2} from 'three';
 import {WebXWindowCanvas} from './WebXWindowCanvas';
 import {WebXImageBlender} from './WebXImageBlender';
-import {Blob} from "buffer";
 
 /**
  * The `WebXCanvasRenderer` class is responsible for rendering a desktop-like environment

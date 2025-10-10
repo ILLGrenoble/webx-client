@@ -1,4 +1,4 @@
-const Guacamole = require('./GuacamoleKeyboard');
+import Guacamole from './GuacamoleKeyboard';
 
 /**
  * Represents the keyboard input device in the WebX client.

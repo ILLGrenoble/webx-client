@@ -1548,4 +1548,4 @@ Guacamole.Keyboard.ModifierState.fromKeyboardEvent = function(e) {
 };
 
 
-module.exports = Guacamole;
+export default Guacamole;

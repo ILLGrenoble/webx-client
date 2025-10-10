@@ -5,7 +5,6 @@ import { WebXSubImage, WebXWindowProperties } from '../common';
 import { WebXCursor } from './WebXCursor';
 import { WebXCursorFactory } from './WebXCursorFactory';
 import {WebXCanvasRenderer} from '../renderer';
-import {Blob} from "buffer";
 import {WebXDisplayOverlay} from "./WebXDisplayOverlay";
 import {WebXWindowImageFactory} from "./WebXWindowImageFactory";
 import {toThreeTexture, WebXTexture} from "../texture";

@@ -7,3 +7,5 @@ declare namespace Guacamole {
     dispose(): void;
   }
 }
+
+export default Guacamole;

@@ -30,11 +30,9 @@ import {
   WebXMessageHandler,
   WebXStatsHandler
 } from './tracer';
-import {Blob} from "buffer";
 import {WebXEngine} from "./WebXEngine";
 import {WebXConnectionHandler} from "./WebXConnectionHandler";
 const {version} = require('../package.json');
-
 
 /**
  * Configuration options for the WebXClient.
