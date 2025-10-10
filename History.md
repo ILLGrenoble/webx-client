@@ -1,5 +1,10 @@
+1.12.1 10/10/2025
+=================
+ * improve the importing/bundling of js files. 
+ * minimise the production build and remove source maps from production build
+
 1.12.0 09/10/2025
-================
+=================
  * Use web-worker to decode image-related WebXMessages (running the texture factor functions, eg createImageBitmap in parallel to main thread)
  * When canvas renderer is in use the web-worker extracts the raw image data and automatically blends alpha and color data
  * Stencil data applied to color/alpha blend in another worker and in all cases data is put directly into the window canvas (rather than drawing an imagine in the main thread) 
