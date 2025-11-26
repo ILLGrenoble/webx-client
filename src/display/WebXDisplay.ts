@@ -175,8 +175,7 @@ export class WebXDisplay {
     this._camera.position.z = 1000;
     this._camera.lookAt(new Vector3(0, 0, 0));
 
-    const backgroundColor = new Color();
-    backgroundColor.setStyle(window.getComputedStyle(this._containerElement).backgroundColor, LinearSRGBColorSpace);
+    const backgroundColor = new Color().setStyle(window.getComputedStyle(this._containerElement).backgroundColor, LinearSRGBColorSpace);
 
     const webglInfo = this._detectWebGL2();
     const url = new URL(window.location.href);
