@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {OrthographicCamera, Vector3} from 'three';
+import {Color, LinearSRGBColorSpace, OrthographicCamera, Vector2, Vector3, WebGLRenderer} from 'three';
 import { WebXWindow } from './WebXWindow';
 import { WebXSubImage, WebXWindowProperties } from '../common';
 import { WebXCursor } from './WebXCursor';
@@ -9,6 +9,13 @@ import {WebXDisplayOverlay} from "./WebXDisplayOverlay";
 import {WebXWindowImageFactory} from "./WebXWindowImageFactory";
 import {toThreeTexture, WebXTexture} from "../texture";
 import {WebXMessage} from "../message";
+import {
+  WebXCRTFilterMaterial,
+  WebXFilter,
+  WebXFilterFactory,
+  WebXFilterMaterial,
+  WebXTestFilterMaterial
+} from "./filter";
 
 type WebGLInfo = {
   available: boolean;
@@ -29,7 +36,9 @@ export class WebXDisplay {
   private readonly _scene: THREE.Scene;
   private readonly _camera: THREE.OrthographicCamera;
   private readonly _renderer: THREE.WebGLRenderer | WebXCanvasRenderer;
+  private readonly _filter: WebXFilter;
   private readonly _screen: THREE.Object3D;
+  private readonly _isWebGL: boolean = true;
 
   private readonly _screenWidth: number;
   private readonly _screenHeight: number;
@@ -166,15 +175,22 @@ export class WebXDisplay {
     this._camera.position.z = 1000;
     this._camera.lookAt(new Vector3(0, 0, 0));
 
-    const webglInfo = this._detectWebGL2();
+    const backgroundColor = new Color();
+    backgroundColor.setStyle(window.getComputedStyle(this._containerElement).backgroundColor, LinearSRGBColorSpace);
 
+    const webglInfo = this._detectWebGL2();
     const url = new URL(window.location.href);
     const params = url.searchParams;
     const forceCanvas = params.get("webx-canvas") === 'true';
     this._disableStencil = params.get("webx-stencil") === 'false';
+    const filterName = params.get("webx-filter");
 
-    if (webglInfo.available && !webglInfo.isSoftware && !forceCanvas) {
+    this._isWebGL = webglInfo.available && !webglInfo.isSoftware && !forceCanvas;
+    if (this._isWebGL) {
       this._renderer = new THREE.WebGLRenderer();
+      if (filterName) {
+        this._filter = WebXFilterFactory.Build(this._renderer, screenWidth, screenHeight, filterName, {backgroundColor});
+      }
 
     } else {
       console.log(`WebGL2 Info: available = ${webglInfo.available}, isSoftware = ${webglInfo.isSoftware}, vendor = ${webglInfo.vendor}, renderer = ${webglInfo.renderer}`);
@@ -189,8 +205,6 @@ export class WebXDisplay {
     }
 
     this._renderer.setSize(screenWidth, screenHeight, false);
-
-    const backgroundColor = window.getComputedStyle(this._containerElement).backgroundColor;
     this._renderer.setClearColor(backgroundColor);
 
     this._render();
@@ -198,8 +212,6 @@ export class WebXDisplay {
 
     // initial size
     this.resize();
-
-    this._renderer.render(this._scene, this._camera);
   }
 
   /**
@@ -253,10 +265,7 @@ export class WebXDisplay {
 
       this._displayOverlay.update();
 
-      if (this._sceneDirty) {
-        this._sceneDirty = false;
-        this.render();
-      }
+      this.render();
     }
   }
 
@@ -264,7 +273,13 @@ export class WebXDisplay {
    * Renders the display by updating the WebGL context.
    */
   render(): void {
-    this._renderer.render(this._scene, this._camera);
+    if (this._filter) {
+      this._filter.render(this._scene, this._camera, this._sceneDirty);
+
+    } else if (this._sceneDirty) {
+      this._renderer.render(this._scene, this._camera);
+    }
+    this._sceneDirty = false;
   }
 
   /**
