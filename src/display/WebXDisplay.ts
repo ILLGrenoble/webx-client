@@ -9,13 +9,9 @@ import {WebXDisplayOverlay} from "./WebXDisplayOverlay";
 import {WebXWindowImageFactory} from "./WebXWindowImageFactory";
 import {toThreeTexture, WebXTexture} from "../texture";
 import {WebXMessage} from "../message";
-import {
-  WebXCRTFilterMaterial,
-  WebXFilter,
-  WebXFilterFactory,
-  WebXFilterMaterial,
-  WebXTestFilterMaterial
-} from "./filter";
+import {WebXFilter, WebXFilterFactory} from "./filter";
+import {WebXDisplayOptions} from "./WebXDisplayOptions";
+import {WebXColorGenerator} from "../utils";
 
 type WebGLInfo = {
   available: boolean;
@@ -42,6 +38,7 @@ export class WebXDisplay {
 
   private readonly _screenWidth: number;
   private readonly _screenHeight: number;
+  private readonly _options: WebXDisplayOptions;
 
   private readonly _windowImageFactory: WebXWindowImageFactory;
 
@@ -152,12 +149,15 @@ export class WebXDisplay {
    * @param screenHeight The height of the screen.
    * @param windowImageFactory The factory used for obtaining window images.
    * @param cursorFactory The cursor factory used for managing cursors.
+   * @param options The display options
    */
-  constructor(containerElement: HTMLElement, screenWidth: number, screenHeight: number, windowImageFactory: WebXWindowImageFactory, cursorFactory: WebXCursorFactory) {
+  constructor(containerElement: HTMLElement, screenWidth: number, screenHeight: number, windowImageFactory: WebXWindowImageFactory, cursorFactory: WebXCursorFactory, options?: WebXDisplayOptions) {
     this._containerElement = containerElement;
     this._screenWidth = screenWidth;
     this._screenHeight = screenHeight;
     this._windowImageFactory = windowImageFactory;
+    this._options = options || {};
+
     this._cursor = new WebXCursor(cursorFactory);
     this._displayOverlay = new WebXDisplayOverlay(this._cursor);
 
@@ -175,20 +175,25 @@ export class WebXDisplay {
     this._camera.position.z = 1000;
     this._camera.lookAt(new Vector3(0, 0, 0));
 
-    const backgroundColor = new Color().setStyle(window.getComputedStyle(this._containerElement).backgroundColor, LinearSRGBColorSpace);
+    const backgroundColor = this._options.backgroundColor || window.getComputedStyle(this._containerElement).backgroundColor;
 
     const webglInfo = this._detectWebGL2();
     const url = new URL(window.location.href);
     const params = url.searchParams;
-    const forceCanvas = params.get("webx-canvas") === 'true';
-    this._disableStencil = params.get("webx-stencil") === 'false';
-    const filterName = params.get("webx-filter");
+    const forceCanvas = params.get("webx-canvas") === 'true' || this._options.forceCanvas;
+    this._disableStencil = params.get("webx-stencil") === 'false' || this._options.disableStencil;
 
     this._isWebGL = webglInfo.available && !webglInfo.isSoftware && !forceCanvas;
     if (this._isWebGL) {
       this._renderer = new THREE.WebGLRenderer();
+
+      const filterNameFromOptions = this._options.filter ? typeof this._options.filter === 'string' ? this._options.filter : this._options.filter.name : null;
+      const filterName = params.get("webx-filter") ? params.get("webx-filter") : filterNameFromOptions;
+
       if (filterName) {
-        this._filter = WebXFilterFactory.Build(this._renderer, screenWidth, screenHeight, filterName, {backgroundColor});
+        const filterOptions = this._options.filter ? typeof this._options.filter === 'string' ? {} : this._options.filter.params: {};
+        const filterParams = {backgroundColor, ...filterOptions}
+        this._filter = WebXFilterFactory.Build(this._renderer, screenWidth, screenHeight, filterName, filterParams);
       }
 
     } else {
@@ -204,7 +209,7 @@ export class WebXDisplay {
     }
 
     this._renderer.setSize(screenWidth, screenHeight, false);
-    this._renderer.setClearColor(backgroundColor);
+    this._renderer.setClearColor(WebXColorGenerator.toColor(backgroundColor, LinearSRGBColorSpace));
 
     this._render();
     this._bindListeners();

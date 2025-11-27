@@ -32,6 +32,7 @@ import {
 } from './tracer';
 import {WebXEngine} from "./WebXEngine";
 import {WebXConnectionHandler} from "./WebXConnectionHandler";
+import {WebXOptions} from "./WebXOptions";
 const {version} = require('../package.json');
 
 /**
@@ -120,8 +121,9 @@ export class WebXClient {
    * Creates a new instance of the WebXClient.
    *
    * @param _tunnel The WebXTunnel instance used for communication with the WebX Engine.
+   * @param _options The WebXOptions to set, for example, display properties
    */
-  constructor(private _tunnel: WebXTunnel) {
+  constructor(private _tunnel: WebXTunnel, private _options?: WebXOptions) {
     this._windowImageFactory = new WebXWindowImageFactory(this._tunnel);
     this._cursorFactory = new WebXCursorFactory(this._tunnel);
   }
@@ -214,7 +216,7 @@ export class WebXClient {
    * @returns The created WebXDisplay instance.
    */
   createDisplay(containerElement: HTMLElement, screenWidth: number, screenHeight: number): WebXDisplay {
-    return new WebXDisplay(containerElement, screenWidth, screenHeight, this._windowImageFactory, this._cursorFactory);
+    return new WebXDisplay(containerElement, screenWidth, screenHeight, this._windowImageFactory, this._cursorFactory, this._options?.display);
   }
 
   /**

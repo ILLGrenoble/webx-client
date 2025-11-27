@@ -7,4 +7,5 @@ export * from './texture';
 export * from './tracer';
 export * from './tunnel';
 export * from './WebXClient';
+export * from './WebXOptions';
 export * from './WebXConnectionHandler';

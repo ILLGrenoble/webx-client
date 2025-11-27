@@ -1,7 +1,8 @@
 // Credits: https://v0.app/chat/crt-shader-for-three-js-dpUxSwX7hJs
 
 import {WebXFilterMaterial} from "./WebXFilterMaterial";
-import {Color, Texture} from "three";
+import {Texture} from "three";
+import {WebXColorGenerator} from "../../utils";
 
 const vertexShader = `
 varying vec2 vUv;
@@ -88,6 +89,7 @@ void main() {
 `;
 
 const toUniforms = (params?: any): any => {
+  params = params || {};
   const parameters = {
     time: 0.0,
     tDiffuse: null,
@@ -95,16 +97,22 @@ const toUniforms = (params?: any): any => {
     scanlineIntensity: 0.2,
     scanlineCount: 800,
     vignetteIntensity: 1.3, //1.3,
-    noiseIntensity: 0.03, // 0.05
+    noiseIntensity: 0.05, // 0.05
     flickerIntensity: 0.05, // 0.03
     rgbOffset: 0.0008, // 0.002
     brightness: 1.3, // 1.1
     contrast: 1.05,
-    backgroundColor: new Color('#ffffff'),
+    backgroundColor: '#ffffff',
     ...params || {}
   }
   return Object.fromEntries(
-    Object.entries(parameters).map(([k, v]) => [k, { value: v }])
+    Object.entries(parameters).map(([k, v]) => {
+      let value = params[k] == null ? v : params[k];
+      if (k === 'backgroundColor') {
+        value = WebXColorGenerator.toColor(value);
+      }
+      return [k, { value }];
+    })
   );
 }
 

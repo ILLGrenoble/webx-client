@@ -12,9 +12,9 @@ export class WebXFilterFactory {
   private static _createFilterMaterial(name: string, params: any) {
     if (name === 'test') {
       return new WebXTestFilterMaterial();
+
     } else if (name === 'crt') {
-      const backgroundColor = params.backgroundColor;
-      return new WebXCRTFilterMaterial({backgroundColor})
+      return new WebXCRTFilterMaterial(params)
     }
 
     console.log(`Unknown filter ${name}`);
