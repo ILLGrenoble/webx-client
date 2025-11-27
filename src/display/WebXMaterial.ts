@@ -1,7 +1,5 @@
 import {BackSide, Color, Matrix3, ShaderMaterial, Texture} from 'three';
 
-
-
 const vertexShader = `
 #ifdef USE_MAP
 uniform mat3 mapTransform;
@@ -77,28 +75,56 @@ void main() {
 }
 `;
 
+/**
+ * WebXMaterial
+ *
+ * A custom ShaderMaterial that supports an optional diffuse map, alpha map, and stencil
+ * texture. It exposes convenience getters/setters for these textures and synchronizes
+ * texture transforms (matrix) with the shader uniforms before rendering.
+ */
 export class WebXMaterial extends ShaderMaterial {
 
+  /**
+   * Diffuse texture (RGB) used to modulate the material color.
+   */
   get map(): Texture {
     return this.uniforms.map.value;
   }
 
+  /**
+   * Set the diffuse texture. Assigning a texture updates the `map` uniform value.
+   */
   set map(value: Texture) {
     this.uniforms.map.value = value;
   }
 
+  /**
+   * Alpha texture used to control per-pixel opacity (uses the `g` channel).
+   */
   get alphaMap(): Texture {
     return this.uniforms.alphaMap.value;
   }
 
+  /**
+   * Set the alpha texture. Assigning a texture updates the `alphaMap` uniform value.
+   */
   set alphaMap(value: Texture) {
     this.uniforms.alphaMap.value = value;
   }
 
+  /**
+   * Stencil texture used to discard fragments where stencil.r < 0.5.
+   */
   get stencilMap(): Texture {
     return this.uniforms.stencilMap.value;
   }
 
+  /**
+   * Set the stencil texture. Toggles the `USE_STENCILMAP` shader define when a texture
+   * is present or removed.
+   *
+   * @param value - Texture to use as stencil or `null` to disable stencil testing.
+   */
   set stencilMap(value: Texture) {
     this.uniforms.stencilMap.value = value;
     if (value) {
@@ -108,14 +134,36 @@ export class WebXMaterial extends ShaderMaterial {
     }
   }
 
+  /**
+   * Material base color (multiplicative with `map` if present).
+   */
   get color(): Color {
     return this.uniforms.diffuse.value;
   }
 
+  /**
+   * Set the material color by copying the provided `Color`.
+   *
+   * @param value - New base color.
+   */
   set color(value: Color) {
     this.uniforms.diffuse.value.copy(value);
   }
 
+  /**
+   * Create a new WebXMaterial.
+   *
+   * Options in `params`:
+   * - `color` (Color | number | string): Optional initial color; forwarded to `this.color.set`.
+   *
+   * The material is configured with:
+   * - custom vertex and fragment shaders
+   * - uniforms for textures and transforms
+   * - `transparent: true` to allow alpha blending
+   * - `side: BackSide` suitable for inside-out rendering surfaces
+   *
+   * @param params - Optional initialization parameters.
+   */
   constructor(params?: any) {
     super({
       uniforms: {
@@ -139,6 +187,12 @@ export class WebXMaterial extends ShaderMaterial {
     }
   }
 
+  /**
+   * Lifecycle hook called before rendering the material.
+   *
+   * Synchronizes texture matrices to the shader uniforms when the textures' `matrixAutoUpdate`
+   * flags are enabled. This allows UV transforms applied to `Texture`s to be used by the shader.
+   */
   onBeforeRender(): void {
     if (this.map && this.map.matrixAutoUpdate) {
       this.map.updateMatrix();

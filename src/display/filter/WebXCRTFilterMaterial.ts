@@ -1,5 +1,3 @@
-// Credits: https://v0.app/chat/crt-shader-for-three-js-dpUxSwX7hJs
-
 import {WebXFilterMaterial} from "./WebXFilterMaterial";
 import {Texture} from "three";
 import {WebXColorGenerator} from "../../utils";
@@ -84,10 +82,16 @@ void main() {
   color += vec3(glow * 0.3, glow * 0.2, glow * 0.4);
 
   gl_FragColor = vec4(color, 1.0);
-  gl_FragColor = linearToOutputTexel( gl_FragColor );
+  gl_FragColor = linearToOutputTexel(gl_FragColor);
 }
 `;
 
+/**
+ * Convert a params object into Three.js shader uniform descriptors.
+ *
+ * @param params - Optional overrides for default uniform values.
+ * @returns An object mapping uniform names to `{ value: ... }` descriptors.
+ */
 const toUniforms = (params?: any): any => {
   params = params || {};
   const parameters = {
@@ -102,9 +106,9 @@ const toUniforms = (params?: any): any => {
     rgbOffset: 0.0008, // 0.002
     brightness: 1.3, // 1.1
     contrast: 1.05,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#000000',
     ...params || {}
-  }
+  };
   return Object.fromEntries(
     Object.entries(parameters).map(([k, v]) => {
       let value = params[k] == null ? v : params[k];
@@ -116,13 +120,35 @@ const toUniforms = (params?: any): any => {
   );
 }
 
+/**
+ * WebXCRTFilterMaterial
+ *
+ * Shader-based post-process material emulating CRT/tube display effects:
+ * curvature, scanlines, vignette, noise/flicker, chromatic aberration,
+ * brightness/contrast adjustment and phosphor glow. Extends `WebXFilterMaterial`
+ * and exposes a `tDiffuse` setter plus an `update()` method for time-based animation.
+ */
 export class WebXCRTFilterMaterial extends WebXFilterMaterial {
+  /**
+   * Start time used to drive `time` uniform (in seconds).
+   * @private
+   */
   private _startTime = new Date().getTime() / 1000;
 
+  /**
+   * Set the source texture for the filter (`tDiffuse` uniform).
+   *
+   * @param value - Three.js `Texture` containing the scene to be filtered.
+   */
   set tDiffuse(value: Texture) {
     this.uniforms.tDiffuse.value = value;
   }
 
+  /**
+   * Construct a new CRT filter material.
+   *
+   * @param params - Optional parameter overrides for the filter uniforms.
+   */
   constructor(params?: any) {
     super({
       uniforms: toUniforms(params),
@@ -133,6 +159,12 @@ export class WebXCRTFilterMaterial extends WebXFilterMaterial {
     });
   }
 
+  /**
+   * Update per-frame state for the material.
+   *
+   * Updates the `time` uniform based on the elapsed time since construction.
+   * Called by the owning `WebXFilter` before rendering the filter pass.
+   */
   public update(): void {
     const current = new Date().getTime() / 1000;
     this.uniforms.time.value = (current - this._startTime) * 0.3;
