@@ -71,7 +71,6 @@ void main() {
 #endif
 
   gl_FragColor = diffuseColor;
-  gl_FragColor = linearToOutputTexel( gl_FragColor );
 }
 `;
 

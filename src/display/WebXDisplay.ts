@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {Color, LinearSRGBColorSpace, OrthographicCamera, Vector2, Vector3, WebGLRenderer} from 'three';
+import {Color, ColorManagement, OrthographicCamera, Vector3} from 'three';
 import { WebXWindow } from './WebXWindow';
 import { WebXSubImage, WebXWindowProperties } from '../common';
 import { WebXCursor } from './WebXCursor';
@@ -11,7 +11,6 @@ import {toThreeTexture, WebXTexture} from "../texture";
 import {WebXMessage} from "../message";
 import {WebXFilter, WebXFilterFactory} from "./filter";
 import {WebXDisplayOptions} from "./WebXDisplayOptions";
-import {WebXColorGenerator} from "../utils";
 
 type WebGLInfo = {
   available: boolean;
@@ -152,6 +151,8 @@ export class WebXDisplay {
    * @param options The display options
    */
   constructor(containerElement: HTMLElement, screenWidth: number, screenHeight: number, windowImageFactory: WebXWindowImageFactory, cursorFactory: WebXCursorFactory, options?: WebXDisplayOptions) {
+    ColorManagement.enabled = false;
+
     this._containerElement = containerElement;
     this._screenWidth = screenWidth;
     this._screenHeight = screenHeight;
@@ -209,7 +210,7 @@ export class WebXDisplay {
     }
 
     this._renderer.setSize(screenWidth, screenHeight, false);
-    this._renderer.setClearColor(WebXColorGenerator.toColor(backgroundColor, LinearSRGBColorSpace));
+    this._renderer.setClearColor(new Color(backgroundColor));
 
     this._render();
     this._bindListeners();

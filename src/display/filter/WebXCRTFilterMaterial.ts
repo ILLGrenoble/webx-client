@@ -1,6 +1,5 @@
 import {WebXFilterMaterial} from "./WebXFilterMaterial";
-import {Texture} from "three";
-import {WebXColorGenerator} from "../../utils";
+import {Color, Texture} from "three";
 
 const vertexShader = `
 varying vec2 vUv;
@@ -82,7 +81,6 @@ void main() {
   color += vec3(glow * 0.3, glow * 0.2, glow * 0.4);
 
   gl_FragColor = vec4(color, 1.0);
-  gl_FragColor = linearToOutputTexel(gl_FragColor);
 }
 `;
 
@@ -98,13 +96,13 @@ const toUniforms = (params?: any): any => {
     time: 0.0,
     tDiffuse: null,
     curvature: 10.0, // 2.0,
-    scanlineIntensity: 0.2,
-    scanlineCount: 800,
-    vignetteIntensity: 1.3, //1.3,
-    noiseIntensity: 0.05, // 0.05
-    flickerIntensity: 0.05, // 0.03
+    scanlineIntensity: 0.2, // 0.2
+    scanlineCount: 800, // 800
+    vignetteIntensity: 0.7, //1.3,
+    noiseIntensity: 0.08, // 0.05
+    flickerIntensity: 0.03, // 0.03
     rgbOffset: 0.0008, // 0.002
-    brightness: 1.3, // 1.1
+    brightness: 1.1, // 1.1
     contrast: 1.05,
     backgroundColor: '#000000',
     ...params || {}
@@ -113,7 +111,7 @@ const toUniforms = (params?: any): any => {
     Object.entries(parameters).map(([k, v]) => {
       let value = params[k] == null ? v : params[k];
       if (k === 'backgroundColor') {
-        value = WebXColorGenerator.toColor(value);
+        value = new Color(value);
       }
       return [k, { value }];
     })

@@ -15,7 +15,7 @@ import {
   WebXShapeMessage,
 } from '../message';
 import { WebXSubImage, WebXWindowProperties } from '../common';
-import {LinearSRGBColorSpace, SRGBColorSpace, WebXTextureFactory} from '../texture';
+import {WebXTextureFactory} from '../texture';
 import { WebXMessageBuffer } from './WebXMessageBuffer';
 import {WebXVersion} from "../utils";
 import {WebXEngine} from "../WebXEngine";
@@ -132,8 +132,8 @@ export class WebXMessageDecoder {
       const colorData: Uint8Array = buffer.getUint8Array(colorDataSize);
       const alphaData: Uint8Array = buffer.getUint8Array(alphaDataSize);
 
-      const colorMapPromise = this._textureFactory.createTextureFromArray(colorData, mimetype, SRGBColorSpace);
-      const alphaMapPromise = this._textureFactory.createTextureFromArray(alphaData, mimetype, LinearSRGBColorSpace);
+      const colorMapPromise = this._textureFactory.createTextureFromArray(colorData, mimetype);
+      const alphaMapPromise = this._textureFactory.createTextureFromArray(alphaData, mimetype);
 
       Promise.all([colorMapPromise, alphaMapPromise])
         .then(([colorMap, alphaMap]) => {
@@ -168,8 +168,8 @@ export class WebXMessageDecoder {
         const alphaData: Uint8Array = buffer.getUint8Array(alphaDataSize);
 
         const imagePromise = new Promise<WebXSubImage>((innerResolve, innerReject) => {
-          const colorMapPromise = this._textureFactory.createTextureFromArray(colorData, mimetype, SRGBColorSpace);
-          const alphaMapPromise = this._textureFactory.createTextureFromArray(alphaData, mimetype, LinearSRGBColorSpace);
+          const colorMapPromise = this._textureFactory.createTextureFromArray(colorData, mimetype);
+          const alphaMapPromise = this._textureFactory.createTextureFromArray(alphaData, mimetype);
 
           Promise.all([colorMapPromise, alphaMapPromise])
             .then(([colorMap, alphaMap]) => {
@@ -250,7 +250,7 @@ export class WebXMessageDecoder {
     const imageData: Uint8Array = buffer.getUint8Array(imageDataSize);
 
     try {
-      const texture = await this._textureFactory.createTextureFromArray(imageData, 'image/png', SRGBColorSpace);
+      const texture = await this._textureFactory.createTextureFromArray(imageData, 'image/png');
       return new WebXCursorImageMessage(x, y, xHot, yHot, cursorId, texture, commandId);
 
     } catch (error) {
@@ -338,7 +338,7 @@ export class WebXMessageDecoder {
       const stencilDataSize = buffer.getUint32();
       const stencilData: Uint8Array = buffer.getUint8Array(stencilDataSize);
 
-      this._textureFactory.createTextureFromArray(stencilData, mimetype, LinearSRGBColorSpace).then(stencilMap => {
+      this._textureFactory.createTextureFromArray(stencilData, mimetype).then(stencilMap => {
         resolve(new WebXShapeMessage(windowId, stencilMap, commandId, buffer.bufferLength))
       })
     });

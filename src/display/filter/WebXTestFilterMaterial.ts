@@ -17,11 +17,10 @@ uniform sampler2D tDiffuse;
 
 void main() {
   vec4 color = texture2D(tDiffuse, vUv);
-  color.r = color.r * time + (1.0 - time) * color.g;
-  color.g = color.g * time + (1.0 - time) * color.b;
-  color.b = color.b * time + (1.0 - time) * color.r;
+  color.r = (1.0 - time) * color.r + time * color.g;
+  color.g = (1.0 - time) * color.g + time * color.b;
+  color.b = (1.0 - time) * color.b + time * color.r;
   gl_FragColor = color;
-  gl_FragColor = linearToOutputTexel(gl_FragColor);
 }
 `;
 
@@ -63,7 +62,7 @@ export class WebXTestFilterMaterial extends WebXFilterMaterial {
     super({
       uniforms: {
         tDiffuse: { value: params?.map },
-        time: { value: 1.0 },
+        time: { value: 0.0 },
       },
       vertexShader,
       fragmentShader,
@@ -79,7 +78,7 @@ export class WebXTestFilterMaterial extends WebXFilterMaterial {
    * current time to produce a smooth oscillation.
    */
   public update(): void {
-    this.uniforms.time.value = 0.5 + 0.5 * Math.sin(Date.now() * 0.0015);
+    // this.uniforms.time.value = 0.5 + 0.5 * Math.sin(Date.now() * 0.0015);
   }
 
 }

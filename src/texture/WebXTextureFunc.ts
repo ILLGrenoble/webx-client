@@ -7,7 +7,6 @@ export const toThreeTexture = (texture: WebXTexture): THREE.Texture => {
     const threeTexture = texture.data ? new THREE.DataTexture(texture.data, texture.width, texture.height) : new THREE.Texture(texture.image);
     threeTexture.needsUpdate = true;
     threeTexture.flipY = texture.flipY;
-    threeTexture.colorSpace = texture.colorSpace;
     threeTexture.minFilter = LinearFilter;
 
     return threeTexture;

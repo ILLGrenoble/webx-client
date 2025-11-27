@@ -1,5 +1,3 @@
-import {Color, LinearSRGBColorSpace} from "three";
-
 /**
  * Utility class for generating colors.
  *
@@ -42,21 +40,5 @@ export class WebXColorGenerator {
   public static indexedColour(index: number): string {
     index = index % WebXColorGenerator._COLOURS.length;
     return WebXColorGenerator._COLOURS[index];
-  }
-
-  /**
-   * Converts a string ('#rrggbb' value) or number (hex 0xrrggbb) into a color object
-   * with a specified color space
-   * @param value the color representation
-   * @param colorSpace the color space
-   */
-  public static toColor(value: number | string, colorSpace?: string): Color {
-    colorSpace = colorSpace || LinearSRGBColorSpace;
-    if (typeof value === 'number') {
-      return new Color().setHex(value, colorSpace);
-
-    } else {
-      return new Color().setStyle(value, colorSpace);
-    }
   }
 }

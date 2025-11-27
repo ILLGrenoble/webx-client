@@ -12,17 +12,15 @@ export class WebXTextureFactory {
    *
    * @param imageData The raw image data as a Uint8Array.
    * @param mimetype The MIME type of the image data (e.g., "image/png").
-   * @param colorSpace The color space of the image data (e.g., "srgb").
    * @returns A promise that resolves to the created texture.
    */
-  public async createTextureFromArray(imageData: Uint8Array, mimetype: string, colorSpace: string): Promise<WebXTexture> {
+  public async createTextureFromArray(imageData: Uint8Array, mimetype: string): Promise<WebXTexture> {
     if (imageData != null && imageData.byteLength > 0) {
       const blob = new Blob([imageData], { type: mimetype });
       const texture = await this.createTextureFromBlob(blob);
 
 
       texture.flipY = false;
-      texture.colorSpace = colorSpace;
 
       return texture;
 
