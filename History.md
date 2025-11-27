@@ -1,3 +1,10 @@
+1.13.0 27/11/2025
+=================
+ * Remove three ColorManagement and colorSpace requirements (and all conversions between sRGB and sRGBLinear colours) 
+ * Update code documentation
+ * Add WebXOptions allowing configuration of display settings
+ * Add filter shaders allowing post-processing effects using a render texture. Added CRT filter
+
 1.12.1 10/10/2025
 =================
  * improve the importing/bundling of js files. 
