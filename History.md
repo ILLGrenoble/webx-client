@@ -1,3 +1,8 @@
+1.13.1 28/11/2025
+=================
+ * Allow for dynamically setting and removing the display filter. 
+ * Dispose correctly the filter and associated texture and material.
+
 1.13.0 27/11/2025
 =================
  * Remove three ColorManagement and colorSpace requirements (and all conversions between sRGB and sRGBLinear colours) 
