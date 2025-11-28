@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import {Camera, Scene} from "three";
 import {WebXFilterMaterial} from "./WebXFilterMaterial";
+import {ParametricGeometries} from "three/examples/jsm/geometries/ParametricGeometries";
+import plane = ParametricGeometries.plane;
 
 /**
  * WebXFilter
@@ -12,9 +14,14 @@ import {WebXFilterMaterial} from "./WebXFilterMaterial";
 export class WebXFilter {
 
   /**
+   * The name of the filter
+   */
+  private readonly _name: string;
+
+  /**
    * Renderer used for both offscreen and final compositing passes.
    */
-  private _renderer: THREE.WebGLRenderer;
+  private readonly _renderer: THREE.WebGLRenderer;
 
   /**
    * Scene containing the single mesh used to draw the filter pass.
@@ -35,18 +42,27 @@ export class WebXFilter {
   private readonly _rtTexture: THREE.WebGLRenderTarget = null;
 
   /**
+   * Returns the name of the filter
+   */
+  get name(): string {
+    return this._name;
+  }
+
+  /**
    * Create a new WebXFilter.
    *
    * When `filterMaterial` is provided:
    * - An offscreen `WebGLRenderTarget` is created with the given width/height.
    * - The filter material's `tDiffuse` is set to the render target's texture (the fully rendered scene of windows)
    *
+   * @param name - The name of the filter
    * @param renderer - WebGL renderer used to perform rendering.
    * @param screenWidth - Width to use for the offscreen render target and screen plane.
    * @param screenHeight - Height to use for the offscreen render target and screen plane.
    * @param filterMaterial - Optional filter material; when omitted the filter pass is disabled.
    */
-  constructor(renderer: THREE.WebGLRenderer, screenWidth: number, screenHeight: number, filterMaterial?: WebXFilterMaterial) {
+  constructor(name: string, renderer: THREE.WebGLRenderer, screenWidth: number, screenHeight: number, filterMaterial?: WebXFilterMaterial) {
+    this._name = name;
     this._renderer = renderer;
     this._filterMaterial = filterMaterial;
 
@@ -88,5 +104,13 @@ export class WebXFilter {
       this._filterMaterial.update();
       this._renderer.render(this._sceneScreen, camera);
     }
+  }
+
+  /**
+   * Disposes of WebGL elements
+   */
+  dispose() {
+    this._filterMaterial.dispose();
+    this._rtTexture.dispose();
   }
 }

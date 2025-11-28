@@ -31,7 +31,7 @@ export class WebXDisplay {
   private readonly _scene: THREE.Scene;
   private readonly _camera: THREE.OrthographicCamera;
   private readonly _renderer: THREE.WebGLRenderer | WebXCanvasRenderer;
-  private readonly _filter: WebXFilter;
+  private _filter: WebXFilter;
   private readonly _screen: THREE.Object3D;
   private readonly _isWebGL: boolean = true;
 
@@ -68,6 +68,26 @@ export class WebXDisplay {
    */
   public get renderer(): THREE.WebGLRenderer | WebXCanvasRenderer {
     return this._renderer;
+  }
+
+  /**
+   * Gets the active filter name if there is one
+   */
+  public get filter(): string {
+    return this._filter?.name;
+  }
+
+  public set filter(filter: string) {
+    if (this._filter) {
+      this._filter.dispose();
+    }
+    if (filter) {
+      this._filter = WebXFilterFactory.Build(this._renderer, this._screenWidth, this._screenHeight, filter, this._getFilterParams());
+    } else {
+      this._filter = null;
+    }
+    this._sceneDirty = true;
+    this._render();
   }
 
   /**
@@ -192,9 +212,7 @@ export class WebXDisplay {
       const filterName = params.get("webx-filter") ? params.get("webx-filter") : filterNameFromOptions;
 
       if (filterName) {
-        const filterOptions = this._options.filter ? typeof this._options.filter === 'string' ? {} : this._options.filter.params: {};
-        const filterParams = {backgroundColor, ...filterOptions}
-        this._filter = WebXFilterFactory.Build(this._renderer, screenWidth, screenHeight, filterName, filterParams);
+        this._filter = WebXFilterFactory.Build(this._renderer, screenWidth, screenHeight, filterName, this._getFilterParams());
       }
 
     } else {
@@ -251,6 +269,10 @@ export class WebXDisplay {
     }
 
     this._clearElements();
+
+    if (this._filter) {
+      this._filter.dispose();
+    }
 
     this._renderer.dispose();
 
@@ -617,5 +639,15 @@ export class WebXDisplay {
     const isSoftware = /swiftshader|llvmpipe|basic render|software/i.test(rendererStr);
 
     return { available: true, vendor: unmaskedVendor || vendor, renderer: unmaskedRenderer || renderer, isSoftware };
+  }
+
+  /**
+   * Returns an object with parameters for the filter
+   */
+  private _getFilterParams(): any {
+    const backgroundColor = this._options.backgroundColor || window.getComputedStyle(this._containerElement).backgroundColor;
+
+    const filterOptions = this._options.filter ? typeof this._options.filter === 'string' ? {} : this._options.filter.params: {};
+    return {backgroundColor, ...filterOptions}
   }
 }

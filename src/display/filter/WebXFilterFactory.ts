@@ -2,6 +2,7 @@ import {WebXFilter} from "./WebXFilter";
 import {WebXTestFilterMaterial} from "./WebXTestFilterMaterial";
 import {WebXCRTFilterMaterial} from "./WebXCRTFilterMaterial";
 import {WebGLRenderer} from "three";
+import {WebXCanvasRenderer} from "../../renderer";
 
 /**
  * WebXFilterFactory
@@ -16,15 +17,18 @@ export class WebXFilterFactory {
   /**
    * Build a `WebXFilter` configured with a named filter material.
    *
-   * @param renderer - Three.js WebGLRenderer used for rendering passes.
+   * @param renderer - Three.js WebGLRenderer or WebXCanvasRenderer used for rendering passes (filter is only applied for WebGLRenderer).
    * @param screenWidth - Width in pixels for the offscreen render target and screen plane.
    * @param screenHeight - Height in pixels for the offscreen render target and screen plane.
    * @param name - Name of the filter to create (e.g. `test`, `crt`).
    * @param params - Optional parameters forwarded to the chosen filter material constructor.
    * @returns A `WebXFilter` configured with the selected filter material, or a `WebXFilter` with no filter if the name is unknown.
    */
-  public static Build(renderer: WebGLRenderer, screenWidth: number, screenHeight: number, name: string, params: any): WebXFilter {
-    return new WebXFilter(renderer, screenWidth, screenHeight, WebXFilterFactory._createFilterMaterial(name, params));
+  public static Build(renderer: WebGLRenderer | WebXCanvasRenderer, screenWidth: number, screenHeight: number, name: string, params?: any): WebXFilter {
+    if (renderer instanceof WebXCanvasRenderer) {
+      return null;
+    }
+    return new WebXFilter(name, renderer, screenWidth, screenHeight, WebXFilterFactory._createFilterMaterial(name, params));
   }
 
   /**
@@ -34,7 +38,7 @@ export class WebXFilterFactory {
    * @param params - Optional parameters passed to the filter material constructor.
    * @returns An instance of the requested filter material, or `null` if the name is unknown.
    */
-  private static _createFilterMaterial(name: string, params: any) {
+  private static _createFilterMaterial(name: string, params?: any) {
     if (name === 'test') {
       return new WebXTestFilterMaterial();
 
