@@ -12,7 +12,7 @@ import {
   WebXPongInstruction,
   WebXDataAckInstruction,
   WebXClipboardInstruction,
-  WebXShapeInstruction,
+  WebXShapeInstruction, WebXScreenResizeInstruction,
 } from '../instruction';
 import {WebXInstructionBuffer} from "./WebXInstructionBuffer";
 
@@ -64,6 +64,9 @@ export class WebXInstructionEncoder {
 
     } else if (instruction.type === WebXInstructionType.SHAPE) {
       return this._createShapeInstruction(instruction as WebXShapeInstruction);
+
+    } else if (instruction.type === WebXInstructionType.SCREEN_RESIZE) {
+      return this._createScreenResizeInstruction(instruction as WebXScreenResizeInstruction);
     }
     return null;
   }
@@ -317,4 +320,26 @@ export class WebXInstructionEncoder {
       .buffer();
   }
 
+  /**
+   * Create a new shape instruction
+   * @param instruction the shape instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   *   Content: 4 bytes
+   *     width: 4 bytes
+   *     height: 4 bytes
+   */
+  private _createScreenResizeInstruction(instruction: WebXScreenResizeInstruction) {
+    const encoder = new WebXInstructionBuffer(instruction, 8);
+    return encoder
+      // write the contents
+      .putUInt32(instruction.width)
+      .putUInt32(instruction.height)
+      .buffer();
+  }
 }

@@ -5,7 +5,7 @@ import {
   WebXKeyboardInstruction,
   WebXMouseInstruction,
   WebXQualityInstruction,
-  WebXScreenInstruction,
+  WebXScreenInstruction, WebXScreenResizeInstruction,
   WebXWindowsInstruction,
 } from './instruction';
 import {
@@ -353,6 +353,29 @@ export class WebXClient {
    */
   async createScreenshot(type: string, quality: number): Promise<Blob> {
     return this.display.createScreenshot(type, quality);
+  }
+
+  /**
+   * Requests a change in the screen size. If successful a message will be sent
+   * asynchronously from the engine with the new screen size.
+   *
+   * @param width The requested width of the screen
+   * @param height The requested height of the screen
+   */
+  resizeScreen(width: number, height: number): void {
+    if (WebXEngine.version.versionNumber >= 1.5) {
+      const resizeInstruction = new WebXScreenResizeInstruction(width, height);
+      this._sendInstruction(resizeInstruction);
+    }
+  }
+
+  /**
+   * Returns true if the WebXEngine is capable of resizing the screen
+   *
+   * @returns True if screen resizing is available
+   */
+  canResizeScreen(): boolean {
+    return WebXEngine.version.versionNumber >= 1.5;
   }
 
   /**

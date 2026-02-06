@@ -13,3 +13,4 @@ export * from './WebXPongInstruction';
 export * from './WebXDataAckInstruction';
 export * from './WebXClipboardInstruction';
 export * from './WebXShapeInstruction';
+export * from './WebXScreenResizeInstruction';

@@ -64,6 +64,11 @@ export enum WebXInstructionType {
    * Instruction to request the window shape image (stencil image).
    */
   SHAPE = 12,
+
+  /**
+   * Instruction to request a screen resize
+   */
+  SCREEN_RESIZE = 13,
 }
 
 export namespace WebXInstructionType {
@@ -98,6 +103,8 @@ export namespace WebXInstructionType {
         return WebXInstructionType.CLIPBOARD;
       case 'SHAPE':
         return WebXInstructionType.SHAPE;
+      case 'SCREEN_RESIZE':
+        return WebXInstructionType.SCREEN_RESIZE;
     }
   }
 }
