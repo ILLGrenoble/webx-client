@@ -66,6 +66,7 @@ export class WebXClient {
   private _clipboardHandler = (clipboardContent: string) => {};
   private _connectionHandler = new WebXConnectionHandler();
   private _maxQualityIndex: number = 10;
+  private _canResizeScreen: boolean = false;
 
   /**
    * Gets the WebXTunnel instance used for communication with the WebX Engine.
@@ -171,9 +172,11 @@ export class WebXClient {
 
       // Request 1. : Get screen size
       const screenMessage = await this._getScreenMessage();
-      const { width, height } = screenMessage.screenSize;
-      this._maxQualityIndex = screenMessage.maxQualityIndex;
-      WebXEngine.version = screenMessage.engineVersion;
+      const { screenSize, maxQualityIndex, engineVersion, canResizeScreen } = screenMessage;
+      const { width, height } = screenSize;
+      this._maxQualityIndex = maxQualityIndex;
+      WebXEngine.version = engineVersion;
+      this._canResizeScreen = canResizeScreen;
 
       // Initialise the display
       this._display = this.createDisplay(containerElement, width, height);
@@ -363,7 +366,7 @@ export class WebXClient {
    * @param height The requested height of the screen
    */
   resizeScreen(width: number, height: number): void {
-    if (WebXEngine.version.versionNumber >= 1.5) {
+    if (WebXEngine.version.versionNumber >= 1.5 && this._canResizeScreen) {
       const resizeInstruction = new WebXScreenResizeInstruction(width, height);
       this._sendInstruction(resizeInstruction);
     }
@@ -375,7 +378,7 @@ export class WebXClient {
    * @returns True if screen resizing is available
    */
   canResizeScreen(): boolean {
-    return WebXEngine.version.versionNumber >= 1.5;
+    return WebXEngine.version.versionNumber >= 1.5 && this._canResizeScreen;
   }
 
   /**
@@ -496,6 +499,7 @@ export class WebXClient {
     } else if (message.type === WebXMessageType.SCREEN_RESIZE) {
       const screenResizeMessage = message as WebXScreenResizeMessage;
       const {width, height} = screenResizeMessage.screenSize;
+      // console.log(`ScreenSize: ${width}, height: ${height}`);
 
       if (this._display.screenWidth != width || this._display.screenHeight != height) {
         this._display.onScreenResized(width, height);

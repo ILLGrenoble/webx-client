@@ -26,17 +26,24 @@ export class WebXScreenMessage extends WebXMessage {
   public readonly engineVersion: WebXVersion;
 
   /**
+   * Whether the screen can be resized
+   */
+  public readonly canResizeScreen: boolean;
+
+  /**
    * Constructs a new WebXScreenMessage.
    *
+   * @param commandId The ID of the command associated with this message.
    * @param screenSize The size of the screen.
    * @param maxQualityIndex The maximum quality index for the display.
    * @param engineVersion The version of the WebX Engine.
-   * @param commandId The ID of the command associated with this message.
+   * @param canResizeScreen Whether the screen can be resized
    */
-  constructor(screenSize: { width: number; height: number }, maxQualityIndex:number, engineVersion: WebXVersion, commandId: number) {
+  constructor(commandId: number, screenSize: { width: number; height: number }, maxQualityIndex:number, engineVersion: WebXVersion, canResizeScreen: boolean) {
     super(WebXMessageType.SCREEN, commandId);
     this.screenSize = screenSize;
     this.maxQualityIndex = maxQualityIndex;
     this.engineVersion = engineVersion;
+    this.canResizeScreen = canResizeScreen;
   }
 }

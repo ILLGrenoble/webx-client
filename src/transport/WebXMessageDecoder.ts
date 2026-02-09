@@ -288,7 +288,13 @@ export class WebXMessageDecoder {
     }
     WebXEngine.version = new WebXVersion(majorVersion, minorVersion, patchVersion);
 
-    return new WebXScreenMessage({ width: screenWidth, height: screenHeight }, maxQualityIndex, new WebXVersion(majorVersion, minorVersion, patchVersion), commandId);
+    // Read the canResizeScreen value if the buffer contains it
+    let canResizeScreen: boolean = false;
+    if (buffer.bufferLength - buffer.readOffset >= 4) {
+      canResizeScreen = buffer.getUint32() > 0;
+    }
+
+    return new WebXScreenMessage(commandId, { width: screenWidth, height: screenHeight }, maxQualityIndex, new WebXVersion(majorVersion, minorVersion, patchVersion), canResizeScreen);
   }
 
   /**
