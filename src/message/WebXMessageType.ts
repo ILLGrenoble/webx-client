@@ -69,4 +69,9 @@ export enum WebXMessageType {
    * Message containing window shape information (stencil image).
    */
   SHAPE = 12,
+
+  /**
+   * Message containing window resize information.
+   */
+  SCREEN_RESIZE = 13,
 }

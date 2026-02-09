@@ -13,6 +13,7 @@ import {
   WebXConnectionMessage,
   WebXNopMessage,
   WebXShapeMessage,
+  WebXScreenResizeMessage,
 } from '../message';
 import { WebXSubImage, WebXWindowProperties } from '../common';
 import {WebXTextureFactory} from '../texture';
@@ -78,6 +79,9 @@ export class WebXMessageDecoder {
 
     } else if (messageTypeId === WebXMessageType.SHAPE) {
       return this._createShapeMessage(buffer);
+
+    } else if (messageTypeId === WebXMessageType.SCREEN_RESIZE) {
+      return this._createScreenResizeMessage(buffer);
     }
 
     console.error(`Failed to decode message with typeId ${messageTypeId}`);
@@ -342,6 +346,19 @@ export class WebXMessageDecoder {
         resolve(new WebXShapeMessage(windowId, stencilMap, commandId, buffer.bufferLength))
       })
     });
+  }
+
+
+  /**
+   * Decodes a buffer into a WebXScreenResizeMessage containing the new screen dimensions
+   *
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to a WebXScreenResizeMessage.
+   */
+  private async _createScreenResizeMessage(buffer: WebXMessageBuffer): Promise<WebXScreenResizeMessage> {
+    const width = buffer.getInt32();
+    const height = buffer.getInt32();
+    return new WebXScreenResizeMessage({width, height});
   }
 
 }

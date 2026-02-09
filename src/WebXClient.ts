@@ -14,7 +14,7 @@ import {
   WebXMessage,
   WebXMessageType,
   WebXMouseMessage,
-  WebXScreenMessage,
+  WebXScreenMessage, WebXScreenResizeMessage,
   WebXShapeMessage,
   WebXSubImagesMessage,
   WebXWindowsMessage,
@@ -448,7 +448,7 @@ export class WebXClient {
    *
    * @param message The received message.
    */
-  private _handleMessage(message: WebXMessage): void {
+  private async _handleMessage(message: WebXMessage): Promise<void> {
     if (message.type === WebXMessageType.CONNECTION) {
       const connectionMessage = message as WebXConnectionMessage;
 
@@ -492,6 +492,14 @@ export class WebXClient {
     } else if (message.type === WebXMessageType.CLIPBOARD) {
       const clipboardMessage = message as WebXClipboardMessage;
       this._clipboardHandler(clipboardMessage.clipboardContent);
+
+    } else if (message.type === WebXMessageType.SCREEN_RESIZE) {
+      const screenResizeMessage = message as WebXScreenResizeMessage;
+      const {width, height} = screenResizeMessage.screenSize;
+
+      if (this._display.screenWidth != width || this._display.screenHeight != height) {
+        this._display.onScreenResized(width, height);
+      }
     }
 
     this._tracers.forEach((value) => {

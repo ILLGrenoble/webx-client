@@ -35,8 +35,8 @@ export class WebXDisplay {
   private readonly _screen: THREE.Object3D;
   private readonly _isWebGL: boolean = true;
 
-  private readonly _screenWidth: number;
-  private readonly _screenHeight: number;
+  private _screenWidth: number;
+  private _screenHeight: number;
   private readonly _options: WebXDisplayOptions;
 
   private readonly _windowImageFactory: WebXWindowImageFactory;
@@ -253,6 +253,37 @@ export class WebXDisplay {
     this._scene.remove(this._screen);
     this._displayOverlay.visible = false;
     this._sceneDirty = true;
+  }
+
+  /**
+   * Resizes the display
+   * @param width
+   * @param height
+   */
+  onScreenResized(width: number, height: number): void {
+    if (this._screenWidth != width || this._screenHeight != height) {
+      // Resize display element
+      this._screenWidth = width;
+      this._screenHeight = height;
+      this._displayElement.style.width = `${width}px`;
+      this._displayElement.style.height = `${height}px`;
+
+      // Canvas
+      this._renderer.setSize(this._screenWidth, this._screenHeight, false);
+
+      // Camera
+      this._camera.right = this._screenWidth;
+      this._camera.bottom = this._screenHeight;
+      this._camera.updateProjectionMatrix();
+
+      // Filter
+      if (this.filter) {
+        this.filter = this._filter.name;
+      }
+
+      // Update scaling
+      this.resize();
+    }
   }
 
   /**

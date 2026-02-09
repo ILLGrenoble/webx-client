@@ -119,7 +119,7 @@ export abstract class WebXTunnel {
 
       } else {
         // Send async message
-        this.handleMessage(message);
+        await this.handleMessage(message);
       }
     }
   }
@@ -129,7 +129,7 @@ export abstract class WebXTunnel {
    *
    * @param message The received message.
    */
-  handleMessage(message: WebXMessage): void {
+  async handleMessage(message: WebXMessage): Promise<void> {
     throw new Error('Method not implemented.');
   }
 

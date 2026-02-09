@@ -12,3 +12,4 @@ export * from './WebXClipboardMessage';
 export * from './WebXConnectionMessage';
 export * from './WebXNopMessage';
 export * from './WebXShapeMessage';
+export * from './WebXScreenResizeMessage';
