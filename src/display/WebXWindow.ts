@@ -426,9 +426,10 @@ export class WebXWindow {
     const hasAlphaMapEnd = this.alphaMap != null;
 
     // Recompile the material if map usage changes
-    if (hasColorMapStart != hasColorMapEnd || hasAlphaMapStart != hasAlphaMapEnd) {
+    // if (hasColorMapStart != hasColorMapEnd || hasAlphaMapStart != hasAlphaMapEnd) {
+      // SC 09/02/26 Recompiling systematically because sometimes the background doesn't get rendered after a screen resize
       this._material.needsUpdate = true;
-    }
+    // }
 
     // Request a window update if it's not a full window
     if (!isFullWindow) {
