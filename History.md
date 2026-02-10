@@ -1,3 +1,11 @@
+1.14.0 10/02/2026
+=================
+ * Listen to keyboard layout messages from the server. Forward layout to custom layout handlers
+ * Get the current keyboard layout in the Screen message and add an instruction to set the keyboard layout on the fly
+ * Determine from the engine whether screen resizing is available or not
+ * Listen to ResizeScreen messages and resize the display accordingly 
+ * Add ScreenResize instruction, test for engine version, request resize if available
+
 1.13.1 28/11/2025
 =================
  * Allow for dynamically setting and removing the display filter. 
