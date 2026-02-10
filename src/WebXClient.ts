@@ -14,6 +14,7 @@ import {
   WebXClipboardMessage,
   WebXConnectionMessage,
   WebXImageMessage,
+  WebXKeyboardLayoutMessage,
   WebXMessage,
   WebXMessageType,
   WebXMouseMessage,
@@ -68,6 +69,7 @@ export class WebXClient {
   private _keyboard: WebXKeyboard;
 
   private _clipboardHandler = (clipboardContent: string) => {};
+  private _keyboardLayoutHandler = (keyboardLayoutName: string) => {};
   private _connectionHandler = new WebXConnectionHandler();
   private _maxQualityIndex: number = 10;
   private _canResizeScreen: boolean = false;
@@ -114,6 +116,14 @@ export class WebXClient {
    */
   set clipboardHandler(handler: (clipboardContent: string) => void) {
     this._clipboardHandler = handler;
+  }
+
+  /**
+   * Handles notification that the keyboard layout has been changed in the server.
+   * @param handler the handler when the keyboard layout changes in the server
+   */
+  set keyboardLayoutHandler(value: (keyboardLayoutName: string) => void) {
+    this._keyboardLayoutHandler = value;
   }
 
   /**
@@ -524,11 +534,15 @@ export class WebXClient {
     } else if (message.type === WebXMessageType.SCREEN_RESIZE) {
       const screenResizeMessage = message as WebXScreenResizeMessage;
       const {width, height} = screenResizeMessage.screenSize;
-      // console.log(`ScreenSize: ${width}, height: ${height}`);
 
       if (this._display.screenWidth != width || this._display.screenHeight != height) {
         this._display.onScreenResized(width, height);
       }
+
+    } else if (message.type === WebXMessageType.KEYBOARD_LAYOUT) {
+      const keyboardLayoutMessage = message as WebXKeyboardLayoutMessage;
+      this._keyboardLayoutName = keyboardLayoutMessage.keyboardLayoutName;
+      this._keyboardLayoutHandler(keyboardLayoutMessage.keyboardLayoutName);
     }
 
     this._tracers.forEach((value) => {

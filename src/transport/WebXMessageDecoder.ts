@@ -14,6 +14,7 @@ import {
   WebXNopMessage,
   WebXShapeMessage,
   WebXScreenResizeMessage,
+  WebXKeyboardLayoutMessage,
 } from '../message';
 import { WebXSubImage, WebXWindowProperties } from '../common';
 import {WebXTextureFactory} from '../texture';
@@ -82,6 +83,9 @@ export class WebXMessageDecoder {
 
     } else if (messageTypeId === WebXMessageType.SCREEN_RESIZE) {
       return this._createScreenResizeMessage(buffer);
+
+    } else if (messageTypeId === WebXMessageType.KEYBOARD_LAYOUT) {
+      return this._createKeyboardLayoutMessage(buffer);
     }
 
     console.error(`Failed to decode message with typeId ${messageTypeId}`);
@@ -361,7 +365,6 @@ export class WebXMessageDecoder {
     });
   }
 
-
   /**
    * Decodes a buffer into a WebXScreenResizeMessage containing the new screen dimensions
    *
@@ -372,6 +375,18 @@ export class WebXMessageDecoder {
     const width = buffer.getInt32();
     const height = buffer.getInt32();
     return new WebXScreenResizeMessage({width, height});
+  }
+
+  /**
+   * Decodes a buffer into a WebxKeyboardLayoutMessage, which contains updated keyboard layout name.
+   *
+   * @param buffer The binary message buffer to decode.
+   * @returns A promise that resolves to a WebxKeyboardLayoutMessage.
+   */
+  private async _createKeyboardLayoutMessage(buffer: WebXMessageBuffer): Promise<WebXKeyboardLayoutMessage> {
+    const keyboardLayoutNameSize: number = buffer.getUint32();
+    const keyboardLayoutName: string = buffer.getString(keyboardLayoutNameSize);
+    return new WebXKeyboardLayoutMessage(keyboardLayoutName);
   }
 
 }

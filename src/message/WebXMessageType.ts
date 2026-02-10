@@ -74,4 +74,9 @@ export enum WebXMessageType {
    * Message containing window resize information.
    */
   SCREEN_RESIZE = 13,
+
+  /**
+   * Message containing keyboard layout name
+   */
+  KEYBOARD_LAYOUT = 14,
 }
