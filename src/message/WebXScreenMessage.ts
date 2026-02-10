@@ -31,6 +31,11 @@ export class WebXScreenMessage extends WebXMessage {
   public readonly canResizeScreen: boolean;
 
   /**
+   * The name of the current keyboard layout
+   */
+  public readonly keyboardLayoutName: string;
+
+  /**
    * Constructs a new WebXScreenMessage.
    *
    * @param commandId The ID of the command associated with this message.
@@ -38,12 +43,14 @@ export class WebXScreenMessage extends WebXMessage {
    * @param maxQualityIndex The maximum quality index for the display.
    * @param engineVersion The version of the WebX Engine.
    * @param canResizeScreen Whether the screen can be resized
+   * @param keyboardLayoutName The name of the current keyboard layout
    */
-  constructor(commandId: number, screenSize: { width: number; height: number }, maxQualityIndex:number, engineVersion: WebXVersion, canResizeScreen: boolean) {
+  constructor(commandId: number, screenSize: { width: number; height: number }, maxQualityIndex:number, engineVersion: WebXVersion, canResizeScreen: boolean, keyboardLayoutName: string) {
     super(WebXMessageType.SCREEN, commandId);
     this.screenSize = screenSize;
     this.maxQualityIndex = maxQualityIndex;
     this.engineVersion = engineVersion;
     this.canResizeScreen = canResizeScreen;
+    this.keyboardLayoutName = keyboardLayoutName;
   }
 }

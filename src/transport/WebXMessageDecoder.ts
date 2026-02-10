@@ -294,7 +294,14 @@ export class WebXMessageDecoder {
       canResizeScreen = buffer.getUint32() > 0;
     }
 
-    return new WebXScreenMessage(commandId, { width: screenWidth, height: screenHeight }, maxQualityIndex, new WebXVersion(majorVersion, minorVersion, patchVersion), canResizeScreen);
+    // Read the keyboardLayoutName value if the buffer contains it
+    let keyboardLayoutName: string = null;
+    if (buffer.bufferLength - buffer.readOffset >= 4) {
+      const keyboardLayoutNameLength: number = buffer.getUint32();
+      keyboardLayoutName = buffer.getString(keyboardLayoutNameLength);
+    }
+
+    return new WebXScreenMessage(commandId, { width: screenWidth, height: screenHeight }, maxQualityIndex, new WebXVersion(majorVersion, minorVersion, patchVersion), canResizeScreen, keyboardLayoutName);
   }
 
   /**

@@ -69,6 +69,11 @@ export enum WebXInstructionType {
    * Instruction to request a screen resize
    */
   SCREEN_RESIZE = 13,
+
+  /**
+   * Instruction to request a change in keyboard layouts
+   */
+  KEYBOARD_LAYOUT = 14,
 }
 
 export namespace WebXInstructionType {

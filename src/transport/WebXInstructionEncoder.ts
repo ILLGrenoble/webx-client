@@ -12,7 +12,9 @@ import {
   WebXPongInstruction,
   WebXDataAckInstruction,
   WebXClipboardInstruction,
-  WebXShapeInstruction, WebXScreenResizeInstruction,
+  WebXShapeInstruction,
+  WebXScreenResizeInstruction,
+  WebXKeyboardLayoutInstruction,
 } from '../instruction';
 import {WebXInstructionBuffer} from "./WebXInstructionBuffer";
 
@@ -67,6 +69,9 @@ export class WebXInstructionEncoder {
 
     } else if (instruction.type === WebXInstructionType.SCREEN_RESIZE) {
       return this._createScreenResizeInstruction(instruction as WebXScreenResizeInstruction);
+
+    } else if (instruction.type === WebXInstructionType.KEYBOARD_LAYOUT) {
+      return this._createKeyboardLayoutInstruction(instruction as WebXKeyboardLayoutInstruction);
     }
     return null;
   }
@@ -321,8 +326,8 @@ export class WebXInstructionEncoder {
   }
 
   /**
-   * Create a new shape instruction
-   * @param instruction the shape instruction to encode
+   * Create a new screen resize instruction
+   * @param instruction the screen resize instruction to encode
    * Structure:
    *   Header: 32 bytes
    *    sessionId: 16 bytes
@@ -342,4 +347,29 @@ export class WebXInstructionEncoder {
       .putUInt32(instruction.height)
       .buffer();
   }
+
+  /**
+   * Create a new keyboard layout instruction
+   * @param instruction the keyboard layout instruction to encode
+   * Structure:
+   *   Header: 32 bytes
+   *    sessionId: 16 bytes
+   *    clientId: 4 bytes
+   *    type: 4 bytes
+   *    id: 4 bytes
+   *    padding: 4 bytes
+   *   Content:
+   *     keyboardLayoutLength: 4 bytes
+   *     keyboardLayout: N bytes
+   */
+  private _createKeyboardLayoutInstruction(instruction: WebXKeyboardLayoutInstruction): ArrayBuffer {
+    const length = 4 + instruction.keyboardLayout.length;
+    const encoder = new WebXInstructionBuffer(instruction, length);
+    return encoder
+      // write the contents
+      .putUInt32(instruction.keyboardLayout.length)
+      .putString(instruction.keyboardLayout)
+      .buffer();
+  }
+
 }

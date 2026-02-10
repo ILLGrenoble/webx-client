@@ -3,18 +3,22 @@ import {
   WebXClipboardInstruction,
   WebXInstruction,
   WebXKeyboardInstruction,
+  WebXKeyboardLayoutInstruction,
   WebXMouseInstruction,
   WebXQualityInstruction,
-  WebXScreenInstruction, WebXScreenResizeInstruction,
+  WebXScreenInstruction,
+  WebXScreenResizeInstruction,
   WebXWindowsInstruction,
 } from './instruction';
 import {
-  WebXClipboardMessage, WebXConnectionMessage,
+  WebXClipboardMessage,
+  WebXConnectionMessage,
   WebXImageMessage,
   WebXMessage,
   WebXMessageType,
   WebXMouseMessage,
-  WebXScreenMessage, WebXScreenResizeMessage,
+  WebXScreenMessage,
+  WebXScreenResizeMessage,
   WebXShapeMessage,
   WebXSubImagesMessage,
   WebXWindowsMessage,
@@ -67,6 +71,7 @@ export class WebXClient {
   private _connectionHandler = new WebXConnectionHandler();
   private _maxQualityIndex: number = 10;
   private _canResizeScreen: boolean = false;
+  private _keyboardLayoutName: string;
 
   /**
    * Gets the WebXTunnel instance used for communication with the WebX Engine.
@@ -116,6 +121,13 @@ export class WebXClient {
    */
   get maxQualityIndex(): number {
     return this._maxQualityIndex;
+  }
+
+  /**
+   * Gets the keyboard layout name
+   */
+  get keyboardLayoutName(): string {
+    return this._keyboardLayoutName;
   }
 
   /**
@@ -172,11 +184,12 @@ export class WebXClient {
 
       // Request 1. : Get screen size
       const screenMessage = await this._getScreenMessage();
-      const { screenSize, maxQualityIndex, engineVersion, canResizeScreen } = screenMessage;
+      const { screenSize, maxQualityIndex, engineVersion, canResizeScreen, keyboardLayoutName } = screenMessage;
       const { width, height } = screenSize;
       this._maxQualityIndex = maxQualityIndex;
       WebXEngine.version = engineVersion;
       this._canResizeScreen = canResizeScreen;
+      this._keyboardLayoutName = keyboardLayoutName;
 
       // Initialise the display
       this._display = this.createDisplay(containerElement, width, height);
@@ -379,6 +392,18 @@ export class WebXClient {
    */
   canResizeScreen(): boolean {
     return WebXEngine.version.versionNumber >= 1.5 && this._canResizeScreen;
+  }
+
+  /**
+   * Requests a change in the keyboard layout.
+   *
+   * @param layout the keyboard layout
+   */
+  setKeyboardLayout(layout: string): void {
+    if (WebXEngine.version.versionNumber >= 1.5) {
+      const keyboardLayoutInstruction = new WebXKeyboardLayoutInstruction(layout);
+      this._sendInstruction(keyboardLayoutInstruction);
+    }
   }
 
   /**
