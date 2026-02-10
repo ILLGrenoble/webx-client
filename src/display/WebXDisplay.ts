@@ -256,9 +256,10 @@ export class WebXDisplay {
   }
 
   /**
-   * Resizes the display
-   * @param width
-   * @param height
+   * Resizes the display to the new screen size
+   *
+   * @param width the new screen width
+   * @param height the new screen height
    */
   onScreenResized(width: number, height: number): void {
     if (this._screenWidth != width || this._screenHeight != height) {
