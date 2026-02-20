@@ -417,6 +417,15 @@ export class WebXClient {
   }
 
   /**
+   * Returns true if the WebXEngine is capable of changing the keyboard layout
+   *
+   * @returns True if keyboard changing is available
+   */
+  canChangeKeyboardLayout(): boolean {
+    return WebXEngine.version.versionNumber >= 1.5;
+  }
+
+  /**
    * Retrieves the screen message from the WebX Engine.
    *
    * This method attempts to get the screen message, retrying up to 3 times

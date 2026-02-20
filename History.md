@@ -1,3 +1,7 @@
+1.14.1 20/02/2026
+=================
+ * Add canChangeKeyboardLayout to WebXClient
+
 1.14.0 10/02/2026
 =================
  * Listen to keyboard layout messages from the server. Forward layout to custom layout handlers
